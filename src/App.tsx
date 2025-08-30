@@ -15,7 +15,7 @@ import ChitoorProjects from './pages/ChitoorProjects';
 import Admin from './pages/Admin';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 
 // Finance route is handled by PrivateRoute, so this is no longer needed
 
