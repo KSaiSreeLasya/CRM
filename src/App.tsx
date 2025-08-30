@@ -12,6 +12,7 @@ import ServiceTickets from './pages/ServiceTickets';
 import TelanganaProjects from './pages/TelanganaProjects';
 import APProjects from './pages/APProjects';
 import ChitoorProjects from './pages/ChitoorProjects';
+import Admin from './pages/Admin';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -187,6 +188,16 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <Layout>
                       <ChitoorProjects />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <Admin />
                     </Layout>
                   </PrivateRoute>
                 }

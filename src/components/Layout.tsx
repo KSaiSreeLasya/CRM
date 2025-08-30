@@ -97,13 +97,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   };
 
-  const navigationItems = [
-    { icon: '📊', label: 'Dashboard', to: '/dashboard' },
-    { icon: '📈', label: 'Projects', to: '/projects' },
-    { icon: '📦', label: 'Modules', to: '/modules' },
-    { icon: '🎫', label: 'Service Tickets', to: '/service-tickets' },
-  ];
-
   const stateProjects = [
     { icon: '🏢', label: 'TELANGANA', to: '/projects/telangana' },
     { icon: '🏛️', label: 'AP', to: '/projects/ap' },
@@ -138,17 +131,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </Box>
 
         <VStack spacing={2} px={4} flex="1">
-          {navigationItems.map((item) => (
-            <NavItem
-              key={item.to}
-              icon={item.icon}
-              label={item.label}
-              to={item.to}
-              isActive={location.pathname === item.to || location.pathname.includes(item.to)}
-              onClick={onClose}
-            />
-          ))}
-
           <Box w="full" my={4}>
             <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
               STATE PROJECTS
@@ -164,6 +146,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               onClick={onClose}
             />
           ))}
+
+          {isAdmin && (
+            <>
+              <Box w="full" my={4}>
+                <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
+                  ADMINISTRATION
+                </Text>
+              </Box>
+              <NavItem
+                icon="⚙️"
+                label="Admin Dashboard"
+                to="/admin"
+                isActive={location.pathname === '/admin'}
+                onClick={onClose}
+              />
+            </>
+          )}
 
           {isFinance && (
             <>
