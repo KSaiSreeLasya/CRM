@@ -86,6 +86,10 @@ interface FilterOptions {
   value: string;
 }
 
+interface ProjectsProps {
+  stateFilter?: string;
+}
+
 // Utility function to calculate elapsed time since start date
 const calculateElapsedTime = (startDateStr: string | null) => {
   if (!startDateStr) return 'N/A';
@@ -116,7 +120,7 @@ const calculateElapsedTime = (startDateStr: string | null) => {
   return `${diffYears} years`;
 };
 
-const Projects = () => {
+const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
@@ -161,6 +165,11 @@ const Projects = () => {
         .select('*')
         .neq('status', 'deleted');
 
+      // Apply state filter if provided
+      if (stateFilter) {
+        query = query.ilike('state', `%${stateFilter}%`);
+      }
+
       const { data, error } = await query.order('created_at', { ascending: false });
       
       if (error) {
@@ -191,7 +200,7 @@ const Projects = () => {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, stateFilter]);
 
   useEffect(() => {
     fetchProjects();
@@ -494,10 +503,11 @@ const Projects = () => {
         <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
           <Box>
             <Heading size="lg" color="gray.800" mb={2}>
-              Projects Management
+              {stateFilter ? `${stateFilter} Projects` : 'Projects Management'}
             </Heading>
             <Text color="gray.600">
               {projects.length} of {allProjects.length} projects
+              {stateFilter && ` in ${stateFilter}`}
             </Text>
           </Box>
           <Button
