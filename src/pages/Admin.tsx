@@ -105,8 +105,8 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, color, helpTe
   );
 };
 
-const Admin = () => {
-  const { user, isAdmin } = useAuth();
+// Admin Dashboard Component (only renders when authorized)
+const AdminDashboard = () => {
   const [assignments, setAssignments] = useState<ProjectAssignment[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
@@ -191,11 +191,6 @@ const Admin = () => {
   useEffect(() => {
     fetchAssignments();
   }, [fetchAssignments]);
-
-  // Check if user is admin after all hooks
-  if (!isAdmin || user?.email !== 'admin@axisogreen.in') {
-    return <Navigate to="/dashboard" replace />;
-  }
 
   const handleStatesChange = (states: string[]) => {
     setNewAssignment(prev => ({
@@ -710,6 +705,18 @@ const Admin = () => {
       </Modal>
     </Box>
   );
+};
+
+// Main Admin component with authorization check
+const Admin = () => {
+  const { user, isAdmin } = useAuth();
+
+  // Check if user is admin
+  if (!isAdmin || user?.email !== 'admin@axisogreen.in') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <AdminDashboard />;
 };
 
 export default Admin;

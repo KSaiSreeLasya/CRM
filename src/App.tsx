@@ -17,16 +17,7 @@ import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
-// Create a finance route component that only checks for authentication
-const FinanceRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{children}</>;
-};
+// Finance route is handled by PrivateRoute, so this is no longer needed
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
