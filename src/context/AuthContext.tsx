@@ -68,34 +68,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('id', session.user.id)
         .single();
 
-      if (userError) {
-        // If user doesn't exist in users table, create them
-        if (userError.code === 'PGRST116') {
-          // If it's the finance user, set their role accordingly
-          const role = session.user.email === 'dhanush@axisogreen.in' ? 'finance' : 'user';
-          
-          const { error: insertError } = await supabase
-            .from('users')
-            .insert({
-              id: session.user.id,  // Explicitly include the ID
-              email: session.user.email,
-              role: role // Set appropriate role
-            });
-
-          if (insertError) {
-            console.error('Error creating user:', insertError);
-            // Continue with authentication but log the error
-          }
-          
-          // We know this is not an admin user since we're creating it as 'finance' or 'user'
-          setIsAdmin(false);
-        } else {
-          console.error('Error fetching user role:', userError);
-          setIsAdmin(false);
-        }
+      let adminFlag = false;
+      if (!userError && userData) {
+        adminFlag = (userData as any)?.role === 'admin';
       } else {
-        setIsAdmin(userData?.role === 'admin');
+        console.warn('User role not found or users table missing; defaulting to non-admin.', (userError as any)?.message || userError);
       }
+      setIsAdmin(adminFlag);
 
       setUser(session.user);
       setIsAuthenticated(true);
@@ -177,30 +156,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .eq('email', email)
           .single();
 
-        if (userError) {
-          // If user doesn't exist, create one with appropriate role
-          const role = email === 'dhanush@axisogreen.in' ? 'finance' : 'user';
-          
-          const { error: insertError } = await supabase
-            .from('users')
-            .insert([{ 
-              id: data.user.id,  // Explicitly set the id from auth
-              email, 
-              role 
-            }]);
-
-          if (insertError) {
-            console.error('Error creating user record:', insertError);
-            // Continue with login even if user record creation fails
-          } else {
-            console.log('Created new user record successfully');
-          }
-          
-          // We know this is not an admin user since we're creating it as 'finance' or 'user'
-          setIsAdmin(false);
+        let adminFlag = false;
+        if (!userError && userData) {
+          adminFlag = (userData as any).role === 'admin';
         } else {
-          setIsAdmin(userData.role === 'admin');
+          console.warn('Users table record not found; skipping insert to avoid RLS errors.', (userError as any)?.message || userError);
         }
+        setIsAdmin(adminFlag);
 
         toast({
           title: 'Login successful',
@@ -213,10 +175,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         navigate('/dashboard');
       }
     } catch (error: any) {
-      console.error('Login error:', error);
+      const message = (error && (error as any).message) || String(error);
+      console.error('Login error:', message, error);
       toast({
         title: 'Login failed',
-        description: error.message,
+        description: message,
         status: 'error',
         duration: 5000,
         isClosable: true,

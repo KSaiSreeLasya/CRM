@@ -9,20 +9,15 @@ import Reports from './components/Reports';
 import Finance from './pages/Finance';
 import Payments from './pages/Payments';
 import ServiceTickets from './pages/ServiceTickets';
+import TelanganaProjects from './pages/TelanganaProjects';
+import APProjects from './pages/APProjects';
+import ChitoorProjects from './pages/ChitoorProjects';
+import Admin from './pages/Admin';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 
-// Create a finance route component that only checks for authentication
-const FinanceRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{children}</>;
-};
+// Finance route is handled by PrivateRoute, so this is no longer needed
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -154,6 +149,46 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <Layout>
                       <ServiceTickets />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects/telangana"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <TelanganaProjects />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects/ap"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <APProjects />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects/chitoor"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <ChitoorProjects />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <Admin />
                     </Layout>
                   </PrivateRoute>
                 }

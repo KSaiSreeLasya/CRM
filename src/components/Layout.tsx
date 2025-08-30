@@ -24,6 +24,8 @@ import {
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDownIcon } from '@chakra-ui/icons';
+import DashboardHeader from './DashboardHeader';
+import NavigationHeader from './NavigationHeader';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -67,7 +69,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, isActive, onClick })
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
-  const { logout, isFinance, user } = useAuth();
+  const { logout, isFinance, isAdmin, user } = useAuth();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -95,12 +97,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   };
 
-  const navigationItems = [
-    { icon: '📊', label: 'Dashboard', to: '/dashboard' },
-    { icon: '📈', label: 'Projects', to: '/projects' },
-    { icon: '📦', label: 'Modules', to: '/modules' },
-    { icon: '📋', label: 'Reports', to: '/reports' },
-    { icon: '🎫', label: 'Service Tickets', to: '/service-tickets' },
+  const stateProjects = [
+    { icon: '🏢', label: 'TELANGANA', to: '/projects/telangana' },
+    { icon: '🏛️', label: 'AP', to: '/projects/ap' },
+    { icon: '🏗️', label: 'CHITOOR', to: '/projects/chitoor' },
   ];
 
   const financeItems = [
@@ -131,7 +131,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </Box>
 
         <VStack spacing={2} px={4} flex="1">
-          {navigationItems.map((item) => (
+          <Box w="full" my={4}>
+            <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
+              STATE PROJECTS
+            </Text>
+          </Box>
+          {stateProjects.map((item) => (
             <NavItem
               key={item.to}
               icon={item.icon}
@@ -141,6 +146,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               onClick={onClose}
             />
           ))}
+
+          {isAdmin && (
+            <>
+              <Box w="full" my={4}>
+                <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
+                  ADMINISTRATION
+                </Text>
+              </Box>
+              <NavItem
+                icon="⚙️"
+                label="Admin Dashboard"
+                to="/admin"
+                isActive={location.pathname === '/admin'}
+                onClick={onClose}
+              />
+            </>
+          )}
 
           {isFinance && (
             <>
@@ -224,7 +246,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </Flex>
         <IconButton
           aria-label="Open menu"
-          icon={<Text>☰</Text>}
+          icon={<Text>��</Text>}
           variant="ghost"
           onClick={onOpen}
         />
@@ -263,6 +285,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           ml={{ base: 0, lg: '280px' }}
           transition="margin-left 0.2s"
         >
+          {/* Navigation Header */}
+          <NavigationHeader />
+
+          {/* Dashboard Header */}
+          <DashboardHeader />
+
+          {/* Page Content */}
           <Box p={6}>
             {children}
           </Box>
