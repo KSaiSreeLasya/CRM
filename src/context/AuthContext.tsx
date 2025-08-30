@@ -47,15 +47,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
+      const sessionEmail = (session.user.email || '').toLowerCase();
+
       // Check if the user is the finance user
-      if (session.user.email === 'dhanush@axisogreen.in') {
+      if (sessionEmail === 'dhanush@axisogreen.in') {
         setIsFinance(true);
       } else {
         setIsFinance(false);
       }
 
       // Check if the user has edit permissions (admin or contact)
-      if (session.user.email === 'admin@axisogreen.in' || session.user.email === 'contact@axisogreen.in') {
+      if (sessionEmail === 'admin@axisogreen.in' || sessionEmail === 'contact@axisogreen.in') {
         setIsEditor(true);
       } else {
         setIsEditor(false);
@@ -124,9 +126,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const cleanedPassword = password.trim();
+
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: normalizedEmail,
+        password: cleanedPassword,
       });
 
       if (error) throw error;
@@ -134,33 +139,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
-        
+
         // Check if the user is the finance user
-        if (email === 'dhanush@axisogreen.in') {
+        if (normalizedEmail === 'dhanush@axisogreen.in') {
           setIsFinance(true);
         } else {
           setIsFinance(false);
         }
 
         // Check if the user has edit permissions
-        if (email === 'admin@axisogreen.in' || email === 'contact@axisogreen.in') {
+        if (normalizedEmail === 'admin@axisogreen.in' || normalizedEmail === 'contact@axisogreen.in') {
           setIsEditor(true);
         } else {
           setIsEditor(false);
         }
-        
-        // Check if user exists in users table
+
+        // Check if user exists in users table by user id
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role')
-          .eq('email', email)
+          .eq('id', data.user.id)
           .single();
 
         let adminFlag = false;
         if (!userError && userData) {
           adminFlag = (userData as any).role === 'admin';
-        } else {
-          console.warn('Users table record not found; skipping insert to avoid RLS errors.', (userError as any)?.message || userError);
+        } else if (userError) {
+          console.warn('User role lookup failed; defaulting to non-admin.', (userError as any)?.message || userError);
         }
         setIsAdmin(adminFlag);
 
@@ -170,7 +175,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           duration: 3000,
           isClosable: true,
         });
-        
+
         // Redirect all users to dashboard
         navigate('/dashboard');
       }
