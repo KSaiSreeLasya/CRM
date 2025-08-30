@@ -86,7 +86,7 @@ interface FilterOptions {
   value: string;
 }
 
-interface ProjectsProps {
+export interface ProjectsProps {
   stateFilter?: string;
 }
 
