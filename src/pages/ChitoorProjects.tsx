@@ -23,7 +23,6 @@ import {
   Select,
   Badge,
   useToast,
-  HStack,
   Text,
   Flex,
   Heading,
@@ -32,9 +31,7 @@ import {
   SimpleGrid,
   useColorModeValue,
   Divider,
-  Stack,
 } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { AddIcon } from '@chakra-ui/icons';
 
@@ -107,7 +104,6 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, color, helpTe
 const ChitoorProjects = () => {
   const [projects, setProjects] = useState<ChitoorProject[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const navigate = useNavigate();
   const [newProject, setNewProject] = useState({
     sl_no: '',
     customer_name: '',

@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 import Projects from '../components/Projects';
-import Dashboard from '../pages/Dashboard';
 
 interface Project {
   id: string;
