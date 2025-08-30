@@ -9,6 +9,9 @@ import Reports from './components/Reports';
 import Finance from './pages/Finance';
 import Payments from './pages/Payments';
 import ServiceTickets from './pages/ServiceTickets';
+import TelanganaProjects from './pages/TelanganaProjects';
+import APProjects from './pages/APProjects';
+import ChitoorProjects from './pages/ChitoorProjects';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -154,6 +157,36 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <Layout>
                       <ServiceTickets />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects/telangana"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <TelanganaProjects />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects/ap"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <APProjects />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects/chitoor"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <ChitoorProjects />
                     </Layout>
                   </PrivateRoute>
                 }
