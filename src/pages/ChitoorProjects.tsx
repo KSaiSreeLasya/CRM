@@ -515,24 +515,28 @@ const ChitoorProjects = () => {
 
                 <FormControl isRequired>
                   <FormLabel fontSize="sm" fontWeight="medium">Capacity (kW) <Text as="span" color="red.500">*</Text></FormLabel>
-                  <Input
+                  <Select
                     name="capacity"
-                    type="number"
                     value={newProject.capacity}
                     onChange={handleInputChange}
-                    placeholder="0"
-                  />
+                    placeholder="Select capacity"
+                  >
+                    <option value="2">2 kW</option>
+                    <option value="3">3 kW</option>
+                  </Select>
                 </FormControl>
 
                 <FormControl isRequired>
                   <FormLabel fontSize="sm" fontWeight="medium">Project Cost (₹) <Text as="span" color="red.500">*</Text></FormLabel>
-                  <Input
+                  <Select
                     name="project_cost"
-                    type="number"
                     value={newProject.project_cost}
                     onChange={handleInputChange}
-                    placeholder="0"
-                  />
+                    placeholder="Select total amount"
+                  >
+                    <option value="205000">₹2,05,000</option>
+                    <option value="140000">₹1,40,000</option>
+                  </Select>
                 </FormControl>
 
                 <FormControl>
@@ -548,12 +552,15 @@ const ChitoorProjects = () => {
 
                 <FormControl>
                   <FormLabel fontSize="sm" fontWeight="medium">Subsidy Scope</FormLabel>
-                  <Input
+                  <Select
                     name="subsidy_scope"
                     value={newProject.subsidy_scope}
                     onChange={handleInputChange}
-                    placeholder="Subsidy details"
-                  />
+                    placeholder="Select subsidy scope"
+                  >
+                    <option value="Axiso">Axiso</option>
+                    <option value="Customer (in Chitoor)">Customer (in Chitoor)</option>
+                  </Select>
                 </FormControl>
 
                 <FormControl>
