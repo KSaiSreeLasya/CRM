@@ -99,8 +99,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { icon: '📊', label: 'Dashboard', to: '/dashboard' },
     { icon: '📈', label: 'Projects', to: '/projects' },
     { icon: '📦', label: 'Modules', to: '/modules' },
-    { icon: '📋', label: 'Reports', to: '/reports' },
     { icon: '🎫', label: 'Service Tickets', to: '/service-tickets' },
+  ];
+
+  const stateProjects = [
+    { icon: '🏢', label: 'TELANGANA', to: '/projects/telangana' },
+    { icon: '🏛️', label: 'AP', to: '/projects/ap' },
+    { icon: '🏗️', label: 'CHITOOR', to: '/projects/chitoor' },
   ];
 
   const financeItems = [
