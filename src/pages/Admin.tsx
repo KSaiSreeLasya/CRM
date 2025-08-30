@@ -17,7 +17,6 @@ import {
   CloseButton,
   FormControl,
   FormLabel,
-  Input,
   VStack,
   TableContainer,
   Select,
@@ -128,11 +127,6 @@ const Admin = () => {
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
 
-  // Check if user is admin
-  if (!isAdmin || user?.email !== 'admin@axisogreen.in') {
-    return <Navigate to="/dashboard" replace />;
-  }
-
   const availableAssignees = [
     { email: 'yellesh@axisogreen.in', name: 'Yellesh' },
     { email: 'dhanush@axisogreen.in', name: 'Dhanush' },
@@ -198,13 +192,10 @@ const Admin = () => {
     fetchAssignments();
   }, [fetchAssignments]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setNewAssignment(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  // Check if user is admin after all hooks
+  if (!isAdmin || user?.email !== 'admin@axisogreen.in') {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const handleStatesChange = (states: string[]) => {
     setNewAssignment(prev => ({
@@ -385,10 +376,6 @@ const Admin = () => {
         isClosable: true,
       });
     }
-  };
-
-  const getAssigneeInfo = (email: string) => {
-    return availableAssignees.find(a => a.email === email);
   };
 
   return (
