@@ -8,6 +8,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 interface NavButtonProps {
   icon: string;
@@ -51,6 +52,7 @@ const NavButton: React.FC<NavButtonProps> = ({ icon, label, to, isActive }) => {
 
 const NavigationHeader = () => {
   const location = useLocation();
+  const { isAdmin } = useAuth();
   const headerBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
 
@@ -59,6 +61,7 @@ const NavigationHeader = () => {
     { icon: '📈', label: 'Projects', to: '/projects' },
     { icon: '📦', label: 'Modules', to: '/modules' },
     { icon: '🎫', label: 'Service Tickets', to: '/service-tickets' },
+    ...(isAdmin ? [{ icon: '⚙️', label: 'Admin', to: '/admin' }] : []),
   ];
 
   return (
