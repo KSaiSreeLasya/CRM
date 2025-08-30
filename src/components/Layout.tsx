@@ -25,6 +25,7 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import DashboardHeader from './DashboardHeader';
+import NavigationHeader from './NavigationHeader';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -285,6 +286,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           ml={{ base: 0, lg: '280px' }}
           transition="margin-left 0.2s"
         >
+          {/* Navigation Header */}
+          <NavigationHeader />
+
           {/* Dashboard Header */}
           <DashboardHeader />
 

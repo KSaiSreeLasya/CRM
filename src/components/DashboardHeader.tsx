@@ -160,7 +160,7 @@ const DashboardHeader = () => {
         />
         <HeaderStatsCard
           title="Total Capacity"
-          value={`${globalStats.totalCapacity} kW`}
+          value={`${globalStats.totalCapacity.toFixed(2)} kW`}
           icon="⚡"
           color="yellow"
           helpText="Energy capacity"
