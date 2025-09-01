@@ -60,7 +60,6 @@ const NavigationHeader = () => {
     { icon: '📊', label: 'Dashboard', to: '/dashboard' },
     { icon: '📈', label: 'Projects', to: '/projects' },
     { icon: '📦', label: 'Modules', to: '/modules' },
-    { icon: '📑', label: 'Reports', to: '/reports' },
     { icon: '🎫', label: 'Service Tickets', to: '/service-tickets' },
     ...(isAdmin ? [{ icon: '⚙️', label: 'Admin', to: '/admin' }] : []),
   ];
