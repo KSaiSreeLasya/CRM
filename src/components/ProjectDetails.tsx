@@ -43,6 +43,15 @@ import { PROJECT_STAGES } from '../lib/constants';
 import { useAuth } from '../context/AuthContext';
 import { EditIcon } from '@chakra-ui/icons';
 
+// State mapping function to convert abbreviations to full names
+const mapStateToFullName = (state: string): string => {
+  const stateMapping: Record<string, string> = {
+    'TG': 'Telangana',
+    'AP': 'Andhra Pradesh'
+  };
+  return stateMapping[state] || state;
+};
+
 interface Assignment {
   id: number;
   customer_name: string;
