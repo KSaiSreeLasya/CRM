@@ -303,6 +303,22 @@ const Dashboard = () => {
     return colors[stageIndex] || 'gray';
   };
 
+  // Stock and logistics summary tiles
+  const StockSummaryCard: React.FC = () => {
+    const [count, setCount] = useState<number | null>(null);
+    useEffect(() => { (async () => { try { const { data } = await supabase.from('warehouse_stock').select('id'); setCount((data || []).length); } catch { setCount(null); } })(); }, []);
+    return (
+      <StatsCard title="Stock Items" value={count === null ? '-' : count} icon="📦" color="cyan" helpText="Warehouse" />
+    );
+  };
+  const LogisticsSummaryCard: React.FC = () => {
+    const [pending, setPending] = useState<number | null>(null);
+    useEffect(() => { (async () => { try { const { data } = await supabase.from('logistics').select('status'); const n = (data || []).filter((r: any) => (r.status || '').toLowerCase() !== 'delivered').length; setPending(n); } catch { setPending(null); } })(); }, []);
+    return (
+      <StatsCard title="Pending Shipments" value={pending === null ? '-' : pending} icon="🚚" color="teal" helpText="Logistics" />
+    );
+  };
+
   return (
     <Box>
       <VStack spacing={8} align="stretch">
