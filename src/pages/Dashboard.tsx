@@ -163,7 +163,7 @@ const Dashboard = () => {
       setIsLoading(true);
       
       console.log('Fetching projects from Supabase...');
-      const { data: projects, error } = await supabase
+      const { data: projectsData, error } = await supabase
         .from('projects')
         .select('*')
         .neq('status', 'deleted');
