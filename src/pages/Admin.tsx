@@ -736,4 +736,49 @@ const Admin = () => {
   return <AdminDashboard />;
 };
 
+// Lightweight invite form using magic link (client-safe)
+const InviteUserForm: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [sending, setSending] = useState(false);
+  const toast = useToast();
+
+  const sendInvite = async () => {
+    if (!email) {
+      toast({ title: 'Enter email', status: 'warning' });
+      return;
+    }
+    try {
+      setSending(true);
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim().toLowerCase(),
+        options: { emailRedirectTo: window.location.origin + '/login' }
+      });
+      if (error) throw error;
+      toast({ title: 'Invite sent', description: 'User will receive a magic link to sign in.', status: 'success' });
+      setEmail('');
+    } catch (err: any) {
+      toast({ title: 'Failed to send invite', description: err.message || String(err), status: 'error' });
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardBody>
+        <HStack gap={3} align="start">
+          <Box flex={1}>
+            <FormControl>
+              <FormLabel>Email</FormLabel>
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="user@axisogreen.in" />
+            </FormControl>
+            <Text fontSize="xs" color="gray.500" mt={1}>We will email a sign-in link. After first login, assign regions above.</Text>
+          </Box>
+          <Button colorScheme="green" onClick={sendInvite} isLoading={sending}>Send Invite</Button>
+        </HStack>
+      </CardBody>
+    </Card>
+  );
+};
+
 export default Admin;
