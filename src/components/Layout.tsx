@@ -99,10 +99,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Map regions to navigation items
   const allStateProjects = [
-    { icon: '📊', label: 'ALL PROJECTS', to: '/projects', region: 'all' },
-    { icon: '🏢', label: 'TG', to: '/projects/telangana', region: 'Telangana' },
-    { icon: '🏛️', label: 'AP', to: '/projects/ap', region: 'Andhra Pradesh' },
-    { icon: '🏗️', label: 'CHITOOR', to: '/projects/chitoor', region: 'Chitoor' },
+    { icon: '📊', label: 'ALL PROJECTS', to: '/reports?region=all', region: 'all' },
+    { icon: '🏢', label: 'TG', to: '/reports?region=tg', region: 'Telangana' },
+    { icon: '🏛️', label: 'AP', to: '/reports?region=ap', region: 'Andhra Pradesh' },
+    { icon: '🏗️', label: 'CHITOOR', to: '/reports?region=chitoor', region: 'Chitoor' },
   ];
 
   // Filter state projects based on user's assigned regions
