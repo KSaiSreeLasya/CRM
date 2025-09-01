@@ -146,7 +146,7 @@ const TelanganaProjects = () => {
             value={stats.totalProjects}
             icon="📋"
             color="blue"
-            helpText="All Telangana projects"
+            helpText="All TG projects"
           />
           <StatsCard
             title="Active Projects"
