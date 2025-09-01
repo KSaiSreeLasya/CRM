@@ -405,6 +405,8 @@ const Dashboard = () => {
             color="yellow"
             helpText="Energy capacity"
           />
+          {React.createElement(StockSummaryCard)}
+          {React.createElement(LogisticsSummaryCard)}
         </SimpleGrid>
 
         {/* Active Projects Table */}
