@@ -350,7 +350,7 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
         email: newProject.email,
         phone: newProject.phone,
         address: newProject.address,
-        state: newProject.state,
+        state: mapStateToFullName(newProject.state),
         project_type: newProject.project_type,
         payment_mode: newProject.payment_mode,
         proposal_amount: proposal,
