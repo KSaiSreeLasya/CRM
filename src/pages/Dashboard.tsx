@@ -176,29 +176,36 @@ const Dashboard = () => {
       console.log('Projects fetched:', projectsData);
 
       if (projectsData) {
+        // Apply region filter for non-admins
+        let projects = projectsData as any[];
+        if (!isAdmin && assignedRegions && assignedRegions.length > 0) {
+          const allowed = new Set(assignedRegions.map(s => (s || '').toLowerCase()));
+          projects = projects.filter(p => allowed.has((p.state || '').toLowerCase()));
+        }
+
         // Log all possible status values to debug
         const allStatusesMap: Record<string, boolean> = {};
-        projects.forEach(p => {
+        (projects as Project[]).forEach(p => {
           if (p.status) allStatusesMap[p.status] = true;
         });
         const allStatuses = Object.keys(allStatusesMap);
         console.log('All status values found in DB:', allStatuses);
-        
+
         // Filter projects for selected year WITHOUT filtering by status yet
-        const yearProjects = projects.filter((project: Project) => {
+        const yearProjects = (projects as Project[]).filter((project: Project) => {
           const projectDate = new Date(project.start_date || project.created_at);
           return projectDate.getFullYear() === selectedYear;
         });
-        
+
         // Case-insensitive filtering for active projects
-        const activeProjects = projects.filter((p: Project) => 
+        const activeProjects = (projects as Project[]).filter((p: Project) =>
           typeof p.status === 'string' && p.status.toLowerCase() === 'active'
         );
         console.log('All active projects (case-insensitive):', activeProjects.length);
         console.log('Active project IDs:', activeProjects.map(p => p.id));
-        
+
         // Case-insensitive filtering for completed projects
-        const completedProjects = projects.filter((p: Project) => 
+        const completedProjects = (projects as Project[]).filter((p: Project) =>
           typeof p.status === 'string' && p.status.toLowerCase() === 'completed'
         );
 
