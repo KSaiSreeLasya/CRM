@@ -76,14 +76,19 @@ const LogisticsManager: React.FC = () => {
       if (error) throw error;
       setRows(data || []);
     } catch (err: any) {
-      console.error('Fetch logistics failed:', err);
+      const msg = err?.message || JSON.stringify(err);
+      console.error('Fetch logistics failed:', msg);
+      const isMissing = /relation .* does not exist|42P01/i.test(msg);
       toast({
-        title: 'Logistics table missing',
-        description: 'Create table "logistics" in Supabase with columns: id uuid pk, date date, item text, quantity numeric, from_location text, to_location text, status text, reference text, vehicle text.',
-        status: 'info',
-        duration: 6000,
+        title: isMissing ? 'Logistics table missing' : 'Failed to load logistics',
+        description: isMissing
+          ? 'Create table logistics (id uuid pk, date date, item text, quantity numeric, from_location text, to_location text, status text, reference text, vehicle text). Ensure RLS policies allow authenticated read/write.'
+          : msg,
+        status: isMissing ? 'info' : 'error',
+        duration: 7000,
         isClosable: true,
       });
+      setRows([]);
     }
   };
 
@@ -118,8 +123,9 @@ const LogisticsManager: React.FC = () => {
       setEditingId(null);
       fetchRows();
     } catch (err: any) {
-      console.error('Save logistics failed:', err);
-      toast({ title: 'Failed to save', description: err.message || String(err), status: 'error' });
+      const msg = err?.message || JSON.stringify(err);
+      console.error('Save logistics failed:', msg);
+      toast({ title: 'Failed to save', description: msg, status: 'error' });
     } finally {
       setLoading(false);
     }
@@ -136,7 +142,8 @@ const LogisticsManager: React.FC = () => {
       toast({ title: 'Deleted', status: 'success' });
       fetchRows();
     } catch (err: any) {
-      toast({ title: 'Failed to delete', description: err.message || String(err), status: 'error' });
+      const msg = err?.message || JSON.stringify(err);
+      toast({ title: 'Failed to delete', description: msg, status: 'error' });
     }
   };
 
