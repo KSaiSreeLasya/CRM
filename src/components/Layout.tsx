@@ -287,7 +287,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Main Content */}
         <Box
           flex="1"
-          ml={{ base: 0, lg: '280px' }}
+          ml={{ base: 0, lg: '240px' }}
           transition="margin-left 0.2s"
         >
           {/* Navigation Header */}
