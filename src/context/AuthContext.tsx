@@ -23,6 +23,7 @@ export const AuthContext = createContext<AuthContextType>({
   isEditor: false,
   user: null,
   isLoading: true,
+  assignedRegions: [],
   login: async () => {},
   logout: async () => {},
 });
