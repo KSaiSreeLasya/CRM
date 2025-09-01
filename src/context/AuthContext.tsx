@@ -199,6 +199,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         setIsAdmin(adminFlag);
 
+        // Fetch assigned regions for the user
+        const regions = await fetchUserAssignedRegions(normalizedEmail);
+        setAssignedRegions(regions);
+
         toast({
           title: 'Login successful',
           status: 'success',
