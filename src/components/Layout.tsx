@@ -113,8 +113,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Flex direction="column" h="full">
         <Box p={6}>
           <Flex align="center" justify="center" mb={8}>
-            <Text fontSize="4xl" mr={2}>🔋</Text>
-            <Text fontSize="3xl">🍃</Text>
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F17b62c267c5d4264aa0ef8f1668e3383?format=webp&width=800"
+              alt="Axiso Green Energy Logo"
+              style={{ height: '60px', width: 'auto' }}
+            />
           </Flex>
           <Text
             fontSize="lg"
@@ -239,10 +242,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         zIndex="sticky"
       >
         <Flex align="center">
-          <Text fontSize="2xl" mr={2}>🔋</Text>
-          <Text fontSize="lg" fontWeight="bold" color="green.600">
-            Axiso
-          </Text>
+          <img
+            src="https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F17b62c267c5d4264aa0ef8f1668e3383?format=webp&width=800"
+            alt="Axiso Green Energy Logo"
+            style={{ height: '32px', width: 'auto' }}
+          />
         </Flex>
         <IconButton
           aria-label="Open menu"
