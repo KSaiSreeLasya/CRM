@@ -81,8 +81,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsFinance(false);
       }
 
-      // Check if the user has edit permissions (admin or contact)
-      if (sessionEmail === 'admin@axisogreen.in' || sessionEmail === 'contact@axisogreen.in') {
+      // Check if the user has edit permissions (admin, contact, or yellesh)
+      if (
+        sessionEmail === 'admin@axisogreen.in' ||
+        sessionEmail === 'contact@axisogreen.in' ||
+        sessionEmail === 'yellesh@axisogreen.in'
+      ) {
         setIsEditor(true);
       } else {
         setIsEditor(false);
