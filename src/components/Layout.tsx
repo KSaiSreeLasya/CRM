@@ -105,10 +105,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Map regions to navigation items
   const allStateProjects = [
-    { icon: '📊', label: 'ALL PROJECTS', to: '/reports?region=all', region: 'all' },
-    { icon: '🏢', label: 'TG', to: '/reports?region=tg', region: 'Telangana' },
-    { icon: '🏛️', label: 'AP', to: '/reports?region=ap', region: 'Andhra Pradesh' },
-    { icon: '🏗️', label: 'CHITOOR', to: '/reports?region=chitoor', region: 'Chitoor' },
+    { icon: '📊', label: 'ALL PROJECTS', to: '/projects', region: 'all' },
+    { icon: '🏢', label: 'TG', to: '/projects/telangana', region: 'Telangana' },
+    { icon: '🏛️', label: 'AP', to: '/projects/ap', region: 'Andhra Pradesh' },
+    { icon: '🏗️', label: 'CHITOOR', to: '/projects/chitoor', region: 'Chitoor' },
   ];
 
   // Filter state projects based on user's assigned regions
@@ -164,27 +164,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               STATE PROJECTS
             </Text>
           </Box>
-          {stateProjects.map((item) => {
-            const getIsActive = (to: string) => {
-              if (to.startsWith('/reports')) {
-                const params = new URLSearchParams(location.search);
-                const region = params.get('region') || 'all';
-                const targetRegion = new URLSearchParams(to.split('?')[1] || '').get('region') || 'all';
-                return location.pathname === '/reports' && region === targetRegion;
-              }
-              return location.pathname === to || location.pathname.includes(to);
-            };
-            return (
-              <NavItem
-                key={item.to}
-                icon={item.icon}
-                label={item.label}
-                to={item.to}
-                isActive={getIsActive(item.to)}
-                onClick={onClose}
-              />
-            );
-          })}
+          {stateProjects.map((item) => (
+            <NavItem
+              key={item.to}
+              icon={item.icon}
+              label={item.label}
+              to={item.to}
+              isActive={location.pathname === item.to || location.pathname.includes(item.to)}
+              onClick={onClose}
+            />
+          ))}
 
           {isAdmin && (
             <>
