@@ -27,6 +27,7 @@ import { useAuth } from '../context/AuthContext';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import DashboardHeader from './DashboardHeader';
 import NavigationHeader from './NavigationHeader';
+import { supabase } from '../lib/supabase';
 
 interface LayoutProps {
   children: React.ReactNode;
