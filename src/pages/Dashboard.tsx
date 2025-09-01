@@ -173,9 +173,9 @@ const Dashboard = () => {
         throw error;
       }
 
-      console.log('Projects fetched:', projects);
+      console.log('Projects fetched:', projectsData);
 
-      if (projects) {
+      if (projectsData) {
         // Log all possible status values to debug
         const allStatusesMap: Record<string, boolean> = {};
         projects.forEach(p => {
