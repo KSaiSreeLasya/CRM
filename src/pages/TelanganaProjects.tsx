@@ -132,10 +132,10 @@ const TelanganaProjects = () => {
         {/* Header */}
         <Box>
           <Heading size="lg" color="gray.800" mb={2}>
-            Telangana Projects Dashboard
+            TG Projects Dashboard
           </Heading>
           <Text color="gray.600">
-            Overview and management of all Telangana state projects
+            Overview and management of all Telangana (TG) state projects
           </Text>
         </Box>
 
@@ -146,7 +146,7 @@ const TelanganaProjects = () => {
             value={stats.totalProjects}
             icon="📋"
             color="blue"
-            helpText="All Telangana projects"
+            helpText="All TG projects"
           />
           <StatsCard
             title="Active Projects"

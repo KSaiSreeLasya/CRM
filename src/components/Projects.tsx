@@ -120,6 +120,15 @@ const calculateElapsedTime = (startDateStr: string | null) => {
   return `${diffYears} years`;
 };
 
+// State mapping function to convert abbreviations to full names
+const mapStateToFullName = (state: string): string => {
+  const stateMapping: Record<string, string> = {
+    'TG': 'Telangana',
+    'AP': 'Andhra Pradesh'
+  };
+  return stateMapping[state] || state;
+};
+
 const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -130,7 +139,7 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
     email: '',
     phone: '',
     address: '',
-    state: 'Telangana',
+    state: 'TG',
     project_type: 'DCR',
     payment_mode: 'Cash',
     proposal_amount: '',
@@ -341,7 +350,7 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
         email: newProject.email,
         phone: newProject.phone,
         address: newProject.address,
-        state: newProject.state,
+        state: mapStateToFullName(newProject.state),
         project_type: newProject.project_type,
         payment_mode: newProject.payment_mode,
         proposal_amount: proposal,
@@ -385,7 +394,7 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
         email: '',
         phone: '',
         address: '',
-        state: 'Telangana',
+        state: 'TG',
         project_type: 'DCR',
         payment_mode: 'Cash',
         proposal_amount: '',
@@ -924,6 +933,9 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
                       state: e.target.value
                     }))}
                   >
+                    <option value="TG">TG (Telangana)</option>
+                    <option value="AP">AP (Andhra Pradesh)</option>
+                    <option disabled>─────────────</option>
                     <option value="Andhra Pradesh">Andhra Pradesh</option>
                     <option value="Arunachal Pradesh">Arunachal Pradesh</option>
                     <option value="Assam">Assam</option>

@@ -11,6 +11,7 @@ interface AuthContextType {
   isEditor: boolean;
   user: any | null;
   isLoading: boolean;
+  assignedRegions: string[];
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -22,6 +23,7 @@ export const AuthContext = createContext<AuthContextType>({
   isEditor: false,
   user: null,
   isLoading: true,
+  assignedRegions: [],
   login: async () => {},
   logout: async () => {},
 });
@@ -33,8 +35,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isEditor, setIsEditor] = useState(false);
   const [user, setUser] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [assignedRegions, setAssignedRegions] = useState<string[]>([]);
   const navigate = useNavigate();
   const toast = useToast();
+
+  // Function to fetch user's assigned regions
+  const fetchUserAssignedRegions = async (userEmail: string): Promise<string[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('project_assignments')
+        .select('assigned_states')
+        .eq('assignee_email', userEmail)
+        .single();
+
+      if (error) {
+        console.warn('No region assignments found for user:', userEmail);
+        return [];
+      }
+
+      return data?.assigned_states || [];
+    } catch (error) {
+      console.error('Error fetching assigned regions:', error);
+      return [];
+    }
+  };
 
   const handleAuthChange = async (session: Session | null) => {
     try {
@@ -44,18 +68,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsFinance(false);
         setIsEditor(false);
         setUser(null);
+        setAssignedRegions([]);
         return;
       }
 
+      const sessionEmail = (session.user.email || '').toLowerCase();
+
       // Check if the user is the finance user
-      if (session.user.email === 'dhanush@axisogreen.in') {
+      if (sessionEmail === 'dhanush@axisogreen.in') {
         setIsFinance(true);
       } else {
         setIsFinance(false);
       }
 
       // Check if the user has edit permissions (admin or contact)
-      if (session.user.email === 'admin@axisogreen.in' || session.user.email === 'contact@axisogreen.in') {
+      if (sessionEmail === 'admin@axisogreen.in' || sessionEmail === 'contact@axisogreen.in') {
         setIsEditor(true);
       } else {
         setIsEditor(false);
@@ -76,6 +103,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       setIsAdmin(adminFlag);
 
+      // Fetch assigned regions for the user
+      const regions = await fetchUserAssignedRegions(sessionEmail);
+      setAssignedRegions(regions);
+
       setUser(session.user);
       setIsAuthenticated(true);
     } catch (error) {
@@ -85,6 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsFinance(false);
       setIsEditor(false);
       setUser(null);
+      setAssignedRegions([]);
     }
   };
 
@@ -124,9 +156,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const cleanedPassword = password.trim();
+
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: normalizedEmail,
+        password: cleanedPassword,
       });
 
       if (error) throw error;
@@ -134,35 +169,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.user) {
         setUser(data.user);
         setIsAuthenticated(true);
-        
+
         // Check if the user is the finance user
-        if (email === 'dhanush@axisogreen.in') {
+        if (normalizedEmail === 'dhanush@axisogreen.in') {
           setIsFinance(true);
         } else {
           setIsFinance(false);
         }
 
         // Check if the user has edit permissions
-        if (email === 'admin@axisogreen.in' || email === 'contact@axisogreen.in') {
+        if (normalizedEmail === 'admin@axisogreen.in' || normalizedEmail === 'contact@axisogreen.in') {
           setIsEditor(true);
         } else {
           setIsEditor(false);
         }
-        
-        // Check if user exists in users table
+
+        // Check if user exists in users table by user id
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role')
-          .eq('email', email)
+          .eq('id', data.user.id)
           .single();
 
         let adminFlag = false;
         if (!userError && userData) {
           adminFlag = (userData as any).role === 'admin';
-        } else {
-          console.warn('Users table record not found; skipping insert to avoid RLS errors.', (userError as any)?.message || userError);
+        } else if (userError) {
+          console.warn('User role lookup failed; defaulting to non-admin.', (userError as any)?.message || userError);
         }
         setIsAdmin(adminFlag);
+
+        // Fetch assigned regions for the user
+        const regions = await fetchUserAssignedRegions(normalizedEmail);
+        setAssignedRegions(regions);
 
         toast({
           title: 'Login successful',
@@ -170,7 +209,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           duration: 3000,
           isClosable: true,
         });
-        
+
         // Redirect all users to dashboard
         navigate('/dashboard');
       }
@@ -195,6 +234,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsFinance(false);
       setIsEditor(false);
       setUser(null);
+      setAssignedRegions([]);
 
       // Try to sign out from Supabase, but don't fail if session is missing
       try {
@@ -237,7 +277,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isAdmin, isFinance, isEditor, user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isAdmin, isFinance, isEditor, user, isLoading, assignedRegions, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

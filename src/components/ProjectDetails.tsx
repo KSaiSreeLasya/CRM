@@ -8,6 +8,7 @@ import {
   Button,
   VStack,
   HStack,
+  Flex,
   Progress,
   Badge,
   Modal,
@@ -42,6 +43,15 @@ import { supabase } from '../lib/supabase';
 import { PROJECT_STAGES } from '../lib/constants';
 import { useAuth } from '../context/AuthContext';
 import { EditIcon } from '@chakra-ui/icons';
+
+// State mapping function to convert abbreviations to full names
+const mapStateToFullName = (state: string): string => {
+  const stateMapping: Record<string, string> = {
+    'TG': 'Telangana',
+    'AP': 'Andhra Pradesh'
+  };
+  return stateMapping[state] || state;
+};
 
 interface Assignment {
   id: number;
@@ -241,7 +251,7 @@ const ProjectDetails = () => {
           start_date,
           current_stage,
           kwh,
-          state,
+          state: mapStateToFullName(state),
         })
         .eq('id', project.id);
       if (error) throw error;
@@ -536,6 +546,43 @@ const renderPaymentHistory = () => {
 
 return (
   <Box p={6} maxW="5xl" mx="auto">
+    {/* Header with Edit Options */}
+    {isEditor && (
+      <Card mb={6} bg="blue.50" borderColor="blue.200" borderWidth={1}>
+        <CardHeader>
+          <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
+            <Box>
+              <Text fontSize="xl" fontWeight="bold" color="blue.700">
+                Project Management
+              </Text>
+              <Text fontSize="sm" color="blue.600">
+                Edit project and customer details
+              </Text>
+            </Box>
+            <HStack spacing={3}>
+              <Button
+                leftIcon={<EditIcon />}
+                colorScheme="blue"
+                variant="outline"
+                onClick={handleEditOpen}
+                size="sm"
+              >
+                Edit Customer
+              </Button>
+              <Button
+                leftIcon={<EditIcon />}
+                colorScheme="green"
+                onClick={handleProjectEditOpen}
+                size="sm"
+              >
+                Edit Project
+              </Button>
+            </HStack>
+          </Flex>
+        </CardHeader>
+      </Card>
+    )}
+
     {/* Details Cards Grid */}
     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6} mb={8}>
       {/* Customer Details Card */}
@@ -543,15 +590,15 @@ return (
         <CardHeader display="flex" alignItems="center" justifyContent="space-between">
           <Text fontSize="2xl" fontWeight="bold">Customer Details</Text>
           {isEditor && (
-            <Tooltip label="Edit Customer Details">
-              <IconButton
-                aria-label="Edit Customer Details"
-                icon={<EditIcon />}
-                size="sm"
-                variant="ghost"
-                onClick={handleEditOpen}
-              />
-            </Tooltip>
+            <Button
+              leftIcon={<EditIcon />}
+              colorScheme="blue"
+              variant="outline"
+              size="sm"
+              onClick={handleEditOpen}
+            >
+              Edit
+            </Button>
           )}
         </CardHeader>
         <CardBody>
@@ -599,15 +646,15 @@ return (
         <CardHeader display="flex" alignItems="center" justifyContent="space-between">
           <Text fontSize="2xl" fontWeight="bold">Project Details</Text>
           {isEditor && (
-            <Tooltip label="Edit Project Details">
-              <IconButton
-                aria-label="Edit Project Details"
-                icon={<EditIcon />}
-                size="sm"
-                variant="ghost"
-                onClick={handleProjectEditOpen}
-              />
-            </Tooltip>
+            <Button
+              leftIcon={<EditIcon />}
+              colorScheme="green"
+              variant="outline"
+              size="sm"
+              onClick={handleProjectEditOpen}
+            >
+              Edit
+            </Button>
           )}
         </CardHeader>
         <CardBody>
@@ -660,8 +707,8 @@ return (
               w="100%"
             />
           )}
-          {/* Stage Navigation Buttons - Functional for both admin and contact users */}
-          {isEditor && (
+          {/* Stage Navigation Buttons - Functional for all authenticated users */}
+          {isAuthenticated && (
             <HStack pt={2} spacing={4}>
               <Button
                 size="sm"
@@ -839,8 +886,31 @@ return (
             <FormControl>
               <FormLabel>State</FormLabel>
               <Select name="state" value={projectEditForm.state} onChange={handleProjectEditChange}>
-                <option value="AP">AP</option>
+                <option value="TG">TG (Telangana)</option>
+                <option value="AP">AP (Andhra Pradesh)</option>
+                <option disabled>─────────────</option>
+                <option value="Andhra Pradesh">Andhra Pradesh</option>
                 <option value="Telangana">Telangana</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Kerala">Kerala</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Punjab">Punjab</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Bihar">Bihar</option>
+                <option value="West Bengal">West Bengal</option>
+                <option value="Odisha">Odisha</option>
+                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                <option value="Chhattisgarh">Chhattisgarh</option>
+                <option value="Jharkhand">Jharkhand</option>
+                <option value="Assam">Assam</option>
+                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                <option value="Uttarakhand">Uttarakhand</option>
+                <option value="Goa">Goa</option>
+                <option value="Delhi">Delhi</option>
               </Select>
             </FormControl>
             <FormControl>

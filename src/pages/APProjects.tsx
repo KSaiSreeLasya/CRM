@@ -132,10 +132,10 @@ const APProjects = () => {
         {/* Header */}
         <Box>
           <Heading size="lg" color="gray.800" mb={2}>
-            Andhra Pradesh Projects Dashboard
+            AP Projects Dashboard
           </Heading>
           <Text color="gray.600">
-            Overview and management of all Andhra Pradesh state projects
+            Overview and management of all Andhra Pradesh (AP) state projects
           </Text>
         </Box>
 

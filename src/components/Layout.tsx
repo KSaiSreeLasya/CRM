@@ -69,7 +69,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, isActive, onClick })
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
-  const { logout, isFinance, isAdmin, user } = useAuth();
+  const { logout, isFinance, isAdmin, user, assignedRegions } = useAuth();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -97,11 +97,35 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   };
 
-  const stateProjects = [
-    { icon: '🏢', label: 'TELANGANA', to: '/projects/telangana' },
-    { icon: '🏛️', label: 'AP', to: '/projects/ap' },
-    { icon: '🏗️', label: 'CHITOOR', to: '/projects/chitoor' },
+  // Map regions to navigation items
+  const allStateProjects = [
+    { icon: '📊', label: 'ALL PROJECTS', to: '/projects', region: 'all' },
+    { icon: '🏢', label: 'TG', to: '/projects/telangana', region: 'Telangana' },
+    { icon: '🏛️', label: 'AP', to: '/projects/ap', region: 'Andhra Pradesh' },
+    { icon: '🏗️', label: 'CHITOOR', to: '/projects/chitoor', region: 'Chitoor' },
   ];
+
+  // Filter state projects based on user's assigned regions
+  const stateProjects = allStateProjects.filter(project => {
+    // Admin users see all projects
+    if (isAdmin) return true;
+
+    // Show "ALL PROJECTS" only if user has access to multiple regions or is admin
+    if (project.region === 'all') {
+      return assignedRegions.length > 1 || isAdmin;
+    }
+
+    // Show region if user is assigned to it
+    const hasRegionAccess = assignedRegions.includes(project.region);
+
+    // Fallback: If no assigned regions found, show all regions for authenticated users
+    // This ensures users can still navigate even if assignments aren't set up
+    if (assignedRegions.length === 0) {
+      return project.region !== 'all'; // Show individual regions but not "ALL PROJECTS"
+    }
+
+    return hasRegionAccess;
+  });
 
   const financeItems = [
     { icon: '💰', label: 'Finance', to: '/finance' },
@@ -113,8 +137,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Flex direction="column" h="full">
         <Box p={6}>
           <Flex align="center" justify="center" mb={8}>
-            <Text fontSize="4xl" mr={2}>🔋</Text>
-            <Text fontSize="3xl">🍃</Text>
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F5065c74f0a374ff4a36efc224f468f09?format=webp&width=800"
+              alt="Axiso Green Energy Logo"
+              style={{ height: '60px', width: 'auto' }}
+            />
           </Flex>
           <Text
             fontSize="lg"
@@ -239,10 +266,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         zIndex="sticky"
       >
         <Flex align="center">
-          <Text fontSize="2xl" mr={2}>🔋</Text>
-          <Text fontSize="lg" fontWeight="bold" color="green.600">
-            Axiso
-          </Text>
+          <img
+            src="https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F5065c74f0a374ff4a36efc224f468f09?format=webp&width=800"
+            alt="Axiso Green Energy Logo"
+            style={{ height: '32px', width: 'auto' }}
+          />
         </Flex>
         <IconButton
           aria-label="Open menu"
@@ -257,7 +285,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Desktop Sidebar */}
         <Box
           display={{ base: 'none', lg: 'block' }}
-          w="280px"
+          w="240px"
           bg={sidebarBg}
           borderRight="1px"
           borderColor={borderColor}
@@ -282,14 +310,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Main Content */}
         <Box
           flex="1"
-          ml={{ base: 0, lg: '280px' }}
+          ml={{ base: 0, lg: '240px' }}
           transition="margin-left 0.2s"
         >
           {/* Navigation Header */}
           <NavigationHeader />
 
-          {/* Dashboard Header */}
-          <DashboardHeader />
+          {/* Dashboard Header - Hidden on specific region pages */}
+          {!location.pathname.includes('/projects/telangana') &&
+           !location.pathname.includes('/projects/ap') &&
+           !location.pathname.includes('/projects/chitoor') && (
+            <DashboardHeader />
+          )}
 
           {/* Page Content */}
           <Box p={6}>
