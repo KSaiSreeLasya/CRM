@@ -178,8 +178,8 @@ const Dashboard = () => {
       if (projectsData) {
         // Apply region filter for non-admins
         let projects = projectsData as any[];
-        if (!isAdmin && assignedRegions && assignedRegions.length > 0) {
-          const allowed = new Set(assignedRegions.map(s => (s || '').toLowerCase()));
+        if (!isAdmin) {
+          const allowed = new Set((assignedRegions || []).map(s => (s || '').toLowerCase()));
           projects = projects.filter(p => allowed.has((p.state || '').toLowerCase()));
         }
 
