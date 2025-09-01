@@ -120,6 +120,15 @@ const calculateElapsedTime = (startDateStr: string | null) => {
   return `${diffYears} years`;
 };
 
+// State mapping function to convert abbreviations to full names
+const mapStateToFullName = (state: string): string => {
+  const stateMapping: Record<string, string> = {
+    'TG': 'Telangana',
+    'AP': 'Andhra Pradesh'
+  };
+  return stateMapping[state] || state;
+};
+
 const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
