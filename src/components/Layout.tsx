@@ -262,7 +262,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Desktop Sidebar */}
         <Box
           display={{ base: 'none', lg: 'block' }}
-          w="280px"
+          w="240px"
           bg={sidebarBg}
           borderRight="1px"
           borderColor={borderColor}
