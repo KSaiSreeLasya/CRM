@@ -933,8 +933,7 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
                       state: e.target.value
                     }))}
                   >
-                    <option value="TG">TG (Telangana)</option>
-                    <option value="AP">AP (Andhra Pradesh)</option>
+                   
                     <option disabled>─────────────</option>
                     <option value="Andhra Pradesh">Andhra Pradesh</option>
                     <option value="Arunachal Pradesh">Arunachal Pradesh</option>
