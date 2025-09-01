@@ -250,7 +250,7 @@ const ProjectDetails = () => {
           start_date,
           current_stage,
           kwh,
-          state,
+          state: mapStateToFullName(state),
         })
         .eq('id', project.id);
       if (error) throw error;
