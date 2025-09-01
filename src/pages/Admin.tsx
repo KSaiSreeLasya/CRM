@@ -568,10 +568,17 @@ const AdminDashboard = () => {
           </Box>
         </Box>
 
-        {/* Invite User */}
+        {/* Direct Create User */}
         <Box mt={10}>
-          <Heading size="md" color="gray.800" mb={2}>Invite New User</Heading>
-          <Text color="gray.600" mb={4}>Send a magic-link invite. Creating users directly requires a server-side key.</Text>
+          <Heading size="md" color="gray.800" mb={2}>Create User (Email + Password)</Heading>
+          <Text color="gray.600" mb={4}>Secure server endpoint required (set REACT_APP_ADMIN_CREATE_USER_URL). Keeps admin session intact.</Text>
+          {React.createElement(CreateUserForm)}
+        </Box>
+
+        {/* Invite User (fallback) */}
+        <Box mt={8}>
+          <Heading size="sm" color="gray.800" mb={2}>Or, send magic link</Heading>
+          <Text color="gray.600" mb={4}>If direct creation isn2t configured, invite via email link.</Text>
           <InviteUserForm />
         </Box>
       </VStack>
