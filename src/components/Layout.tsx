@@ -69,7 +69,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, isActive, onClick })
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
-  const { logout, isFinance, isAdmin, user } = useAuth();
+  const { logout, isFinance, isAdmin, user, assignedRegions } = useAuth();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
