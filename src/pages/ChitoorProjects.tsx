@@ -290,7 +290,7 @@ const ChitoorProjects = () => {
             Chitoor Projects Dashboard
           </Heading>
           <Text color="gray.600">
-            Overview and management of all Chitoor district projects
+            Overview and management of Chitoor district projects (AP region with dedicated tracking)
           </Text>
         </Box>
 
@@ -535,7 +535,7 @@ const ChitoorProjects = () => {
                     placeholder="Select total amount"
                   >
                     <option value="205000">₹2,05,000</option>
-                    <option value="140000">₹1,40,000</option>
+                    <option value="140000">���1,40,000</option>
                   </Select>
                 </FormControl>
 
