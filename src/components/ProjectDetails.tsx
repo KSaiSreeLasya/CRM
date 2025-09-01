@@ -839,8 +839,31 @@ return (
             <FormControl>
               <FormLabel>State</FormLabel>
               <Select name="state" value={projectEditForm.state} onChange={handleProjectEditChange}>
-                <option value="AP">AP</option>
+                <option value="TG">TG (Telangana)</option>
+                <option value="AP">AP (Andhra Pradesh)</option>
+                <option disabled>─────────────</option>
+                <option value="Andhra Pradesh">Andhra Pradesh</option>
                 <option value="Telangana">Telangana</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Kerala">Kerala</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Punjab">Punjab</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Bihar">Bihar</option>
+                <option value="West Bengal">West Bengal</option>
+                <option value="Odisha">Odisha</option>
+                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                <option value="Chhattisgarh">Chhattisgarh</option>
+                <option value="Jharkhand">Jharkhand</option>
+                <option value="Assam">Assam</option>
+                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                <option value="Uttarakhand">Uttarakhand</option>
+                <option value="Goa">Goa</option>
+                <option value="Delhi">Delhi</option>
               </Select>
             </FormControl>
             <FormControl>
