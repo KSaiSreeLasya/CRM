@@ -98,6 +98,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const stateProjects = [
+    { icon: '📊', label: 'ALL PROJECTS', to: '/projects' },
     { icon: '🏢', label: 'TG', to: '/projects/telangana' },
     { icon: '🏛️', label: 'AP', to: '/projects/ap' },
     { icon: '🏗️', label: 'CHITOOR', to: '/projects/chitoor' },
