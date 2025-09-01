@@ -133,6 +133,7 @@ const mapStateToFullName = (state: string): string => {
 const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isAdmin, assignedRegions } = useAuth();
   const navigate = useNavigate();
   const [newProject, setNewProject] = useState({
     name: '',
