@@ -556,6 +556,23 @@ const AdminDashboard = () => {
             )}
           </CardBody>
         </Card>
+
+        {/* Warehouse and Logistics Sections */}
+        <Box>
+          <Heading size="md" color="gray.800" mt={8} mb={2}>Operations</Heading>
+          <Text color="gray.600" mb={4}>Manage warehouse stock and logistics</Text>
+          {React.createElement(require('../components/WarehouseManager').default)}
+          <Box mt={6}>
+            {React.createElement(require('../components/LogisticsManager').default)}
+          </Box>
+        </Box>
+
+        {/* Invite User */}
+        <Box mt={10}>
+          <Heading size="md" color="gray.800" mb={2}>Invite New User</Heading>
+          <Text color="gray.600" mb={4}>Send a magic-link invite. Creating users directly requires a server-side key.</Text>
+          <InviteUserForm />
+        </Box>
       </VStack>
 
       {/* Create Assignment Modal */}
