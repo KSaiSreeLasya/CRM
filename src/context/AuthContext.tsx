@@ -230,6 +230,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsFinance(false);
       setIsEditor(false);
       setUser(null);
+      setAssignedRegions([]);
 
       // Try to sign out from Supabase, but don't fail if session is missing
       try {
@@ -272,7 +273,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isAdmin, isFinance, isEditor, user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isAdmin, isFinance, isEditor, user, isLoading, assignedRegions, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
