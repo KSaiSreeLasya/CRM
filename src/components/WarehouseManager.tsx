@@ -73,15 +73,19 @@ const WarehouseManager: React.FC = () => {
       if (error) throw error;
       setItems(data || []);
     } catch (err: any) {
-      // If table missing, show hint but don't crash app
-      console.error('Fetch warehouse_stock failed:', err);
+      const msg = err?.message || JSON.stringify(err);
+      console.error('Fetch warehouse_stock failed:', msg);
+      const isMissing = /relation .* does not exist|42P01/i.test(msg);
       toast({
-        title: 'Warehouse table missing',
-        description: 'Create table "warehouse_stock" in Supabase with columns: id uuid pk, item_name text, sku text, quantity numeric, unit text, location text, notes text, updated_at timestamp default now().',
-        status: 'info',
-        duration: 6000,
+        title: isMissing ? 'Warehouse table missing' : 'Failed to load warehouse stock',
+        description: isMissing
+          ? 'Create table warehouse_stock (id uuid pk, item_name text, sku text, quantity numeric, unit text, location text, notes text, updated_at timestamp default now()). Ensure RLS policies allow authenticated read/write.'
+          : msg,
+        status: isMissing ? 'info' : 'error',
+        duration: 7000,
         isClosable: true,
       });
+      setItems([]);
     }
   };
 
@@ -128,8 +132,9 @@ const WarehouseManager: React.FC = () => {
       setEditingId(null);
       fetchItems();
     } catch (err: any) {
-      console.error('Save stock failed:', err);
-      toast({ title: 'Failed to save stock', description: err.message || String(err), status: 'error' });
+      const msg = err?.message || JSON.stringify(err);
+      console.error('Save stock failed:', msg);
+      toast({ title: 'Failed to save stock', description: msg, status: 'error' });
     } finally {
       setLoading(false);
     }
@@ -146,7 +151,8 @@ const WarehouseManager: React.FC = () => {
       toast({ title: 'Stock removed', status: 'success' });
       fetchItems();
     } catch (err: any) {
-      toast({ title: 'Failed to delete', description: err.message || String(err), status: 'error' });
+      const msg = err?.message || JSON.stringify(err);
+      toast({ title: 'Failed to delete', description: msg, status: 'error' });
     }
   };
 
