@@ -20,6 +20,7 @@ import {
   DrawerContent,
   DrawerCloseButton,
   useDisclosure,
+  Input,
 } from '@chakra-ui/react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
