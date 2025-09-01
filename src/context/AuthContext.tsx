@@ -68,6 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsFinance(false);
         setIsEditor(false);
         setUser(null);
+        setAssignedRegions([]);
         return;
       }
 
