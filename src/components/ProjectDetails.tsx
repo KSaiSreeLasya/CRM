@@ -646,15 +646,15 @@ return (
         <CardHeader display="flex" alignItems="center" justifyContent="space-between">
           <Text fontSize="2xl" fontWeight="bold">Project Details</Text>
           {isEditor && (
-            <Tooltip label="Edit Project Details">
-              <IconButton
-                aria-label="Edit Project Details"
-                icon={<EditIcon />}
-                size="sm"
-                variant="ghost"
-                onClick={handleProjectEditOpen}
-              />
-            </Tooltip>
+            <Button
+              leftIcon={<EditIcon />}
+              colorScheme="green"
+              variant="outline"
+              size="sm"
+              onClick={handleProjectEditOpen}
+            >
+              Edit
+            </Button>
           )}
         </CardHeader>
         <CardBody>
