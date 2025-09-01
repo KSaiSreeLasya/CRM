@@ -367,7 +367,7 @@ const Dashboard = () => {
         </Flex>
 
         {/* Stats Cards */}
-        <SimpleGrid columns={{ base: 1, md: 2, lg: isRestrictedUser ? 4 : 5 }} spacing={6}>
+        <SimpleGrid columns={{ base: 1, md: 2, lg: isRestrictedUser ? 6 : 7 }} spacing={6}>
           <StatsCard
             title="Total Customers"
             value={stats.totalCustomers}
