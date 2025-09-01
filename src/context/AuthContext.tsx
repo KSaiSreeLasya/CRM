@@ -11,6 +11,7 @@ interface AuthContextType {
   isEditor: boolean;
   user: any | null;
   isLoading: boolean;
+  assignedRegions: string[];
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
