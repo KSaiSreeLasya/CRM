@@ -241,6 +241,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </MenuButton>
             <MenuList>
               <MenuItem
+                icon={<Text>🔒</Text>}
+                onClick={passwordDisclosure.onOpen}
+                fontSize="sm"
+              >
+                Change Password
+              </MenuItem>
+              <MenuItem
                 icon={<Text>🚪</Text>}
                 onClick={handleSignOut}
                 fontSize="sm"
