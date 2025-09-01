@@ -97,12 +97,27 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   };
 
-  const stateProjects = [
-    { icon: '📊', label: 'ALL PROJECTS', to: '/projects' },
-    { icon: '🏢', label: 'TG', to: '/projects/telangana' },
-    { icon: '🏛️', label: 'AP', to: '/projects/ap' },
-    { icon: '🏗️', label: 'CHITOOR', to: '/projects/chitoor' },
+  // Map regions to navigation items
+  const allStateProjects = [
+    { icon: '📊', label: 'ALL PROJECTS', to: '/projects', region: 'all' },
+    { icon: '🏢', label: 'TG', to: '/projects/telangana', region: 'Telangana' },
+    { icon: '🏛️', label: 'AP', to: '/projects/ap', region: 'Andhra Pradesh' },
+    { icon: '🏗️', label: 'CHITOOR', to: '/projects/chitoor', region: 'Chitoor' },
   ];
+
+  // Filter state projects based on user's assigned regions
+  const stateProjects = allStateProjects.filter(project => {
+    // Admin users see all projects
+    if (isAdmin) return true;
+
+    // Show "ALL PROJECTS" only if user has access to multiple regions or is admin
+    if (project.region === 'all') {
+      return assignedRegions.length > 1 || isAdmin;
+    }
+
+    // Show region if user is assigned to it
+    return assignedRegions.includes(project.region);
+  });
 
   const financeItems = [
     { icon: '💰', label: 'Finance', to: '/finance' },
