@@ -133,7 +133,7 @@ const calculateElapsedTime = (startDateStr: string | null) => {
 
 
 const Dashboard = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isAdmin, assignedRegions } = useAuth();
   const [stats, setStats] = useState({
     totalCustomers: 0,
     activeProjects: 0,
