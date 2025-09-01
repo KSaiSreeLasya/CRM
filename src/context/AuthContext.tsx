@@ -182,7 +182,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Check if the user has edit permissions
-        if (normalizedEmail === 'admin@axisogreen.in' || normalizedEmail === 'contact@axisogreen.in') {
+        if (
+          normalizedEmail === 'admin@axisogreen.in' ||
+          normalizedEmail === 'contact@axisogreen.in' ||
+          normalizedEmail === 'yellesh@axisogreen.in'
+        ) {
           setIsEditor(true);
         } else {
           setIsEditor(false);
