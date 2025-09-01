@@ -5,7 +5,6 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Projects from './components/Projects';
 import ProjectDetails from './components/ProjectDetails';
-import Reports from './components/Reports';
 import Finance from './pages/Finance';
 import Payments from './pages/Payments';
 import ServiceTickets from './pages/ServiceTickets';
@@ -129,16 +128,6 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <Layout>
                       <ProjectDetails />
-                    </Layout>
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/reports"
-                element={
-                  <PrivateRoute>
-                    <Layout>
-                      <Reports />
                     </Layout>
                   </PrivateRoute>
                 }
