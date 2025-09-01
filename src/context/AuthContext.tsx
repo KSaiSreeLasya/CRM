@@ -102,6 +102,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       setIsAdmin(adminFlag);
 
+      // Fetch assigned regions for the user
+      const regions = await fetchUserAssignedRegions(sessionEmail);
+      setAssignedRegions(regions);
+
       setUser(session.user);
       setIsAuthenticated(true);
     } catch (error) {
@@ -111,6 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsFinance(false);
       setIsEditor(false);
       setUser(null);
+      setAssignedRegions([]);
     }
   };
 
