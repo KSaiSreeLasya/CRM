@@ -116,7 +116,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
 
     // Show region if user is assigned to it
-    return assignedRegions.includes(project.region);
+    const hasRegionAccess = assignedRegions.includes(project.region);
+
+    // Fallback: If no assigned regions found, show all regions for authenticated users
+    // This ensures users can still navigate even if assignments aren't set up
+    if (assignedRegions.length === 0) {
+      return project.region !== 'all'; // Show individual regions but not "ALL PROJECTS"
+    }
+
+    return hasRegionAccess;
   });
 
   const financeItems = [
