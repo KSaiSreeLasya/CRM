@@ -74,6 +74,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { logout, isFinance, isAdmin, user, assignedRegions } = useAuth();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const passwordDisclosure = useDisclosure();
+  const [newPassword, setNewPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const [changingPassword, setChangingPassword] = React.useState(false);
 
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
