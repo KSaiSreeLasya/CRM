@@ -293,8 +293,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Navigation Header */}
           <NavigationHeader />
 
-          {/* Dashboard Header */}
-          <DashboardHeader />
+          {/* Dashboard Header - Hidden on specific region pages */}
+          {!location.pathname.includes('/projects/telangana') &&
+           !location.pathname.includes('/projects/ap') &&
+           !location.pathname.includes('/projects/chitoor') && (
+            <DashboardHeader />
+          )}
 
           {/* Page Content */}
           <Box p={6}>
