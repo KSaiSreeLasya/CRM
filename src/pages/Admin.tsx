@@ -41,6 +41,7 @@ import {
   Checkbox,
   CheckboxGroup,
   Stack,
+  Input,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 import { AddIcon, EditIcon, DeleteIcon, ChevronDownIcon } from '@chakra-ui/icons';
