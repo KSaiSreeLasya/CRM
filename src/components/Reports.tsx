@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Box,
   Text,
@@ -95,6 +96,8 @@ const STAGE_GROUPS = [
 
 const Reports = () => {
   const { user } = useAuth();
+  const location = useLocation();
+  const regionParam = (new URLSearchParams(location.search).get('region') || 'all').toLowerCase();
   const [stats, setStats] = useState({
     totalCustomers: 0,
     activeProjects: 0,
@@ -126,37 +129,22 @@ const Reports = () => {
     try {
       setIsLoading(true);
       setError(null);
-      
-      console.log('Fetching projects from Supabase...');
-      const { data: projects, error } = await supabase
-        .from('projects')
-        .select('*')
-        .neq('status', 'deleted');
 
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
+      if (regionParam === 'chitoor') {
+        // Chitoor analytics from dedicated table
+        const { data, error } = await supabase
+          .from('chitoor_projects')
+          .select('*');
+        if (error) throw error;
+        const chitoor = data || [];
 
-      console.log('Projects fetched:', projects);
+        const active = chitoor.filter((p: any) => (p.project_status || '').toLowerCase() !== 'completed');
+        const completed = chitoor.filter((p: any) => (p.project_status || '').toLowerCase() === 'completed');
+        const totalRevenue = chitoor.reduce((sum: number, p: any) => sum + (p.project_cost || 0), 0);
+        const totalKWH = chitoor.reduce((sum: number, p: any) => sum + (p.capacity || 0), 0);
 
-      if (projects) {
-        // Filter projects for selected year
-        const yearProjects = projects.filter((project: Project) => {
-          const projectDate = new Date(project.start_date || project.created_at);
-          return projectDate.getFullYear() === selectedYear;
-        });
-
-        const active = projects.filter((p: Project) => p.status === 'active');
-        const completed = projects.filter((p: Project) => p.status === 'completed');
-        const totalRevenue = projects.reduce((sum: number, p: Project) => sum + (p.proposal_amount || 0), 0);
-        const totalKWH = projects.reduce((sum: number, p: Project) => sum + (p.kwh || 0), 0);
-
-        // Count unique customers
         const customerMap: Record<string, boolean> = {};
-        projects.forEach(p => {
-          if (p.customer_name) customerMap[p.customer_name] = true;
-        });
+        chitoor.forEach((p: any) => { if (p.customer_name) customerMap[p.customer_name] = true; });
         const uniqueCustomersCount = Object.keys(customerMap).length;
 
         setStats({
@@ -167,33 +155,87 @@ const Reports = () => {
           totalKWH,
         });
 
-        // Calculate projects in each stage (excluding deleted projects)
-        const stages: Record<string, number> = {};
-        PROJECT_STAGES.forEach(stage => {
-          stages[stage] = projects.filter((p: Project) => p.current_stage === stage).length;
-        });
-        setStageStats(stages);
-
-        // Calculate monthly KWH usage for the selected year
+        // Monthly capacity based on date_of_order
         const monthlyKWHData: Record<string, number> = {
           'January': 0, 'February': 0, 'March': 0, 'April': 0, 'May': 0, 'June': 0,
           'July': 0, 'August': 0, 'September': 0, 'October': 0, 'November': 0, 'December': 0
         };
-        
         const monthNames = Object.keys(monthlyKWHData);
-        
-        yearProjects.forEach((project: Project) => {
-          const dateToUse = project.start_date || project.created_at;
-          const projectDate = new Date(dateToUse);
-          const projectMonth = projectDate.getMonth(); // 0-11
-          
-          if (project.kwh) {
-            monthlyKWHData[monthNames[projectMonth]] += project.kwh;
-          }
+        chitoor.forEach((p: any) => {
+          const dateStr = p.date_of_order || p.created_at;
+          if (!dateStr) return;
+          const d = new Date(dateStr);
+          if (d.getFullYear() !== selectedYear) return;
+          monthlyKWHData[monthNames[d.getMonth()]] += p.capacity || 0;
         });
-        
         setMonthlyKWH(monthlyKWHData);
+
+        // Stage stats not applicable; keep defaults (zeros)
+        const stages: Record<string, number> = {};
+        PROJECT_STAGES.forEach(stage => { stages[stage] = 0; });
+        setStageStats(stages);
+        return;
       }
+
+      // Standard projects analytics with optional region filter
+      const { data: projectsData, error } = await supabase
+        .from('projects')
+        .select('*')
+        .neq('status', 'deleted');
+      if (error) throw error;
+      let projects = (projectsData || []) as any[];
+
+      // Region filter
+      if (regionParam === 'tg') {
+        projects = projects.filter(p => (p.state || '').toLowerCase().includes('telangana') || (p.state || '').toLowerCase() === 'tg');
+      } else if (regionParam === 'ap') {
+        const s = (p: any) => (p.state || '').toLowerCase();
+        projects = projects.filter(p => s(p).includes('andhra pradesh') || s(p) === 'ap');
+      }
+
+      // Filter projects for selected year
+      const yearProjects = projects.filter((project: Project) => {
+        const projectDate = new Date(project.start_date || project.created_at);
+        return projectDate.getFullYear() === selectedYear;
+      });
+
+      const active = projects.filter((p: Project) => p.status === 'active');
+      const completed = projects.filter((p: Project) => p.status === 'completed');
+      const totalRevenue = projects.reduce((sum: number, p: Project) => sum + (p.proposal_amount || 0), 0);
+      const totalKWH = projects.reduce((sum: number, p: Project) => sum + (p.kwh || 0), 0);
+
+      const customerMap: Record<string, boolean> = {};
+      projects.forEach((p: any) => { if (p.customer_name) customerMap[p.customer_name] = true; });
+      const uniqueCustomersCount = Object.keys(customerMap).length;
+
+      setStats({
+        totalCustomers: uniqueCustomersCount,
+        activeProjects: active.length,
+        completedProjects: completed.length,
+        totalRevenue,
+        totalKWH,
+      });
+
+      const stages: Record<string, number> = {};
+      PROJECT_STAGES.forEach(stage => {
+        stages[stage] = projects.filter((p: Project) => p.current_stage === stage).length;
+      });
+      setStageStats(stages);
+
+      const monthlyKWHData: Record<string, number> = {
+        'January': 0, 'February': 0, 'March': 0, 'April': 0, 'May': 0, 'June': 0,
+        'July': 0, 'August': 0, 'September': 0, 'October': 0, 'November': 0, 'December': 0
+      };
+      const monthNames = Object.keys(monthlyKWHData);
+      yearProjects.forEach((project: Project) => {
+        const dateToUse = project.start_date || project.created_at;
+        const projectDate = new Date(dateToUse);
+        const projectMonth = projectDate.getMonth();
+        if (project.kwh) {
+          monthlyKWHData[monthNames[projectMonth]] += project.kwh;
+        }
+      });
+      setMonthlyKWH(monthlyKWHData);
     } catch (error) {
       console.error('Error fetching stats:', error);
       setError(error instanceof Error ? error.message : 'Failed to fetch reports data');
