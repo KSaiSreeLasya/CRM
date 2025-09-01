@@ -197,8 +197,8 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
       
       if (data) {
         let list = data as Project[];
-        if (!isAdmin && assignedRegions && assignedRegions.length > 0) {
-          const allowed = new Set(assignedRegions.map(s => (s || '').toLowerCase()));
+        if (!isAdmin) {
+          const allowed = new Set((assignedRegions || []).map(s => (s || '').toLowerCase()));
           list = list.filter(p => allowed.has((p as any).state?.toLowerCase?.() || ''));
         }
         setAllProjects(list);
