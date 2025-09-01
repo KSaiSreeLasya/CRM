@@ -545,6 +545,43 @@ const renderPaymentHistory = () => {
 
 return (
   <Box p={6} maxW="5xl" mx="auto">
+    {/* Header with Edit Options */}
+    {isEditor && (
+      <Card mb={6} bg="blue.50" borderColor="blue.200" borderWidth={1}>
+        <CardHeader>
+          <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
+            <Box>
+              <Text fontSize="xl" fontWeight="bold" color="blue.700">
+                Project Management
+              </Text>
+              <Text fontSize="sm" color="blue.600">
+                Edit project and customer details
+              </Text>
+            </Box>
+            <HStack spacing={3}>
+              <Button
+                leftIcon={<EditIcon />}
+                colorScheme="blue"
+                variant="outline"
+                onClick={handleEditOpen}
+                size="sm"
+              >
+                Edit Customer
+              </Button>
+              <Button
+                leftIcon={<EditIcon />}
+                colorScheme="green"
+                onClick={handleProjectEditOpen}
+                size="sm"
+              >
+                Edit Project
+              </Button>
+            </HStack>
+          </Flex>
+        </CardHeader>
+      </Card>
+    )}
+
     {/* Details Cards Grid */}
     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6} mb={8}>
       {/* Customer Details Card */}
