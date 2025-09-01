@@ -115,7 +115,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Box p={6}>
           <Flex align="center" justify="center" mb={8}>
             <img
-              src="https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F17b62c267c5d4264aa0ef8f1668e3383?format=webp&width=800"
+              src="https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F5065c74f0a374ff4a36efc224f468f09?format=webp&width=800"
               alt="Axiso Green Energy Logo"
               style={{ height: '60px', width: 'auto' }}
             />
@@ -244,7 +244,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       >
         <Flex align="center">
           <img
-            src="https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F17b62c267c5d4264aa0ef8f1668e3383?format=webp&width=800"
+            src="https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F5065c74f0a374ff4a36efc224f468f09?format=webp&width=800"
             alt="Axiso Green Energy Logo"
             style={{ height: '32px', width: 'auto' }}
           />
