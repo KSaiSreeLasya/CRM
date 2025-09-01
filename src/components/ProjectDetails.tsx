@@ -707,8 +707,8 @@ return (
               w="100%"
             />
           )}
-          {/* Stage Navigation Buttons - Functional for both admin and contact users */}
-          {isEditor && (
+          {/* Stage Navigation Buttons - Functional for all authenticated users */}
+          {isAuthenticated && (
             <HStack pt={2} spacing={4}>
               <Button
                 size="sm"
