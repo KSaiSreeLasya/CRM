@@ -50,8 +50,7 @@ const defaultItem: Omit<StockItem, 'id'> = {
   quantity: 0,
   unit: 'pcs',
   location: 'Main Warehouse',
-  notes: '',
-  updated_at: ''
+  notes: ''
 };
 
 const WarehouseManager: React.FC = () => {
@@ -101,7 +100,7 @@ const WarehouseManager: React.FC = () => {
 
   const openEdit = (item: StockItem) => {
     setEditingId(item.id);
-    const { id, ...rest } = item;
+    const { id, updated_at, ...rest } = item;
     setForm(rest);
     onOpen();
   };
@@ -121,9 +120,10 @@ const WarehouseManager: React.FC = () => {
         if (error) throw error;
         toast({ title: 'Stock updated', status: 'success' });
       } else {
+        const { updated_at, ...payload } = (form as any);
         const { error } = await supabase
           .from('warehouse_stock')
-          .insert([{ ...form }]);
+          .insert([payload]);
         if (error) throw error;
         toast({ title: 'Stock added', status: 'success' });
       }
