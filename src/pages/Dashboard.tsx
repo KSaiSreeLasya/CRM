@@ -234,12 +234,12 @@ const Dashboard = () => {
         });
 
         // Calculate total revenue and KWH from all projects
-        const totalRevenue: number = projects.reduce((sum: number, p: Project) => sum + (p.proposal_amount || 0), 0);
-        const totalKWH: number = projects.reduce((sum: number, p: Project) => sum + (p.kwh || 0), 0);
+        const totalRevenue: number = (projects as Project[]).reduce((sum: number, p: Project) => sum + (p.proposal_amount || 0), 0);
+        const totalKWH: number = (projects as Project[]).reduce((sum: number, p: Project) => sum + (p.kwh || 0), 0);
 
         // Count unique customers
         const customerMap: Record<string, boolean> = {};
-        projects.forEach(p => {
+        (projects as Project[]).forEach(p => {
           if (p.customer_name) customerMap[p.customer_name] = true;
         });
         const uniqueCustomersCount = Object.keys(customerMap).length;
@@ -253,10 +253,10 @@ const Dashboard = () => {
         });
 
         // Update projects list - filter active projects for display using case-insensitive comparison
-        setProjects(sortedProjects);
+        setProjects(sortedProjects as Project[]);
         
         // Filter active projects from the sorted list
-        const filteredActiveProjects = sortedProjects.filter((p: Project) => 
+        const filteredActiveProjects = (sortedProjects as Project[]).filter((p: Project) => 
           typeof p.status === 'string' && p.status.toLowerCase() === 'active'
         );
         
