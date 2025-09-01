@@ -41,6 +41,7 @@ import {
   Checkbox,
   CheckboxGroup,
   Stack,
+  Input,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 import { AddIcon, EditIcon, DeleteIcon, ChevronDownIcon } from '@chakra-ui/icons';
@@ -556,6 +557,30 @@ const AdminDashboard = () => {
             )}
           </CardBody>
         </Card>
+
+        {/* Warehouse and Logistics Sections */}
+        <Box>
+          <Heading size="md" color="gray.800" mt={8} mb={2}>Operations</Heading>
+          <Text color="gray.600" mb={4}>Manage warehouse stock and logistics</Text>
+          {React.createElement(require('../components/WarehouseManager').default)}
+          <Box mt={6}>
+            {React.createElement(require('../components/LogisticsManager').default)}
+          </Box>
+        </Box>
+
+        {/* Direct Create User */}
+        <Box mt={10}>
+          <Heading size="md" color="gray.800" mb={2}>Create User (Email + Password)</Heading>
+          <Text color="gray.600" mb={4}>Secure server endpoint required (set REACT_APP_ADMIN_CREATE_USER_URL). Keeps admin session intact.</Text>
+          {React.createElement(CreateUserForm)}
+        </Box>
+
+        {/* Invite User (fallback) */}
+        <Box mt={8}>
+          <Heading size="sm" color="gray.800" mb={2}>Or, send magic link</Heading>
+          <Text color="gray.600" mb={4}>If direct creation isn2t configured, invite via email link.</Text>
+          <InviteUserForm />
+        </Box>
       </VStack>
 
       {/* Create Assignment Modal */}
@@ -717,6 +742,111 @@ const Admin = () => {
   }
 
   return <AdminDashboard />;
+};
+
+// Secure direct create user form hitting admin endpoint (requires service role on server)
+const CreateUserForm: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const toast = useToast();
+
+  const createUser = async () => {
+    const endpoint = process.env.REACT_APP_ADMIN_CREATE_USER_URL;
+    if (!endpoint) {
+      toast({ title: 'Missing server endpoint', description: 'Set REACT_APP_ADMIN_CREATE_USER_URL to a secured API that uses Supabase service key and calls auth.admin.createUser.', status: 'error' });
+      return;
+    }
+    if (!email || !password) {
+      toast({ title: 'Enter email and password', status: 'warning' });
+      return;
+    }
+    try {
+      setLoading(true);
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password: password.trim() })
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || 'Failed to create user');
+      }
+      setEmail('');
+      setPassword('');
+      toast({ title: 'User created', status: 'success' });
+    } catch (err: any) {
+      toast({ title: 'Creation failed', description: err.message || String(err), status: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardBody>
+        <HStack gap={3} align="start">
+          <Box flex={1}>
+            <FormControl>
+              <FormLabel>Email</FormLabel>
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="user@axisogreen.in" />
+            </FormControl>
+            <FormControl mt={3}>
+              <FormLabel>Password</FormLabel>
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Minimum 6 characters" />
+            </FormControl>
+            <Text fontSize="xs" color="gray.500" mt={1}>This calls your secured server to create the account without magic links.</Text>
+          </Box>
+          <Button colorScheme="green" onClick={createUser} isLoading={loading}>Create User</Button>
+        </HStack>
+      </CardBody>
+    </Card>
+  );
+};
+
+// Lightweight invite form using magic link (client-safe)
+const InviteUserForm: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [sending, setSending] = useState(false);
+  const toast = useToast();
+
+  const sendInvite = async () => {
+    if (!email) {
+      toast({ title: 'Enter email', status: 'warning' });
+      return;
+    }
+    try {
+      setSending(true);
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim().toLowerCase(),
+        options: { emailRedirectTo: window.location.origin + '/login' }
+      });
+      if (error) throw error;
+      toast({ title: 'Invite sent', description: 'User will receive a magic link to sign in.', status: 'success' });
+      setEmail('');
+    } catch (err: any) {
+      toast({ title: 'Failed to send invite', description: err.message || String(err), status: 'error' });
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardBody>
+        <HStack gap={3} align="start">
+          <Box flex={1}>
+            <FormControl>
+              <FormLabel>Email</FormLabel>
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="user@axisogreen.in" />
+            </FormControl>
+            <Text fontSize="xs" color="gray.500" mt={1}>We will email a sign-in link. After first login, assign regions above.</Text>
+          </Box>
+          <Button colorScheme="green" onClick={sendInvite} isLoading={sending}>Send Invite</Button>
+        </HStack>
+      </CardBody>
+    </Card>
+  );
 };
 
 export default Admin;

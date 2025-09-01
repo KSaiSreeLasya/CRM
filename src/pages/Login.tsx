@@ -33,6 +33,25 @@ const Login = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const { login, isAuthenticated, isLoading } = useAuth();
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({ title: 'Enter email', description: 'Please enter your email to reset password.', status: 'warning', duration: 4000, isClosable: true });
+      return;
+    }
+    try {
+      setLoading(true);
+      const { supabase } = await import('../lib/supabase');
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+        redirectTo: window.location.origin + '/login'
+      });
+      if (error) throw error;
+      toast({ title: 'Reset email sent', description: 'Check your inbox for the reset link.', status: 'success', duration: 5000, isClosable: true });
+    } catch (err: any) {
+      toast({ title: 'Could not send reset email', description: err.message || String(err), status: 'error', duration: 5000, isClosable: true });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const bgColor = useColorModeValue('gray.50', 'gray.900');
   const cardBg = useColorModeValue('white', 'gray.800');
@@ -203,10 +222,11 @@ const Login = () => {
                 >
                   Sign In
                 </Button>
-                <HStack justify="center">
-                  <Text fontSize="sm" color="gray.600">
-                    Powered by renewable energy solutions
-                  </Text>
+                <HStack justify="space-between">
+                  <Button variant="link" colorScheme="green" size="sm" onClick={handleForgotPassword} isDisabled={loading}>
+                    Forgot password?
+                  </Button>
+                  <Text fontSize="sm" color="gray.600">Powered by renewable energy solutions</Text>
                 </HStack>
                 </Stack>
               </Stack>
