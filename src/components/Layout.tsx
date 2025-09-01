@@ -329,6 +329,48 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </Box>
         </Box>
       </Flex>
+
+      {/* Change Password Drawer */}
+      <Drawer isOpen={passwordDisclosure.isOpen} placement="right" onClose={passwordDisclosure.onClose}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerBody p={6}>
+            <VStack spacing={4} align="stretch">
+              <Text fontSize="lg" fontWeight="bold">Change Password</Text>
+              <Text fontSize="sm" color="gray.600">Update your account password. Minimum 6 characters.</Text>
+              <Input type="password" placeholder="New password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+              <Input type="password" placeholder="Confirm new password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+              <Button colorScheme="green" isLoading={changingPassword} onClick={async () => {
+                if (!newPassword || newPassword.length < 6) {
+                  toast({ title: 'Password too short', status: 'warning', duration: 3000, isClosable: true });
+                  return;
+                }
+                if (newPassword !== confirmPassword) {
+                  toast({ title: 'Passwords do not match', status: 'error', duration: 3000, isClosable: true });
+                  return;
+                }
+                try {
+                  setChangingPassword(true);
+                  const { error } = await supabase.auth.updateUser({ password: newPassword });
+                  if (error) throw error;
+                  setNewPassword('');
+                  setConfirmPassword('');
+                  passwordDisclosure.onClose();
+                  toast({ title: 'Password updated', status: 'success', duration: 3000, isClosable: true });
+                } catch (err) {
+                  console.error(err);
+                  toast({ title: 'Failed to update password', status: 'error', duration: 4000, isClosable: true });
+                } finally {
+                  setChangingPassword(false);
+                }
+              }}>
+                Update Password
+              </Button>
+            </VStack>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </Box>
   );
 };
