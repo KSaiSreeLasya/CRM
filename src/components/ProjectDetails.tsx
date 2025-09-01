@@ -590,15 +590,15 @@ return (
         <CardHeader display="flex" alignItems="center" justifyContent="space-between">
           <Text fontSize="2xl" fontWeight="bold">Customer Details</Text>
           {isEditor && (
-            <Tooltip label="Edit Customer Details">
-              <IconButton
-                aria-label="Edit Customer Details"
-                icon={<EditIcon />}
-                size="sm"
-                variant="ghost"
-                onClick={handleEditOpen}
-              />
-            </Tooltip>
+            <Button
+              leftIcon={<EditIcon />}
+              colorScheme="blue"
+              variant="outline"
+              size="sm"
+              onClick={handleEditOpen}
+            >
+              Edit
+            </Button>
           )}
         </CardHeader>
         <CardBody>
