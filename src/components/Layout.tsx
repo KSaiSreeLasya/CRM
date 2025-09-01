@@ -113,18 +113,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Filter state projects based on user's assigned regions
   const stateProjects = allStateProjects.filter(project => {
-    // Admin users see all projects
     if (isAdmin) return true;
 
-    // Show "ALL PROJECTS" if user has multiple regions OR no assignments
     if (project.region === 'all') {
-      return assignedRegions.length > 1 || assignedRegions.length === 0 || isAdmin;
+      return assignedRegions.length > 1; // only when multiple regions assigned
     }
 
-    // If no assignments, show all regions
-    if (assignedRegions.length === 0) return true;
+    if (assignedRegions.length === 0) return false; // hide regions when no assignments
 
-    // Show region if user is assigned to it
     return assignedRegions.includes(project.region);
   });
 
@@ -327,7 +323,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Dashboard Header - Hidden on specific region pages */}
           {!location.pathname.includes('/projects/telangana') &&
            !location.pathname.includes('/projects/ap') &&
-           !location.pathname.includes('/projects/chitoor') && (
+           !location.pathname.includes('/projects/chitoor') &&
+           !location.pathname.includes('/dashboard') && (
             <DashboardHeader />
           )}
 
