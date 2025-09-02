@@ -319,11 +319,11 @@ const ChitoorProjects = () => {
             helpText="All Chitoor projects"
           />
           <StatsCard
-            title="Pending Projects"
+            title="Active Projects"
             value={stats.pendingProjects}
-            icon="⏳"
-            color="yellow"
-            helpText="Awaiting action"
+            icon="🚀"
+            color="green"
+            helpText="In progress"
           />
           <StatsCard
             title="Completed Projects"
