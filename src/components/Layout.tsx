@@ -87,6 +87,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const sidebarBg = useColorModeValue('gray.50', 'gray.900');
   const logoUrl = "https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F5065c74f0a374ff4a36efc224f468f09?format=webp&width=800";
 
+  React.useEffect(() => {
+    document.title = 'Axiso Green Energy';
+    const link = document.querySelector("link[rel='icon']") as HTMLLinkElement | null;
+    if (link) link.href = logoUrl;
+  }, [logoUrl]);
+
   const handleSignOut = async () => {
     try {
       await logout();
