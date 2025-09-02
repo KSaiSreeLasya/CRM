@@ -27,7 +27,6 @@ import {
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 import { PROJECT_STAGES } from '../lib/constants';
-import { useAuth } from '../context/AuthContext';
 import {
   CalendarIcon,
 } from '@chakra-ui/icons';
