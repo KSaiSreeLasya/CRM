@@ -206,17 +206,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </Text>
             </Box>
           )}
-          {stateProjects.map((item) => (
-            <NavItem
-              key={item.to}
-              icon={item.icon}
-              label={item.label}
-              to={item.to}
-              isActive={location.pathname === item.to || location.pathname.includes(item.to)}
-              onClick={onClose}
-              collapsed={isCollapsed}
-            />
-          ))}
+          {stateProjects.map((item) => {
+            const active = item.to === '/projects'
+              ? location.pathname === item.to
+              : location.pathname.startsWith(item.to);
+            return (
+              <NavItem
+                key={item.to}
+                icon={item.icon}
+                label={item.label}
+                to={item.to}
+                isActive={active}
+                onClick={onClose}
+                collapsed={isCollapsed}
+              />
+            );
+          })}
 
           {isAdmin && (
             <>
@@ -312,7 +317,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       }
       setChangingPw(true);
       const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw error as any;
+      if (error) throw new Error(error.message || 'Password update failed');
       toast({ title: 'Password updated', status: 'success', duration: 3000, isClosable: true });
       setNewPassword('');
       setConfirmPassword('');
@@ -415,13 +420,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 type="password"
                 placeholder="New password"
                 value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value)}
               />
               <Input
                 type="password"
                 placeholder="Confirm new password"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
               />
               <Button colorScheme="green" onClick={handleChangePassword} isLoading={changingPw}>Save Password</Button>
             </VStack>
