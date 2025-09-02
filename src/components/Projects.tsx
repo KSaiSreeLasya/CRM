@@ -48,6 +48,7 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 import { formatSupabaseError } from '../utils/error';
 import {
   AddIcon,
@@ -132,6 +133,7 @@ const mapStateToFullName = (state: string): string => {
 
 const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
   const [projects, setProjects] = useState<Project[]>([]);
+  const { isAdmin, assignedRegions } = useAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
   const [newProject, setNewProject] = useState({
@@ -175,6 +177,11 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
         .select('*')
         .neq('status', 'deleted');
 
+      if (!isAdmin && Array.isArray(assignedRegions) && assignedRegions.length > 0) {
+        // Only fetch projects in user's assigned regions
+        query = (query as any).in('state', assignedRegions);
+      }
+
       // Apply state filter if provided
       if (stateFilter) {
         query = query.ilike('state', `%${stateFilter}%`);
@@ -210,7 +217,7 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
     } finally {
       setLoading(false);
     }
-  }, [toast, stateFilter]);
+  }, [toast, stateFilter, isAdmin, assignedRegions]);
 
   useEffect(() => {
     fetchProjects();
