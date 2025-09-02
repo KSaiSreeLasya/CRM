@@ -717,15 +717,17 @@ const ChitoorProjectDetails = () => {
                           >
                             Download Receipt
                           </Button>
-                          <Button
-                            size="xs"
-                            ml={2}
-                            colorScheme="red"
-                            variant="outline"
-                            onClick={() => handleDeletePayment(payment)}
-                          >
-                            Delete
-                          </Button>
+                          {payment.id !== 'initial' && (
+                            <Button
+                              size="xs"
+                              ml={2}
+                              colorScheme="red"
+                              variant="outline"
+                              onClick={() => handleDeletePayment(payment)}
+                            >
+                              Delete
+                            </Button>
+                          )}
                         </Td>
                       </Tr>
                     ))}
