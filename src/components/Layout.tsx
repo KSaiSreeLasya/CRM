@@ -28,7 +28,6 @@ import { useAuth } from '../context/AuthContext';
 import { ChevronDownIcon, DragHandleIcon } from '@chakra-ui/icons';
 import { supabase } from '../lib/supabase';
 import NavigationHeader from './NavigationHeader';
-import FitToScreen from './FitToScreen';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -357,7 +356,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <Box h="100vh" overflow="hidden" bg="gray.50">
+    <Box minH="100vh" bg="gray.50" overflowX="hidden">
       {/* Mobile Navigation */}
       <Flex
         display={{ base: 'flex', lg: 'none' }}
@@ -420,6 +419,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           flex="1"
           ml={{ base: 0, lg: isCollapsed ? '72px' : '240px' }}
           transition="margin-left 0.2s"
+          minH="100vh"
+          overflowX="hidden"
         >
           {/* Navigation Header */}
           <NavigationHeader />
@@ -427,11 +428,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Show global dashboard header only on main dashboard */}
 
           {/* Page Content */}
-          <Box p={4}>
-            {/* Ensure every page fits within the visible viewport without vertical scroll */}
-            <FitToScreen>
-              <Box>{children}</Box>
-            </FitToScreen>
+          <Box p={6}>
+            {children}
           </Box>
         </Box>
       </Flex>
