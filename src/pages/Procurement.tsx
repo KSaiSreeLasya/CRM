@@ -45,6 +45,7 @@ const Procurement: React.FC = () => {
   const [notes, setNotes] = useState('');
   const [tableMissing, setTableMissing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [editing, setEditing] = useState<ProcurementItem | null>(null);
   const toast = useToast();
 
   const fetchRecords = async () => {
@@ -163,17 +164,44 @@ EXECUTE FUNCTION update_updated_at();`}
             <Th>Purchase Date</Th>
             <Th isNumeric>Price</Th>
             <Th>Created</Th>
+            <Th>Actions</Th>
           </Tr>
         </Thead>
         <Tbody>
           {records.map((r) => (
             <Tr key={r.id}>
-              <Td>{r.item_name}</Td>
-              <Td>{r.quantity}</Td>
-              <Td>{r.supplier || '-'}</Td>
-              <Td>{r.purchase_date ? new Date(r.purchase_date).toLocaleDateString() : '-'}</Td>
-              <Td isNumeric>{typeof r.price === 'number' ? r.price.toFixed(2) : '-'}</Td>
+              <Td>{editing?.id === r.id ? (<Input value={editing.item_name} onChange={(e)=>setEditing({ ...editing!, item_name: e.target.value })} />) : r.item_name}</Td>
+              <Td>{editing?.id === r.id ? (<Input type="number" value={editing.quantity} onChange={(e)=>setEditing({ ...editing!, quantity: Number(e.target.value) })} />) : r.quantity}</Td>
+              <Td>{editing?.id === r.id ? (<Input value={editing.supplier || ''} onChange={(e)=>setEditing({ ...editing!, supplier: e.target.value })} />) : (r.supplier || '-')}</Td>
+              <Td>{editing?.id === r.id ? (<Input type="date" value={editing.purchase_date ? String(editing.purchase_date).slice(0,10) : ''} onChange={(e)=>setEditing({ ...editing!, purchase_date: e.target.value })} />) : (r.purchase_date ? new Date(r.purchase_date).toLocaleDateString() : '-')}</Td>
+              <Td isNumeric>{editing?.id === r.id ? (<Input type="number" step="0.01" value={typeof editing.price === 'number' ? editing.price : ''} onChange={(e)=>setEditing({ ...editing!, price: Number(e.target.value) })} />) : (typeof r.price === 'number' ? r.price.toFixed(2) : '-')}</Td>
               <Td>{r.created_at ? new Date(r.created_at).toLocaleString() : '-'}</Td>
+              <Td>
+                {editing?.id === r.id ? (
+                  <HStack>
+                    <Button size="sm" colorScheme="green" onClick={async ()=>{
+                      try{
+                        setLoading(true);
+                        const payload:any={ item_name: editing.item_name, quantity: editing.quantity, supplier: editing.supplier || null, purchase_date: editing.purchase_date || null, price: editing.price ?? null, notes: editing.notes || null };
+                        const { data, error } = await supabase.from('procurements').update(payload).eq('id', r.id).select('*');
+                        if(error) throw error as any;
+                        setRecords(records.map(x=>x.id===r.id ? (data as any)[0] : x));
+                        setEditing(null);
+                        toast({ title:'Updated', status:'success', duration:2000});
+                      }catch(e:any){ toast({ title:'Failed to update', description:e?.message||String(e), status:'error', duration:4000}); }
+                      finally{ setLoading(false); }
+                    }}>Save</Button>
+                    <Button size="sm" variant="ghost" onClick={()=>setEditing(null)}>Cancel</Button>
+                  </HStack>
+                ) : (
+                  <HStack>
+                    <Button size="sm" onClick={()=>setEditing(r)}>Edit</Button>
+                    <Button size="sm" colorScheme="red" onClick={async ()=>{
+                      try{ const { error } = await supabase.from('procurements').delete().eq('id', r.id); if(error) throw error as any; setRecords(records.filter(x=>x.id!==r.id)); toast({ title:'Deleted', status:'success', duration:2000}); }catch(e:any){ toast({ title:'Failed to delete', description:e?.message||String(e), status:'error', duration:4000}); }
+                    }}>Delete</Button>
+                  </HStack>
+                )}
+              </Td>
             </Tr>
           ))}
         </Tbody>
