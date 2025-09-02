@@ -111,6 +111,7 @@ const AdminDashboard = () => {
   const [assignments, setAssignments] = useState<ProjectAssignment[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
+  const { isOpen: isUserOpen, onOpen: onUserOpen, onClose: onUserClose } = useDisclosure();
   const [editingAssignment, setEditingAssignment] = useState<ProjectAssignment | null>(null);
   const [newAssignment, setNewAssignment] = useState({
     assignee_email: '',
@@ -118,6 +119,7 @@ const AdminDashboard = () => {
     assigned_states: [] as string[],
   });
   const [loading, setLoading] = useState(false);
+  const [newUser, setNewUser] = useState({ email: '', password: '' });
   const [stats, setStats] = useState({
     totalAssignments: 0,
     activeAssignees: 0,
@@ -419,7 +421,7 @@ const AdminDashboard = () => {
           <StatsCard
             title="States Managed"
             value={stats.statesManaged}
-            icon="🏛���"
+            icon="🏛️"
             color="purple"
             helpText="Geographic coverage"
           />
@@ -442,17 +444,27 @@ const AdminDashboard = () => {
               {assignments.length} assignments configured
             </Text>
           </Box>
-          <Button
-            leftIcon={<AddIcon />}
-            colorScheme="green"
-            onClick={onOpen}
-            size="lg"
-            borderRadius="lg"
-            _hover={{ transform: 'translateY(-1px)', boxShadow: 'lg' }}
-            transition="all 0.2s"
-          >
-            Create New Assignment
-          </Button>
+          <HStack>
+            <Button
+              leftIcon={<AddIcon />}
+              colorScheme="green"
+              onClick={onOpen}
+              size="lg"
+              borderRadius="lg"
+            >
+              Create New Assignment
+            </Button>
+            <Button
+              leftIcon={<AddIcon />}
+              colorScheme="blue"
+              variant="outline"
+              onClick={onUserOpen}
+              size="lg"
+              borderRadius="lg"
+            >
+              Add New User
+            </Button>
+          </HStack>
         </Flex>
 
         {/* Assignments Table */}
