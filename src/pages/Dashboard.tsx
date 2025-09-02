@@ -133,7 +133,7 @@ const calculateElapsedTime = (startDateStr: string | null) => {
 
 
 const Dashboard = () => {
-  const { isAuthenticated, user, isAdmin, assignedRegions } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [stats, setStats] = useState({
     totalCustomers: 0,
     activeProjects: 0,
@@ -163,7 +163,7 @@ const Dashboard = () => {
       setIsLoading(true);
       
       console.log('Fetching projects from Supabase...');
-      const { data: projectsData, error } = await supabase
+      const { data: projects, error } = await supabase
         .from('projects')
         .select('*')
         .neq('status', 'deleted');
@@ -173,39 +173,32 @@ const Dashboard = () => {
         throw error;
       }
 
-      console.log('Projects fetched:', projectsData);
+      console.log('Projects fetched:', projects);
 
-      if (projectsData) {
-        // Apply region filter for non-admins
-        let projects = projectsData as any[];
-        if (!isAdmin) {
-          const allowed = new Set((assignedRegions || []).map(s => (s || '').toLowerCase()));
-          projects = projects.filter(p => allowed.has((p.state || '').toLowerCase()));
-        }
-
+      if (projects) {
         // Log all possible status values to debug
         const allStatusesMap: Record<string, boolean> = {};
-        (projects as Project[]).forEach(p => {
+        projects.forEach(p => {
           if (p.status) allStatusesMap[p.status] = true;
         });
         const allStatuses = Object.keys(allStatusesMap);
         console.log('All status values found in DB:', allStatuses);
-
+        
         // Filter projects for selected year WITHOUT filtering by status yet
-        const yearProjects = (projects as Project[]).filter((project: Project) => {
+        const yearProjects = projects.filter((project: Project) => {
           const projectDate = new Date(project.start_date || project.created_at);
           return projectDate.getFullYear() === selectedYear;
         });
-
+        
         // Case-insensitive filtering for active projects
-        const activeProjects = (projects as Project[]).filter((p: Project) =>
+        const activeProjects = projects.filter((p: Project) => 
           typeof p.status === 'string' && p.status.toLowerCase() === 'active'
         );
         console.log('All active projects (case-insensitive):', activeProjects.length);
         console.log('Active project IDs:', activeProjects.map(p => p.id));
-
+        
         // Case-insensitive filtering for completed projects
-        const completedProjects = (projects as Project[]).filter((p: Project) =>
+        const completedProjects = projects.filter((p: Project) => 
           typeof p.status === 'string' && p.status.toLowerCase() === 'completed'
         );
 
@@ -234,12 +227,12 @@ const Dashboard = () => {
         });
 
         // Calculate total revenue and KWH from all projects
-        const totalRevenue: number = (projects as Project[]).reduce((sum: number, p: Project) => sum + (p.proposal_amount || 0), 0);
-        const totalKWH: number = (projects as Project[]).reduce((sum: number, p: Project) => sum + (p.kwh || 0), 0);
+        const totalRevenue: number = projects.reduce((sum: number, p: Project) => sum + (p.proposal_amount || 0), 0);
+        const totalKWH: number = projects.reduce((sum: number, p: Project) => sum + (p.kwh || 0), 0);
 
         // Count unique customers
         const customerMap: Record<string, boolean> = {};
-        (projects as Project[]).forEach(p => {
+        projects.forEach(p => {
           if (p.customer_name) customerMap[p.customer_name] = true;
         });
         const uniqueCustomersCount = Object.keys(customerMap).length;
@@ -253,10 +246,10 @@ const Dashboard = () => {
         });
 
         // Update projects list - filter active projects for display using case-insensitive comparison
-        setProjects(sortedProjects as Project[]);
+        setProjects(sortedProjects);
         
         // Filter active projects from the sorted list
-        const filteredActiveProjects = (sortedProjects as Project[]).filter((p: Project) => 
+        const filteredActiveProjects = sortedProjects.filter((p: Project) => 
           typeof p.status === 'string' && p.status.toLowerCase() === 'active'
         );
         
@@ -301,22 +294,6 @@ const Dashboard = () => {
     const stageIndex = PROJECT_STAGES.indexOf(stage);
     const colors = ['red', 'orange', 'yellow', 'blue', 'purple', 'green'];
     return colors[stageIndex] || 'gray';
-  };
-
-  // Stock and logistics summary tiles
-  const StockSummaryCard: React.FC = () => {
-    const [count, setCount] = useState<number | null>(null);
-    useEffect(() => { (async () => { try { const { data } = await supabase.from('warehouse_stock').select('id'); setCount((data || []).length); } catch { setCount(null); } })(); }, []);
-    return (
-      <StatsCard title="Stock Items" value={count === null ? '-' : count} icon="📦" color="cyan" helpText="Warehouse" />
-    );
-  };
-  const LogisticsSummaryCard: React.FC = () => {
-    const [pending, setPending] = useState<number | null>(null);
-    useEffect(() => { (async () => { try { const { data } = await supabase.from('logistics').select('status'); const n = (data || []).filter((r: any) => (r.status || '').toLowerCase() !== 'delivered').length; setPending(n); } catch { setPending(null); } })(); }, []);
-    return (
-      <StatsCard title="Pending Shipments" value={pending === null ? '-' : pending} icon="🚚" color="teal" helpText="Logistics" />
-    );
   };
 
   return (
@@ -367,7 +344,7 @@ const Dashboard = () => {
         </Flex>
 
         {/* Stats Cards */}
-        <SimpleGrid columns={{ base: 1, md: 2, lg: isRestrictedUser ? 6 : 7 }} spacing={6}>
+        <SimpleGrid columns={{ base: 1, md: 2, lg: isRestrictedUser ? 4 : 5 }} spacing={6}>
           <StatsCard
             title="Total Customers"
             value={stats.totalCustomers}
@@ -405,8 +382,6 @@ const Dashboard = () => {
             color="yellow"
             helpText="Energy capacity"
           />
-          {React.createElement(StockSummaryCard)}
-          {React.createElement(LogisticsSummaryCard)}
         </SimpleGrid>
 
         {/* Active Projects Table */}

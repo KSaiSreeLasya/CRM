@@ -20,14 +20,12 @@ import {
   DrawerContent,
   DrawerCloseButton,
   useDisclosure,
-  Input,
 } from '@chakra-ui/react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import DashboardHeader from './DashboardHeader';
 import NavigationHeader from './NavigationHeader';
-import { supabase } from '../lib/supabase';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -74,10 +72,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { logout, isFinance, isAdmin, user, assignedRegions } = useAuth();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const passwordDisclosure = useDisclosure();
-  const [newPassword, setNewPassword] = React.useState('');
-  const [confirmPassword, setConfirmPassword] = React.useState('');
-  const [changingPassword, setChangingPassword] = React.useState(false);
 
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
@@ -113,15 +107,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Filter state projects based on user's assigned regions
   const stateProjects = allStateProjects.filter(project => {
+    // Admin users see all projects
     if (isAdmin) return true;
 
+    // Show "ALL PROJECTS" only if user has access to multiple regions or is admin
     if (project.region === 'all') {
-      return assignedRegions.length > 1; // only when multiple regions assigned
+      return assignedRegions.length > 1 || isAdmin;
     }
 
-    if (assignedRegions.length === 0) return false; // hide regions when no assignments
+    // Show region if user is assigned to it
+    const hasRegionAccess = assignedRegions.includes(project.region);
 
-    return assignedRegions.includes(project.region);
+    // Fallback: If no assigned regions found, show all regions for authenticated users
+    // This ensures users can still navigate even if assignments aren't set up
+    if (assignedRegions.length === 0) {
+      return project.region !== 'all'; // Show individual regions but not "ALL PROJECTS"
+    }
+
+    return hasRegionAccess;
   });
 
   const financeItems = [
@@ -232,13 +235,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </MenuButton>
             <MenuList>
               <MenuItem
-                icon={<Text>🔒</Text>}
-                onClick={passwordDisclosure.onOpen}
-                fontSize="sm"
-              >
-                Change Password
-              </MenuItem>
-              <MenuItem
                 icon={<Text>🚪</Text>}
                 onClick={handleSignOut}
                 fontSize="sm"
@@ -323,8 +319,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Dashboard Header - Hidden on specific region pages */}
           {!location.pathname.includes('/projects/telangana') &&
            !location.pathname.includes('/projects/ap') &&
-           !location.pathname.includes('/projects/chitoor') &&
-           !location.pathname.includes('/dashboard') && (
+           !location.pathname.includes('/projects/chitoor') && (
             <DashboardHeader />
           )}
 
@@ -334,48 +329,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </Box>
         </Box>
       </Flex>
-
-      {/* Change Password Drawer */}
-      <Drawer isOpen={passwordDisclosure.isOpen} placement="right" onClose={passwordDisclosure.onClose}>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerBody p={6}>
-            <VStack spacing={4} align="stretch">
-              <Text fontSize="lg" fontWeight="bold">Change Password</Text>
-              <Text fontSize="sm" color="gray.600">Update your account password. Minimum 6 characters.</Text>
-              <Input type="password" placeholder="New password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-              <Input type="password" placeholder="Confirm new password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-              <Button colorScheme="green" isLoading={changingPassword} onClick={async () => {
-                if (!newPassword || newPassword.length < 6) {
-                  toast({ title: 'Password too short', status: 'warning', duration: 3000, isClosable: true });
-                  return;
-                }
-                if (newPassword !== confirmPassword) {
-                  toast({ title: 'Passwords do not match', status: 'error', duration: 3000, isClosable: true });
-                  return;
-                }
-                try {
-                  setChangingPassword(true);
-                  const { error } = await supabase.auth.updateUser({ password: newPassword });
-                  if (error) throw error;
-                  setNewPassword('');
-                  setConfirmPassword('');
-                  passwordDisclosure.onClose();
-                  toast({ title: 'Password updated', status: 'success', duration: 3000, isClosable: true });
-                } catch (err) {
-                  console.error(err);
-                  toast({ title: 'Failed to update password', status: 'error', duration: 4000, isClosable: true });
-                } finally {
-                  setChangingPassword(false);
-                }
-              }}>
-                Update Password
-              </Button>
-            </VStack>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
     </Box>
   );
 };
