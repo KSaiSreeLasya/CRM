@@ -77,7 +77,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, isActive, onClick, c
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
-  const { logout, isFinance, isAdmin, user, assignedRegions } = useAuth();
+  const { logout, isFinance, isAdmin, user } = useAuth();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
@@ -216,6 +216,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 to="/admin"
                 isActive={location.pathname === '/admin'}
                 onClick={onClose}
+                collapsed={isCollapsed}
               />
             </>
           )}
@@ -235,6 +236,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   to={item.to}
                   isActive={location.pathname === item.to}
                   onClick={onClose}
+                  collapsed={isCollapsed}
                 />
               ))}
             </>
