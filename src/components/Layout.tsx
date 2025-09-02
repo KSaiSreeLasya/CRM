@@ -140,11 +140,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Flex direction="column" h="full">
         <Box p={6}>
           <Flex align="center" justify={isCollapsed ? 'center' : 'space-between'} mb={8}>
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F5065c74f0a374ff4a36efc224f468f09?format=webp&width=800"
-              alt="Axiso Green Energy Logo"
-              style={{ height: '60px', width: 'auto' }}
-            />
+            {!isCollapsed && (
+              <img
+                src={logoUrl}
+                alt="Axiso Green Energy Logo"
+                style={{ height: '60px', width: 'auto' }}
+              />
+            )}
             <IconButton
               aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               icon={<Text>{isCollapsed ? '▶' : '◀'}</Text>}
