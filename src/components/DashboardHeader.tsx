@@ -93,12 +93,17 @@ const DashboardHeader = () => {
           const totalCapacity = projects?.reduce((sum, p) => sum + (p.kwh || 0), 0) || 0;
           const chitoorTotal = chitoorProjects?.length || 0;
 
+          const chitoorCompleted = (chitoorProjects || []).filter((p: any) => (p.project_status || '').toLowerCase() === 'completed').length;
+          const chitoorActive = chitoorTotal - chitoorCompleted;
+          const chitoorRevenue = (chitoorProjects || []).reduce((sum: number, p: any) => sum + (p.project_cost || 0), 0);
+          const chitoorCapacity = (chitoorProjects || []).reduce((sum: number, p: any) => sum + (p.capacity || 0), 0);
+
           setGlobalStats({
             totalProjects: (projects?.length || 0) + chitoorTotal,
-            activeProjects,
-            completedProjects,
-            totalRevenue,
-            totalCapacity,
+            activeProjects: activeProjects + chitoorActive,
+            completedProjects: completedProjects + chitoorCompleted,
+            totalRevenue: totalRevenue + chitoorRevenue,
+            totalCapacity: totalCapacity + chitoorCapacity,
             chitoorProjects: chitoorTotal,
           });
         }
