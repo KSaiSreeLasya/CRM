@@ -28,6 +28,7 @@ import { useAuth } from '../context/AuthContext';
 import { ChevronDownIcon, DragHandleIcon } from '@chakra-ui/icons';
 import { supabase } from '../lib/supabase';
 import NavigationHeader from './NavigationHeader';
+import FitToScreen from './FitToScreen';
 
 interface LayoutProps {
   children: React.ReactNode;
