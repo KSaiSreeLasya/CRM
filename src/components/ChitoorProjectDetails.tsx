@@ -80,6 +80,7 @@ const ChitoorProjectDetails = () => {
   
   const [project, setProject] = useState<ChitoorProject | null>(null);
   const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
+  const [paymentsTable, setPaymentsTable] = useState<'payment_history' | 'chitoor_payment_history'>('payment_history');
   const [loading, setLoading] = useState(true);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
@@ -142,18 +143,41 @@ const ChitoorProjectDetails = () => {
         });
       }
 
-      // Fetch phase-wise payment history from shared payment_history table
-      const { data: payData, error: payError } = await supabase
-        .from('payment_history')
-        .select('*')
-        .eq('project_id', id)
-        .order('created_at', { ascending: true });
-      if (payError) {
-        console.warn('No payment history found for chitoor project or table missing', payError?.message || payError);
-        setPaymentHistory([]);
-      } else {
-        setPaymentHistory((payData as any[]) as PaymentHistory[]);
+      // Fetch phase-wise payment history. Try shared table first, then chitoor-specific as fallback
+      let localPayments: any[] = [];
+      let usedTable: 'payment_history' | 'chitoor_payment_history' = 'payment_history';
+      let projectIdField: 'project_id' | 'chitoor_project_id' = 'project_id';
+
+      try {
+        const { data: payData } = await supabase
+          .from('payment_history')
+          .select('*')
+          .eq('project_id', id)
+          .order('created_at', { ascending: true });
+        localPayments = (payData as any[]) || [];
+      } catch (firstErr) {
+        // ignore and try fallback
       }
+
+      if ((!localPayments || localPayments.length === 0)) {
+        try {
+          const { data: chPayData } = await supabase
+            .from('chitoor_payment_history')
+            .select('*')
+            .eq('chitoor_project_id', id)
+            .order('created_at', { ascending: true });
+          if (chPayData && Array.isArray(chPayData)) {
+            localPayments = chPayData as any[];
+            usedTable = 'chitoor_payment_history';
+            projectIdField = 'chitoor_project_id';
+          }
+        } catch (secondErr) {
+          console.warn('Payment history fallback failed', secondErr);
+        }
+      }
+
+      setPaymentsTable(usedTable);
+      setPaymentHistory(localPayments as PaymentHistory[]);
 
     } catch (error) {
       console.error('Error:', error);
@@ -179,23 +203,48 @@ const ChitoorProjectDetails = () => {
     try {
       setProcessingPayment(true);
 
-      // Insert a new phase entry
-      const insertRes = await supabase
-        .from('payment_history')
-        .insert([{
-          project_id: project.id,
-          amount: parseFloat(paymentAmount),
-          payment_mode: paymentMode,
-          payment_date: paymentDate,
-        }])
-        .select('*')
-        .single();
-
-      if (insertRes.error) {
-        throw insertRes.error;
+      // Validate amount
+      const amountNum = Number(paymentAmount);
+      if (!isFinite(amountNum) || amountNum <= 0) {
+        toast({ title: 'Invalid amount', status: 'warning', duration: 3000, isClosable: true });
+        return;
       }
 
-      const newAmountReceived = (project.amount_received || 0) + parseFloat(paymentAmount);
+      // Insert a new phase entry into detected table; fallback to chitoor_payment_history on FK error
+      let usedTable: 'payment_history' | 'chitoor_payment_history' = paymentsTable;
+      let projectIdField: 'project_id' | 'chitoor_project_id' = usedTable === 'payment_history' ? 'project_id' : 'chitoor_project_id';
+
+      let insertError: any | null = null;
+      try {
+        const { error } = await supabase
+          .from(usedTable)
+          .insert([{
+            [projectIdField]: project.id,
+            amount: amountNum,
+            payment_mode: paymentMode,
+            payment_date: paymentDate,
+          } as any]);
+        insertError = error || null;
+      } catch (e) {
+        insertError = e;
+      }
+
+      if (insertError) {
+        usedTable = 'chitoor_payment_history';
+        projectIdField = 'chitoor_project_id';
+        const { error: fbError } = await supabase
+          .from(usedTable)
+          .insert([{
+            [projectIdField]: project.id,
+            amount: amountNum,
+            payment_mode: paymentMode,
+            payment_date: paymentDate,
+          } as any]);
+        if (fbError) throw fbError;
+        setPaymentsTable(usedTable);
+      }
+
+      const newAmountReceived = (project.amount_received || 0) + amountNum;
 
       // Update project with new amount received
       const { error: updateError } = await supabase
@@ -205,11 +254,13 @@ const ChitoorProjectDetails = () => {
 
       if (updateError) throw updateError;
 
-      // Refresh payments from DB to ensure IDs are consistent
+      // Refresh payments from the detected table
+      const projectField = (paymentsTable === 'payment_history') ? 'project_id' : 'chitoor_project_id';
+      const tableToRead = paymentsTable;
       const { data: payData } = await supabase
-        .from('payment_history')
+        .from(tableToRead)
         .select('*')
-        .eq('project_id', project.id)
+        .eq(projectField, project.id)
         .order('created_at', { ascending: true });
       setPaymentHistory((payData as any[]) as PaymentHistory[]);
       setProject(prev => prev ? { ...prev, amount_received: newAmountReceived } : null);
@@ -227,11 +278,12 @@ const ChitoorProjectDetails = () => {
       setPaymentDate(new Date().toISOString().split('T')[0]);
       setPaymentMode('Cash');
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding payment:', error);
+      const message = formatSupabaseError(error) || (error?.message || 'Failed to add payment');
       toast({
-        title: 'Error',
-        description: 'Failed to add payment',
+        title: 'Error adding payment',
+        description: message,
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -245,8 +297,9 @@ const ChitoorProjectDetails = () => {
     if (!project) return;
     try {
       // Delete payment row
+      const tableToUse = paymentsTable;
       const { error: delError } = await supabase
-        .from('payment_history')
+        .from(tableToUse)
         .delete()
         .eq('id', payment.id);
       if (delError) throw delError;
@@ -259,10 +312,11 @@ const ChitoorProjectDetails = () => {
       if (updError) throw updError;
 
       // Refresh list
+      const projectField = tableToUse === 'payment_history' ? 'project_id' : 'chitoor_project_id';
       const { data: payData } = await supabase
-        .from('payment_history')
+        .from(tableToUse)
         .select('*')
-        .eq('project_id', project.id)
+        .eq(projectField, project.id)
         .order('created_at', { ascending: true });
 
       setPaymentHistory((payData as any[]) as PaymentHistory[]);
@@ -278,7 +332,7 @@ const ChitoorProjectDetails = () => {
       console.error('Error deleting payment:', err);
       toast({
         title: 'Error',
-        description: 'Failed to delete payment',
+        description: formatSupabaseError(err) || 'Failed to delete payment',
         status: 'error',
         duration: 3000,
         isClosable: true,
