@@ -134,7 +134,7 @@ const Reports = () => {
         .neq('status', 'deleted');
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error:', (error as any)?.message || error, error);
         throw error;
       }
 

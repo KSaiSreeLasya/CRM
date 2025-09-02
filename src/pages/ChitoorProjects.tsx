@@ -33,6 +33,7 @@ import {
   Divider,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
+import { formatSupabaseError } from '../utils/error';
 import { AddIcon } from '@chakra-ui/icons';
 
 interface ChitoorProject {
@@ -141,10 +142,10 @@ const ChitoorProjects = () => {
         .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error:', (error as any)?.message || error, error);
         toast({
           title: 'Error',
-          description: 'Failed to fetch Chitoor projects. Please try again.',
+          description: `Failed to fetch Chitoor projects. ${formatSupabaseError(error)}`,
           status: 'error',
           duration: 5000,
           isClosable: true,
@@ -221,10 +222,10 @@ const ChitoorProjects = () => {
         .insert([projectData]);
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error:', (error as any)?.message || error, error);
         toast({
           title: 'Error',
-          description: 'Failed to create project. Please try again.',
+          description: `Failed to create project. ${formatSupabaseError(error)}`,
           status: 'error',
           duration: 5000,
           isClosable: true,
