@@ -413,7 +413,7 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
               <Box>
                 <Heading size="md" color="gray.800">Project Stages Distribution</Heading>
                 <Text fontSize="sm" color="gray.600" mt={1}>
-                  Current progress across all active projects
+                  Current progress across {stateFilter ? stateFilter : 'all states'}
                 </Text>
               </Box>
               <Text fontSize="xl" color="green.500">📋</Text>
