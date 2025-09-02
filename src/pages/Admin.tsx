@@ -41,6 +41,7 @@ import {
   Checkbox,
   CheckboxGroup,
   Stack,
+  Input,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 import { formatSupabaseError } from '../utils/error';
@@ -111,6 +112,7 @@ const AdminDashboard = () => {
   const [assignments, setAssignments] = useState<ProjectAssignment[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
+  const { isOpen: isUserOpen, onOpen: onUserOpen, onClose: onUserClose } = useDisclosure();
   const [editingAssignment, setEditingAssignment] = useState<ProjectAssignment | null>(null);
   const [newAssignment, setNewAssignment] = useState({
     assignee_email: '',
@@ -118,6 +120,31 @@ const AdminDashboard = () => {
     assigned_states: [] as string[],
   });
   const [loading, setLoading] = useState(false);
+  const [newUser, setNewUser] = useState({ email: '', password: '' });
+
+  const handleCreateUser = async () => {
+    try {
+      if (!newUser.email || !newUser.password) {
+        toast({ title: 'Missing details', description: 'Email and password are required', status: 'warning', duration: 4000, isClosable: true });
+        return;
+      }
+      setLoading(true);
+      const { data, error } = await supabase.auth.signUp({ email: newUser.email, password: newUser.password });
+      if (error) throw error;
+
+      if (data?.user?.id) {
+        await supabase.from('users').upsert({ id: data.user.id, role: 'user' });
+      }
+
+      toast({ title: 'Invitation sent', description: 'If email confirmations are enabled, the user must verify their email.', status: 'success', duration: 6000, isClosable: true });
+      setNewUser({ email: '', password: '' });
+      onUserClose();
+    } catch (e: any) {
+      toast({ title: 'Failed to create user', description: e?.message || String(e), status: 'error', duration: 6000, isClosable: true });
+    } finally {
+      setLoading(false);
+    }
+  };
   const [stats, setStats] = useState({
     totalAssignments: 0,
     activeAssignees: 0,
@@ -163,10 +190,10 @@ const AdminDashboard = () => {
         setAssignments(data);
         
         // Calculate stats
-        const uniqueAssignees = new Set(data.map(a => a.assignee_email)).size;
-        const allStates = data.flatMap(a => a.assigned_states);
+        const uniqueAssignees = new Set(data.map((a: any) => a.assignee_email)).size;
+        const allStates = data.flatMap((a: any) => a.assigned_states);
         const uniqueStates = new Set(allStates).size;
-        const totalProjects = data.reduce((sum, a) => sum + (a.project_count || 0), 0);
+        const totalProjects = data.reduce((sum: number, a: any) => sum + (a.project_count || 0), 0);
 
         setStats({
           totalAssignments: data.length,
@@ -442,17 +469,27 @@ const AdminDashboard = () => {
               {assignments.length} assignments configured
             </Text>
           </Box>
-          <Button
-            leftIcon={<AddIcon />}
-            colorScheme="green"
-            onClick={onOpen}
-            size="lg"
-            borderRadius="lg"
-            _hover={{ transform: 'translateY(-1px)', boxShadow: 'lg' }}
-            transition="all 0.2s"
-          >
-            Create New Assignment
-          </Button>
+          <HStack>
+            <Button
+              leftIcon={<AddIcon />}
+              colorScheme="green"
+              onClick={onOpen}
+              size="lg"
+              borderRadius="lg"
+            >
+              Create New Assignment
+            </Button>
+            <Button
+              leftIcon={<AddIcon />}
+              colorScheme="blue"
+              variant="outline"
+              onClick={onUserOpen}
+              size="lg"
+              borderRadius="lg"
+            >
+              Add New User
+            </Button>
+          </HStack>
         </Flex>
 
         {/* Assignments Table */}
@@ -626,6 +663,39 @@ const AdminDashboard = () => {
                 size="lg"
               >
                 Create Assignment
+              </Button>
+            </VStack>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
+      {/* Add User Modal */}
+      <Modal isOpen={isUserOpen} onClose={onUserClose} size="md">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>
+            <Flex align="center" gap={2}>
+              <AddIcon color="blue.500" />
+              Add New User
+            </Flex>
+          </ModalHeader>
+          <CloseButton position="absolute" right={2} top={2} onClick={onUserClose} />
+          <ModalBody pb={6}>
+            <VStack spacing={4} align="stretch">
+              <FormControl isRequired>
+                <FormLabel fontSize="sm" fontWeight="medium">Email</FormLabel>
+                <Input type="email" value={newUser.email} onChange={(e)=>setNewUser({ ...newUser, email: e.target.value })} placeholder="user@example.com" />
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel fontSize="sm" fontWeight="medium">Password</FormLabel>
+                <Input type="password" value={newUser.password} onChange={(e)=>setNewUser({ ...newUser, password: e.target.value })} placeholder="Min 6 characters" />
+              </FormControl>
+              <Alert status="info" borderRadius="md">
+                <AlertIcon />
+                This will create an auth user via sign-up. If email confirmation is enabled, the user must verify their email to activate.
+              </Alert>
+              <Button colorScheme="blue" onClick={handleCreateUser} isLoading={loading}>
+                Create User
               </Button>
             </VStack>
           </ModalBody>

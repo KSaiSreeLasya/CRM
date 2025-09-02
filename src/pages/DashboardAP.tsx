@@ -33,6 +33,7 @@ import {
   Circle,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
+import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDownIcon, TimeIcon } from '@chakra-ui/icons';
 import { PROJECT_STAGES } from '../lib/constants';
@@ -123,7 +124,7 @@ const calculateElapsedTime = (startDateStr: string | null) => {
 const DashboardAP = () => {
   const { isAuthenticated, user } = useAuth();
   const [stats, setStats] = useState({
-    totalCustomers: 0,
+    totalProjects: 0,
     activeProjects: 0,
     completedProjects: 0,
     totalRevenue: 0,
@@ -176,12 +177,10 @@ const DashboardAP = () => {
         const totalRevenue: number = projects.reduce((sum: number, p: Project) => sum + (p.proposal_amount || 0), 0);
         const totalKWH: number = projects.reduce((sum: number, p: Project) => sum + (p.kwh || 0), 0);
 
-        const customerMap: Record<string, boolean> = {};
-        projects.forEach(p => { if (p.customer_name) customerMap[p.customer_name] = true; });
-        const uniqueCustomersCount = Object.keys(customerMap).length;
+        const totalProjectsCount = projects.length;
 
         setStats({
-          totalCustomers: uniqueCustomersCount,
+          totalProjects: totalProjectsCount,
           activeProjects: activeAll.length,
           completedProjects: completedAll.length,
           totalRevenue,
@@ -239,6 +238,7 @@ const DashboardAP = () => {
             <Text color="gray.600">Andhra Pradesh region analytics</Text>
           </Box>
           <HStack spacing={4} wrap="wrap">
+            <Button as={RouterLink as any} to="/reports/ap" colorScheme="green" variant="solid" size="sm">View AP Reports</Button>
             <Menu>
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />} variant="outline" size="sm">
                 Sort by: {sortBy.charAt(0).toUpperCase() + sortBy.slice(1)}
@@ -261,7 +261,7 @@ const DashboardAP = () => {
         </Flex>
 
         <SimpleGrid columns={{ base: 1, md: 2, lg: isRestrictedUser ? 4 : 5 }} spacing={6}>
-          <StatsCard title="Total Customers" value={stats.totalCustomers} icon="👥" color="blue" helpText="Unique customers" />
+          <StatsCard title="Total Projects" value={stats.totalProjects} icon="🏗️" color="blue" helpText="All projects" />
           <StatsCard title="Active Projects" value={stats.activeProjects} icon="📊" color="green" helpText="In progress" />
           <StatsCard title="Completed Projects" value={stats.completedProjects} icon="✅" color="purple" helpText="Successfully delivered" />
           {!isRestrictedUser && (

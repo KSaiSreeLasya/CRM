@@ -93,10 +93,10 @@ const STAGE_GROUPS = [
   { name: 'Finalization', stages: ['Approved Inspection -- Subsidy in Progress', 'Subsidy Disbursed -- Final payment', 'Final Payment Done'], color: 'red' }
 ];
 
-const Reports = () => {
-  const { user } = useAuth();
+const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
+  const { user, isAdmin, assignedRegions } = useAuth();
   const [stats, setStats] = useState({
-    totalCustomers: 0,
+    totalProjects: 0,
     activeProjects: 0,
     completedProjects: 0,
     totalRevenue: 0,
@@ -113,25 +113,51 @@ const Reports = () => {
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
 
   // Check if current user is contact@axisogreen.in
-  const isRestrictedUser = user?.email === 'contact@axisogreen.in';
+  const isRestrictedUser = false;
 
   const cardBg = useColorModeValue('white', 'gray.800');
 
   useEffect(() => {
     fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedYear]);
+  }, [selectedYear, stateFilter]);
 
   const fetchStats = async () => {
     try {
+      const wants = (stateFilter || '').toLowerCase();
+      const lowerAssigned = (assignedRegions || []).map(s => (s || '').toLowerCase());
+      const canAccess = !stateFilter || isAdmin || lowerAssigned.includes(wants);
+
       setIsLoading(true);
       setError(null);
+
+      if (wants === 'chitoor' && !canAccess) {
+        // No access to Chitoor: show empty but do not error
+        setStats({ totalCustomers: 0, activeProjects: 0, completedProjects: 0, totalRevenue: 0, totalKWH: 0 });
+        setStageStats({});
+        setMonthlyKWH({});
+        setIsLoading(false);
+        return;
+      }
       
       console.log('Fetching projects from Supabase...');
-      const { data: projects, error } = await supabase
+      let query = supabase
         .from('projects')
         .select('*')
         .neq('status', 'deleted');
+      if (stateFilter && wants !== 'chitoor' && canAccess) {
+        query = query.ilike('state', `%${wants}%`);
+      }
+      if ((!stateFilter || !canAccess) && (assignedRegions || []).length > 0 && !isAdmin) {
+        const regionsForProjects = (assignedRegions || []).filter(r => (r || '').toLowerCase() !== 'chitoor');
+        if (regionsForProjects.length > 0) {
+          const orFilter = regionsForProjects
+            .map(r => `state.ilike.%${r}%`)
+            .join(',');
+          query = (query as any).or(orFilter);
+        }
+      }
+      const { data: projects, error } = await query;
 
       if (error) {
         console.error('Supabase error:', (error as any)?.message || error, error);
@@ -140,6 +166,34 @@ const Reports = () => {
 
       console.log('Projects fetched:', projects);
 
+      if (stateFilter && stateFilter.toLowerCase() === 'chitoor') {
+        const { data: chitoor, error: chErr } = await supabase.from('chitoor_projects').select('*');
+        if (chErr && chErr.code !== 'PGRST116') throw new Error(chErr.message || 'Failed to load Chitoor reports');
+        const chProjects = (chitoor || []) as any[];
+        const num = (v: any) => typeof v === 'number' ? v : parseFloat(v || '0') || 0;
+        const totalRevenue = chProjects.reduce((sum: number, p: any) => sum + num(p.project_cost), 0);
+        const totalKWH = chProjects.reduce((sum: number, p: any) => sum + num(p.capacity), 0);
+        const active = chProjects.filter((p: any) => (p.project_status || '').toLowerCase() !== 'completed');
+        const completed = chProjects.filter((p: any) => (p.project_status || '').toLowerCase() === 'completed');
+        const customerMap: Record<string, boolean> = {};
+        chProjects.forEach((p: any) => {
+          const cname = p.customer_name || p.customer || p.name;
+          if (cname) customerMap[String(cname)] = true;
+        });
+        setStats({ totalProjects: chProjects.length, activeProjects: active.length, completedProjects: completed.length, totalRevenue, totalKWH });
+        const monthlyKWHData: Record<string, number> = { 'January': 0, 'February': 0, 'March': 0, 'April': 0, 'May': 0, 'June': 0, 'July': 0, 'August': 0, 'September': 0, 'October': 0, 'November': 0, 'December': 0 };
+        const monthNames = Object.keys(monthlyKWHData);
+        chProjects.forEach((p: any) => { const d = new Date(p.date_of_order || p.created_at); if (!isNaN(d.getTime())) { const m = d.getMonth(); if (p.capacity) monthlyKWHData[monthNames[m]] += p.capacity; } });
+        setMonthlyKWH(monthlyKWHData);
+        const statusCounts: Record<string, number> = {};
+        chProjects.forEach((p: any) => {
+          const s = (p.project_status || 'Unknown').trim();
+          statusCounts[s] = (statusCounts[s] || 0) + 1;
+        });
+        setStageStats(statusCounts);
+        return;
+      }
+
       if (projects) {
         // Filter projects for selected year
         const yearProjects = projects.filter((project: Project) => {
@@ -147,20 +201,15 @@ const Reports = () => {
           return projectDate.getFullYear() === selectedYear;
         });
 
-        const active = projects.filter((p: Project) => p.status === 'active');
-        const completed = projects.filter((p: Project) => p.status === 'completed');
+        const active = projects.filter((p: Project) => typeof p.status === 'string' && p.status.toLowerCase() === 'active');
+        const completed = projects.filter((p: Project) => typeof p.status === 'string' && p.status.toLowerCase() === 'completed');
         const totalRevenue = projects.reduce((sum: number, p: Project) => sum + (p.proposal_amount || 0), 0);
         const totalKWH = projects.reduce((sum: number, p: Project) => sum + (p.kwh || 0), 0);
 
-        // Count unique customers
-        const customerMap: Record<string, boolean> = {};
-        projects.forEach(p => {
-          if (p.customer_name) customerMap[p.customer_name] = true;
-        });
-        const uniqueCustomersCount = Object.keys(customerMap).length;
+        const totalProjectsCount = projects.length;
 
         setStats({
-          totalCustomers: uniqueCustomersCount,
+          totalProjects: totalProjectsCount,
           activeProjects: active.length,
           completedProjects: completed.length,
           totalRevenue,
@@ -261,13 +310,13 @@ const Reports = () => {
         </Flex>
 
         {/* Stats Cards */}
-        <SimpleGrid columns={{ base: 1, md: 2, lg: isRestrictedUser ? 4 : 5 }} spacing={6}>
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 5 }} spacing={6}>
           <StatsCard
-            title="Total Customers"
-            value={stats.totalCustomers}
-            icon="👥"
+            title="Total Projects"
+            value={stats.totalProjects}
+            icon="🏗️"
             color="blue"
-            helpText="Unique customers"
+            helpText="All projects"
           />
           <StatsCard
             title="Active Projects"
@@ -283,15 +332,13 @@ const Reports = () => {
             color="purple"
             helpText="Successfully delivered"
           />
-          {!isRestrictedUser && (
-            <StatsCard
-              title="Total Revenue"
-              value={`₹${stats.totalRevenue.toLocaleString()}`}
-              icon="💰"
-              color="orange"
-              helpText="Project value"
-            />
-          )}
+          <StatsCard
+            title="Total Revenue"
+            value={`₹${stats.totalRevenue.toLocaleString()}`}
+            icon="💰"
+            color="orange"
+            helpText="Project value"
+          />
           <StatsCard
             title="Total Capacity"
             value={`${stats.totalKWH.toLocaleString()} kW`}
@@ -370,21 +417,38 @@ const Reports = () => {
               <Box>
                 <Heading size="md" color="gray.800">Project Stages Distribution</Heading>
                 <Text fontSize="sm" color="gray.600" mt={1}>
-                  Current progress across all active projects
+                  Current progress across {stateFilter ? stateFilter : 'all states'}
                 </Text>
               </Box>
               <Text fontSize="xl" color="green.500">📋</Text>
             </Flex>
           </CardHeader>
           <CardBody>
+            {stateFilter && stateFilter.toLowerCase() === 'chitoor' ? (
+              <VStack spacing={3} align="stretch">
+                <Text fontSize="sm" color="gray.600">Chitoor uses custom project_status values. Distribution below reflects those statuses.</Text>
+                {Object.keys(stageStats).length === 0 ? (
+                  <Text fontSize="sm" color="gray.500">No status distribution available.</Text>
+                ) : (
+                  <VStack spacing={3} align="stretch">
+                    {Object.entries(stageStats).map(([status, count]) => (
+                      <Flex key={status} justify="space-between" align="center" p={2} bg="gray.50" borderRadius="md" border="1px solid" borderColor="gray.100">
+                        <Text fontSize="sm" color="gray.700">{status}</Text>
+                        <Badge colorScheme={count > 0 ? 'green' : 'gray'} borderRadius="full">{count}</Badge>
+                      </Flex>
+                    ))}
+                  </VStack>
+                )}
+              </VStack>
+            ) : (
             <VStack spacing={6} align="stretch">
               {STAGE_GROUPS.map((group) => (
                 <Box key={group.name}>
                   <Flex align="center" mb={4}>
-                    <Badge 
-                      colorScheme={group.color} 
-                      px={3} 
-                      py={1} 
+                    <Badge
+                      colorScheme={group.color}
+                      px={3}
+                      py={1}
                       borderRadius="full"
                       fontSize="xs"
                       fontWeight="medium"
@@ -395,16 +459,16 @@ const Reports = () => {
                       {group.stages.reduce((count, stage) => count + (stageStats[stage] || 0), 0)} projects
                     </Text>
                   </Flex>
-                  
+
                   <VStack spacing={3} align="stretch">
                     {group.stages.map(stage => {
                       const count = stageStats[stage] || 0;
                       const percentage = maxProjectsInStage > 0 ? Math.round((count / maxProjectsInStage) * 100) : 0;
-                      
+
                       return (
-                        <Tooltip 
-                          key={stage} 
-                          label={`${count} project${count !== 1 ? 's' : ''} in "${stage}" stage`} 
+                        <Tooltip
+                          key={stage}
+                          label={`${count} project${count !== 1 ? 's' : ''} in "${stage}" stage`}
                           hasArrow
                         >
                           <Box>
@@ -412,8 +476,8 @@ const Reports = () => {
                               <Text fontSize="sm" color="gray.700" fontWeight="medium" noOfLines={1}>
                                 {stage}
                               </Text>
-                              <Badge 
-                                colorScheme={count > 0 ? group.color : 'gray'} 
+                              <Badge
+                                colorScheme={count > 0 ? group.color : 'gray'}
                                 variant={count > 0 ? 'solid' : 'outline'}
                                 fontSize="xs"
                               >
@@ -435,6 +499,7 @@ const Reports = () => {
                 </Box>
               ))}
             </VStack>
+            )}
           </CardBody>
         </Card>
       </VStack>

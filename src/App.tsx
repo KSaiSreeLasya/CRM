@@ -18,6 +18,7 @@ import ChitoorProjects from './pages/ChitoorProjects';
 import Admin from './pages/Admin';
 import StockWarehouse from './pages/StockWarehouse';
 import Logistics from './pages/Logistics';
+import Procurement from './pages/Procurement';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
 import { AuthProvider } from './context/AuthContext';
@@ -92,7 +93,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      <DashboardTG />
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Telangana'] }, React.createElement(DashboardTG))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -102,7 +103,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      <DashboardAP />
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Andhra Pradesh'] }, React.createElement(DashboardAP))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -112,7 +113,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      <DashboardChitoor />
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(DashboardChitoor))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -152,7 +153,16 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {/* Dynamically import to avoid circular import issues */}
+                      {React.createElement(require('./components/ModulesPage').default)}
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/logistics/modules"
+                element={
+                  <PrivateRoute>
+                    <Layout>
                       {React.createElement(require('./components/ModulesPage').default)}
                     </Layout>
                   </PrivateRoute>
@@ -179,6 +189,36 @@ const App: React.FC = () => {
                 }
               />
               <Route
+                path="/reports/tg"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Telangana'] }, React.createElement(require('./components/Reports').default, { stateFilter: 'Telangana' }))}
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reports/ap"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Andhra Pradesh'] }, React.createElement(require('./components/Reports').default, { stateFilter: 'Andhra Pradesh' }))}
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reports/chitoor"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(require('./components/Reports').default, { stateFilter: 'Chitoor' }))}
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/service-tickets"
                 element={
                   <PrivateRoute>
@@ -193,7 +233,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      <TelanganaProjects />
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Telangana'] }, React.createElement(TelanganaProjects))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -203,7 +243,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      <APProjects />
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Andhra Pradesh'] }, React.createElement(APProjects))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -213,7 +253,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      <ChitoorProjects />
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(ChitoorProjects))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -223,8 +263,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {/* Chitoor Project Details */}
-                      {React.createElement(require('./components/ChitoorProjectDetails').default)}
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(require('./components/ChitoorProjectDetails').default))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -245,6 +284,16 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <Layout>
                       <StockWarehouse />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/procurement"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <Procurement />
                     </Layout>
                   </PrivateRoute>
                 }

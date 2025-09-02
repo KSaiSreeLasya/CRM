@@ -77,7 +77,7 @@ const ModulesPage: React.FC = () => {
       // Customers from projects table (distinct customer_name)
       const { data: projectsData } = await supabase.from('projects').select('customer_name');
       const customerNames = Array.from(new Set((projectsData || []).map((p: any) => p.customer_name)));
-      setCustomers(customerNames);
+      setCustomers(customerNames as string[]);
       // Assignments (join module and inverter info)
       const { data: assignmentsData } = await supabase
         .from('customer_module_assignments')
