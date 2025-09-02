@@ -19,6 +19,7 @@ import {
   FormLabel,
   Input,
   VStack,
+  HStack,
   TableContainer,
   Select,
   Badge,
@@ -31,13 +32,20 @@ import {
   SimpleGrid,
   useColorModeValue,
   Divider,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  IconButton,
+  Tooltip,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
-import { AddIcon } from '@chakra-ui/icons';
+import { formatSupabaseError } from '../utils/error';
+import { AddIcon, ChevronDownIcon, ViewIcon, EditIcon, DeleteIcon, PhoneIcon, EmailIcon } from '@chakra-ui/icons';
+import { useNavigate } from 'react-router-dom';
 
 interface ChitoorProject {
   id: string;
-  sl_no?: number;
   customer_name: string;
   mobile_number: string;
   date_of_order: string;
@@ -104,8 +112,8 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, color, helpTe
 const ChitoorProjects = () => {
   const [projects, setProjects] = useState<ChitoorProject[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const navigate = useNavigate();
   const [newProject, setNewProject] = useState({
-    sl_no: '',
     customer_name: '',
     mobile_number: '',
     date_of_order: '',
@@ -141,10 +149,10 @@ const ChitoorProjects = () => {
         .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error:', (error as any)?.message || error, error);
         toast({
           title: 'Error',
-          description: 'Failed to fetch Chitoor projects. Please try again.',
+          description: `Failed to fetch Chitoor projects. ${formatSupabaseError(error)}`,
           status: 'error',
           duration: 5000,
           isClosable: true,
@@ -155,9 +163,9 @@ const ChitoorProjects = () => {
       if (data) {
         setProjects(data);
         
-        // Calculate stats
-        const pendingProjects = data.filter(p => p.project_status?.toLowerCase() === 'pending');
+        // Calculate stats - 'Completed' status counts as completed, all others as pending
         const completedProjects = data.filter(p => p.project_status?.toLowerCase() === 'completed');
+        const pendingProjects = data.filter(p => p.project_status?.toLowerCase() !== 'completed');
         const totalRevenue = data.reduce((sum, p) => sum + (p.project_cost || 0), 0);
         const totalCapacity = data.reduce((sum, p) => sum + (p.capacity || 0), 0);
 
@@ -200,7 +208,6 @@ const ChitoorProjects = () => {
       setLoading(true);
       
       const projectData = {
-        sl_no: newProject.sl_no ? parseInt(newProject.sl_no) : null,
         customer_name: newProject.customer_name,
         mobile_number: newProject.mobile_number,
         date_of_order: newProject.date_of_order,
@@ -221,10 +228,10 @@ const ChitoorProjects = () => {
         .insert([projectData]);
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error:', (error as any)?.message || error, error);
         toast({
           title: 'Error',
-          description: 'Failed to create project. Please try again.',
+          description: `Failed to create project. ${formatSupabaseError(error)}`,
           status: 'error',
           duration: 5000,
           isClosable: true,
@@ -242,7 +249,6 @@ const ChitoorProjects = () => {
 
       onClose();
       setNewProject({
-        sl_no: '',
         customer_name: '',
         mobile_number: '',
         date_of_order: '',
@@ -275,8 +281,12 @@ const ChitoorProjects = () => {
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'completed': return 'green';
+      case 'installation completed': return 'green';
       case 'pending': return 'yellow';
-      case 'in_progress': return 'blue';
+      case 'material pending': return 'yellow';
+      case 'in progress': return 'blue';
+      case 'material sent': return 'purple';
+      case 'on hold': return 'red';
       default: return 'gray';
     }
   };
@@ -364,53 +374,161 @@ const ChitoorProjects = () => {
                 <Table variant="simple" size="sm">
                   <Thead bg="gray.50">
                     <Tr>
-                      <Th fontWeight="semibold" color="gray.700">Sl No</Th>
-                      <Th fontWeight="semibold" color="gray.700">Customer Name</Th>
-                      <Th fontWeight="semibold" color="gray.700">Mobile Number</Th>
-                      <Th fontWeight="semibold" color="gray.700">Date of Order</Th>
-                      <Th fontWeight="semibold" color="gray.700">Service Number</Th>
-                      <Th fontWeight="semibold" color="gray.700">Address</Th>
-                      <Th fontWeight="semibold" color="gray.700">Capacity</Th>
-                      <Th fontWeight="semibold" color="gray.700">Project Cost</Th>
-                      <Th fontWeight="semibold" color="gray.700">Amount Received</Th>
-                      <Th fontWeight="semibold" color="gray.700">Subsidy Scope</Th>
-                      <Th fontWeight="semibold" color="gray.700">Velugu Officer Payments</Th>
+                      <Th fontWeight="semibold" color="gray.700">Project Details</Th>
+                      <Th fontWeight="semibold" color="gray.700">Customer Info</Th>
+                      <Th fontWeight="semibold" color="gray.700">Financial</Th>
+                      <Th fontWeight="semibold" color="gray.700">Timeline</Th>
                       <Th fontWeight="semibold" color="gray.700">Status</Th>
-                      <Th fontWeight="semibold" color="gray.700">Material Sent Date</Th>
-                      <Th fontWeight="semibold" color="gray.700">Balamuragan Payment</Th>
+                      <Th fontWeight="semibold" color="gray.700">Actions</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
                     {projects.map(project => (
                       <Tr key={project.id} _hover={{ bg: 'gray.50' }} transition="all 0.2s">
-                        <Td>{project.sl_no || 'N/A'}</Td>
                         <Td>
-                          <Text fontWeight="medium" fontSize="sm">
-                            {project.customer_name}
-                          </Text>
+                          <VStack align="start" spacing={1}>
+                            <Text fontWeight="medium" fontSize="sm" cursor="pointer"
+                                  onClick={() => navigate(`/projects/chitoor/${project.id}`)}>
+                              Chitoor-{project.id.slice(-6)}
+                            </Text>
+                            <HStack spacing={2}>
+                              <Badge colorScheme="purple" size="sm">
+                                {project.capacity} kW
+                              </Badge>
+                              <Badge variant="outline" size="sm">
+                                {project.subsidy_scope || 'N/A'}
+                              </Badge>
+                            </HStack>
+                            <HStack spacing={1}>
+                              <Text fontSize="xs" color="yellow.500">⚡</Text>
+                              <Text fontSize="xs" color="gray.600">
+                                {project.capacity || 'N/A'} kW
+                              </Text>
+                            </HStack>
+                          </VStack>
                         </Td>
-                        <Td>{project.mobile_number}</Td>
-                        <Td>{project.date_of_order ? new Date(project.date_of_order).toLocaleDateString() : 'N/A'}</Td>
-                        <Td>{project.service_number || 'N/A'}</Td>
-                        <Td>{project.address_mandal_village}</Td>
-                        <Td>{project.capacity} kW</Td>
-                        <Td>₹{project.project_cost.toLocaleString()}</Td>
-                        <Td>{project.amount_received ? `₹${project.amount_received.toLocaleString()}` : 'N/A'}</Td>
-                        <Td>{project.subsidy_scope || 'N/A'}</Td>
-                        <Td>{project.velugu_officer_payments ? `₹${project.velugu_officer_payments.toLocaleString()}` : 'N/A'}</Td>
                         <Td>
-                          <Badge 
-                            colorScheme={getStatusColor(project.project_status || 'pending')} 
-                            px={3} 
-                            py={1} 
+                          <VStack align="start" spacing={1}>
+                            <HStack spacing={1}>
+                              <Text fontSize="xs" color="gray.400">👤</Text>
+                              <Text fontSize="sm" fontWeight="medium">
+                                {project.customer_name}
+                              </Text>
+                            </HStack>
+                            <HStack spacing={1}>
+                              <PhoneIcon color="gray.400" boxSize={3} />
+                              <Text fontSize="xs" color="gray.600">
+                                {project.mobile_number}
+                              </Text>
+                            </HStack>
+                            <HStack spacing={1}>
+                              <Text fontSize="xs" color="gray.400">📍</Text>
+                              <Text fontSize="xs" color="gray.600" isTruncated maxW="150px">
+                                {project.address_mandal_village}
+                              </Text>
+                            </HStack>
+                          </VStack>
+                        </Td>
+                        <Td>
+                          <VStack align="start" spacing={1}>
+                            <HStack spacing={1}>
+                              <Text fontSize="xs" color="green.500">₹</Text>
+                              <Text fontSize="sm" fontWeight="bold" color="green.600">
+                                ₹{project.project_cost.toLocaleString()}
+                              </Text>
+                            </HStack>
+                            <Text fontSize="xs" color="blue.600">
+                              Received: ₹{project.amount_received?.toLocaleString() || '0'}
+                            </Text>
+                            <Text fontSize="xs" color="orange.600">
+                              Balance: ₹{((project.project_cost || 0) - (project.amount_received || 0)).toLocaleString()}
+                            </Text>
+                          </VStack>
+                        </Td>
+                        <Td>
+                          <VStack align="start" spacing={1}>
+                            <Tooltip label="Order Date">
+                              <HStack spacing={1}>
+                                <Text fontSize="xs" color="gray.400">📅</Text>
+                                <Text fontSize="xs" color="gray.600">
+                                  {project.date_of_order ? new Date(project.date_of_order).toLocaleDateString() : 'N/A'}
+                                </Text>
+                              </HStack>
+                            </Tooltip>
+                            {project.material_sent_date && (
+                              <Tooltip label="Material Sent Date">
+                                <HStack spacing={1}>
+                                  <Text fontSize="xs" color="purple.400">📦</Text>
+                                  <Text fontSize="xs" color="purple.600">
+                                    {new Date(project.material_sent_date).toLocaleDateString()}
+                                  </Text>
+                                </HStack>
+                              </Tooltip>
+                            )}
+                          </VStack>
+                        </Td>
+                        <Td>
+                          <Badge
+                            colorScheme={getStatusColor(project.project_status || 'pending')}
+                            px={3}
+                            py={1}
                             borderRadius="full"
                             fontSize="xs"
                           >
                             {project.project_status || 'Pending'}
                           </Badge>
                         </Td>
-                        <Td>{project.material_sent_date ? new Date(project.material_sent_date).toLocaleDateString() : 'N/A'}</Td>
-                        <Td>{project.balamuragan_payment ? `₹${project.balamuragan_payment.toLocaleString()}` : 'N/A'}</Td>
+                        <Td>
+                          <Menu>
+                            <MenuButton
+                              as={IconButton}
+                              icon={<ChevronDownIcon />}
+                              variant="ghost"
+                              size="sm"
+                            />
+                            <MenuList>
+                              <MenuItem
+                                icon={<ViewIcon />}
+                                onClick={() => navigate(`/projects/chitoor/${project.id}`)}
+                              >
+                                View Details
+                              </MenuItem>
+                              <MenuItem
+                                icon={<EditIcon />}
+                                onClick={() => {
+                                  // TODO: Implement edit functionality
+                                  toast({
+                                    title: 'Edit Feature',
+                                    description: 'Edit functionality coming soon!',
+                                    status: 'info',
+                                    duration: 3000,
+                                    isClosable: true,
+                                  });
+                                }}
+                              >
+                                Edit Project
+                              </MenuItem>
+                              <MenuItem
+                                icon={<DeleteIcon />}
+                                color="red.500"
+                                onClick={() => {
+                                  if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+                                    // TODO: Implement delete functionality
+                                    toast({
+                                      title: 'Delete Feature',
+                                      description: 'Delete functionality coming soon!',
+                                      status: 'info',
+                                      duration: 3000,
+                                      isClosable: true,
+                                    });
+                                  }
+                                }}
+                              >
+                                Delete Project
+                              </MenuItem>
+                            </MenuList>
+                          </Menu>
+                        </Td>
                       </Tr>
                     ))}
                   </Tbody>
@@ -452,16 +570,7 @@ const ChitoorProjects = () => {
           <ModalBody pb={6}>
             <VStack spacing={4}>
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4} w="full">
-                <FormControl>
-                  <FormLabel fontSize="sm" fontWeight="medium">Sl No</FormLabel>
-                  <Input
-                    name="sl_no"
-                    type="number"
-                    value={newProject.sl_no}
-                    onChange={handleInputChange}
-                    placeholder="Serial number"
-                  />
-                </FormControl>
+                
 
                 <FormControl isRequired>
                   <FormLabel fontSize="sm" fontWeight="medium">Customer Name <Text as="span" color="red.500">*</Text></FormLabel>
@@ -584,6 +693,9 @@ const ChitoorProjects = () => {
                     <option value="Pending">Pending</option>
                     <option value="In Progress">In Progress</option>
                     <option value="Completed">Completed</option>
+                    <option value="Installation Completed">Installation Completed</option>
+                    <option value="Material Sent">Material Sent</option>
+                    <option value="Material Pending">Material Pending</option>
                     <option value="On Hold">On Hold</option>
                   </Select>
                 </FormControl>

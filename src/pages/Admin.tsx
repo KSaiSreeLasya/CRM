@@ -43,6 +43,7 @@ import {
   Stack,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
+import { formatSupabaseError } from '../utils/error';
 import { AddIcon, EditIcon, DeleteIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -147,10 +148,10 @@ const AdminDashboard = () => {
         .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error:', (error as any)?.message || error, error);
         toast({
           title: 'Error',
-          description: 'Failed to fetch assignments. Please try again.',
+          description: `Failed to fetch assignments. ${formatSupabaseError(error)}`,
           status: 'error',
           duration: 5000,
           isClosable: true,
@@ -226,10 +227,10 @@ const AdminDashboard = () => {
         .insert([assignmentData]);
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error:', (error as any)?.message || error, error);
         toast({
           title: 'Error',
-          description: 'Failed to create assignment. Please try again.',
+          description: `Failed to create assignment. ${formatSupabaseError(error)}`,
           status: 'error',
           duration: 5000,
           isClosable: true,
@@ -292,10 +293,10 @@ const AdminDashboard = () => {
         .eq('id', editingAssignment.id);
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error:', (error as any)?.message || error, error);
         toast({
           title: 'Error',
-          description: 'Failed to update assignment. Please try again.',
+          description: `Failed to update assignment. ${formatSupabaseError(error)}`,
           status: 'error',
           duration: 5000,
           isClosable: true,
@@ -341,10 +342,10 @@ const AdminDashboard = () => {
         .eq('id', assignmentId);
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error:', (error as any)?.message || error, error);
         toast({
           title: 'Error',
-          description: 'Failed to delete assignment. Please try again.',
+          description: `Failed to delete assignment. ${formatSupabaseError(error)}`,
           status: 'error',
           duration: 5000,
           isClosable: true,

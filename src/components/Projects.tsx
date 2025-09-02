@@ -48,6 +48,7 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { formatSupabaseError } from '../utils/error';
 import {
   AddIcon,
   SearchIcon,
@@ -182,10 +183,10 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
       const { data, error } = await query.order('created_at', { ascending: false });
       
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error:', (error as any)?.message || error, error);
         toast({
           title: 'Error',
-          description: 'Failed to fetch projects. Please try again.',
+          description: `Failed to fetch projects. ${formatSupabaseError(error)}`,
           status: 'error',
           duration: 5000,
           isClosable: true,
@@ -368,10 +369,10 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
         .insert([projectData]);
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error:', (error as any)?.message || error, error);
         toast({
           title: 'Error',
-          description: 'Failed to create project. Please try again.',
+          description: `Failed to create project. ${formatSupabaseError(error)}`,
           status: 'error',
           duration: 5000,
           isClosable: true,
