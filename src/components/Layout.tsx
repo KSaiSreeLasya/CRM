@@ -429,9 +429,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Page Content */}
           <Box p={4}>
             {/* Ensure every page fits within the visible viewport without vertical scroll */}
-            {React.createElement(require('./FitToScreen').default, null, (
+            <FitToScreen>
               <Box>{children}</Box>
-            ))}
+            </FitToScreen>
           </Box>
         </Box>
       </Flex>
