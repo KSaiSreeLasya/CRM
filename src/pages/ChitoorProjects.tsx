@@ -163,9 +163,9 @@ const ChitoorProjects = () => {
       if (data) {
         setProjects(data);
         
-        // Calculate stats
-        const pendingProjects = data.filter(p => p.project_status?.toLowerCase() === 'pending');
+        // Calculate stats - 'Completed' status counts as completed, all others as pending
         const completedProjects = data.filter(p => p.project_status?.toLowerCase() === 'completed');
+        const pendingProjects = data.filter(p => p.project_status?.toLowerCase() !== 'completed');
         const totalRevenue = data.reduce((sum, p) => sum + (p.project_cost || 0), 0);
         const totalCapacity = data.reduce((sum, p) => sum + (p.capacity || 0), 0);
 
