@@ -124,6 +124,17 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
 
   const fetchStats = async () => {
     try {
+      if (stateFilter && !isAdmin) {
+        const allowed = assignedRegions.includes(stateFilter);
+        if (!allowed) {
+          setStats({ totalCustomers: 0, activeProjects: 0, completedProjects: 0, totalRevenue: 0, totalKWH: 0 });
+          setStageStats({});
+          setMonthlyKWH({});
+          setError('You do not have access to this report');
+          setIsLoading(false);
+          return;
+        }
+      }
       setIsLoading(true);
       setError(null);
       
