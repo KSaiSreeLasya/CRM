@@ -304,7 +304,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </Flex>
         <IconButton
           aria-label="Open menu"
-          icon={<Text>��</Text>}
+          icon={<Text fontSize="xl">☰</Text>}
           variant="ghost"
           onClick={onOpen}
         />
