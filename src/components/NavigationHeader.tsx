@@ -159,11 +159,7 @@ const NavigationHeader = () => {
           })}
         </HStack>
         
-        <Box>
-          <Text fontSize="sm" color="gray.500" textAlign="right">
-            Navigate through different sections
-          </Text>
-        </Box>
+        
       </Flex>
     </Box>
   );
