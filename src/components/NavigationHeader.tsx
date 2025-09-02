@@ -4,7 +4,6 @@ import {
   Flex,
   HStack,
   Button,
-  useColorModeValue,
   Text,
   Menu,
   MenuButton,
@@ -22,9 +21,9 @@ interface NavButtonProps {
 }
 
 const NavButton: React.FC<NavButtonProps> = ({ icon, label, to, isActive }) => {
-  const activeBg = useColorModeValue('green.50', 'green.900');
-  const activeColor = useColorModeValue('green.600', 'green.200');
-  const hoverBg = useColorModeValue('gray.50', 'gray.700');
+  const activeBg = 'green.50';
+  const activeColor = 'green.600';
+  const hoverBg = 'gray.50';
   
   return (
     <Button
