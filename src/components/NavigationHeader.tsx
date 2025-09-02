@@ -66,6 +66,7 @@ const NavigationHeader = () => {
     { icon: '📊', label: 'Dashboard', to: '/dashboard' },
     { icon: '📈', label: 'Projects', to: '/projects' },
     { icon: '🏭', label: 'Stock Warehouse', to: '/stock' },
+    { icon: '🛒', label: 'Procurement', to: '/procurement' },
     { icon: '🚚', label: 'Logistics & Supply Chain', to: '/logistics' },
     // Reports has submenu; keep parent link to /reports
     { icon: '📑', label: 'Reports', to: '/reports' },
