@@ -127,13 +127,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   ];
 
   const stateDashboards = [
-    { icon: '📈', label: 'TG Dashboard', to: '/dashboard/tg' },
-    { icon: '📈', label: 'AP Dashboard', to: '/dashboard/ap' },
-    { icon: '📈', label: 'Chitoor Dashboard', to: '/dashboard/chitoor' },
+    { icon: '📈', label: 'TG Dashboard', to: '/dashboard/tg', region: 'Telangana' },
+    { icon: '📈', label: 'AP Dashboard', to: '/dashboard/ap', region: 'Andhra Pradesh' },
+    { icon: '📈', label: 'Chitoor Dashboard', to: '/dashboard/chitoor', region: 'Chitoor' },
   ];
 
-  // Always show these items in sidebar (per request)
-  const stateProjects = allStateProjects;
+  const allowedStates = isAdmin || (assignedRegions?.length || 0) === 0
+    ? ['Telangana', 'Andhra Pradesh', 'Chitoor']
+    : assignedRegions;
+
+  const stateProjects = allStateProjects.filter(i => i.region === 'all' || allowedStates.includes(i.region));
+  const filteredDashboards = stateDashboards.filter(i => allowedStates.includes(i.region));
 
   const financeItems = [
     { icon: '💰', label: 'Finance', to: '/finance' },
@@ -186,7 +190,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </Text>
             </Box>
           )}
-          {stateDashboards.map((item) => (
+          {filteredDashboards.map((item) => (
             <NavItem
               key={item.to}
               icon={item.icon}
@@ -197,6 +201,30 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               collapsed={isCollapsed}
             />
           ))}
+
+          {!isCollapsed && (
+            <Box w="full" my={4}>
+              <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
+                OPERATIONS
+              </Text>
+            </Box>
+          )}
+          <NavItem
+            icon="🏭"
+            label={isCollapsed ? '' : 'Stock Warehouse'}
+            to="/stock"
+            isActive={location.pathname === '/stock'}
+            onClick={onClose}
+            collapsed={isCollapsed}
+          />
+          <NavItem
+            icon="🚚"
+            label={isCollapsed ? '' : 'Logistics'}
+            to="/logistics"
+            isActive={location.pathname === '/logistics'}
+            onClick={onClose}
+            collapsed={isCollapsed}
+          />
 
           {!isCollapsed && (
             <Box w="full" my={4}>
@@ -353,7 +381,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </Flex>
         <IconButton
           aria-label="Open menu"
-          icon={<Text fontSize="xl">☰</Text>}
+          icon={<Text fontSize="xl">���</Text>}
           variant="ghost"
           onClick={onOpen}
         />
