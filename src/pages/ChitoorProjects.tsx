@@ -197,6 +197,11 @@ const ChitoorProjects = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    if (name === 'capacity') {
+      const mappedCost = value === '2' ? '148000' : (value === '3' ? '205000' : newProject.project_cost);
+      setNewProject(prev => ({ ...prev, capacity: value, project_cost: mappedCost }));
+      return;
+    }
     setNewProject(prev => ({
       ...prev,
       [name]: value
