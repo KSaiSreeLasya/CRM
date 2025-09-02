@@ -75,6 +75,7 @@ const ChitoorProjectDetails = () => {
   const { isAuthenticated } = useAuth();
   const { isOpen: isPaymentOpen, onOpen: onPaymentOpen, onClose: onPaymentClose } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
+  const { isOpen: isCustomerEditOpen, onOpen: onCustomerEditOpen, onClose: onCustomerEditClose } = useDisclosure();
   
   const [project, setProject] = useState<ChitoorProject | null>(null);
   const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
@@ -83,6 +84,12 @@ const ChitoorProjectDetails = () => {
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
   const [paymentMode, setPaymentMode] = useState('Cash');
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [customerFormData, setCustomerFormData] = useState({
+    customer_name: '',
+    mobile_number: '',
+    address_mandal_village: '',
+    service_number: '',
+  });
 
   const fetchProjectDetails = async () => {
     if (!id) return;
@@ -111,6 +118,12 @@ const ChitoorProjectDetails = () => {
 
       if (projectData) {
         setProject(projectData);
+        setCustomerFormData({
+          customer_name: projectData.customer_name || '',
+          mobile_number: projectData.mobile_number || '',
+          address_mandal_village: projectData.address_mandal_village || '',
+          service_number: projectData.service_number || '',
+        });
       }
 
       // Fetch payment history (if you have a separate payments table for chitoor)
@@ -268,6 +281,9 @@ const ChitoorProjectDetails = () => {
             </Box>
           </HStack>
           <HStack spacing={2}>
+            <Button leftIcon={<EditIcon />} variant="outline" onClick={onCustomerEditOpen}>
+              Edit Customer
+            </Button>
             <Button leftIcon={<EditIcon />} variant="outline" onClick={onEditOpen}>
               Edit Project
             </Button>
@@ -282,9 +298,20 @@ const ChitoorProjectDetails = () => {
           {/* Customer Details */}
           <Card>
             <CardHeader>
-              <Text fontSize="lg" fontWeight="semibold" color="gray.700">
-                Customer Details
-              </Text>
+              <Flex justify="space-between" align="center">
+                <Text fontSize="lg" fontWeight="semibold" color="gray.700">
+                  Customer Details
+                </Text>
+                <Button
+                  leftIcon={<EditIcon />}
+                  colorScheme="blue"
+                  variant="outline"
+                  size="sm"
+                  onClick={onCustomerEditOpen}
+                >
+                  Edit
+                </Button>
+              </Flex>
             </CardHeader>
             <CardBody>
               <VStack align="stretch" spacing={3}>
@@ -588,6 +615,108 @@ const ChitoorProjectDetails = () => {
               loadingText="Adding..."
             >
               Add Payment
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Edit Customer Modal */}
+      <Modal isOpen={isCustomerEditOpen} onClose={onCustomerEditClose} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Edit Customer Details</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack spacing={4}>
+              <FormControl isRequired>
+                <FormLabel>Customer Name</FormLabel>
+                <Input
+                  value={customerFormData.customer_name}
+                  onChange={(e) => setCustomerFormData(prev => ({ ...prev, customer_name: e.target.value }))}
+                  placeholder="Enter customer name"
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel>Mobile Number</FormLabel>
+                <Input
+                  value={customerFormData.mobile_number}
+                  onChange={(e) => setCustomerFormData(prev => ({ ...prev, mobile_number: e.target.value }))}
+                  placeholder="Enter mobile number"
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel>Address (Mandal, Village)</FormLabel>
+                <Input
+                  value={customerFormData.address_mandal_village}
+                  onChange={(e) => setCustomerFormData(prev => ({ ...prev, address_mandal_village: e.target.value }))}
+                  placeholder="Enter address"
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Service Number</FormLabel>
+                <Input
+                  value={customerFormData.service_number}
+                  onChange={(e) => setCustomerFormData(prev => ({ ...prev, service_number: e.target.value }))}
+                  placeholder="Enter service number (optional)"
+                />
+              </FormControl>
+            </VStack>
+          </ModalBody>
+          <ModalFooter>
+            <Button mr={3} onClick={onCustomerEditClose}>
+              Cancel
+            </Button>
+            <Button
+              colorScheme="blue"
+              onClick={async () => {
+                try {
+                  if (!project) return;
+
+                  const { error } = await supabase
+                    .from('chitoor_projects')
+                    .update({
+                      customer_name: customerFormData.customer_name,
+                      mobile_number: customerFormData.mobile_number,
+                      address_mandal_village: customerFormData.address_mandal_village,
+                      service_number: customerFormData.service_number || null,
+                    })
+                    .eq('id', project.id);
+
+                  if (error) throw error;
+
+                  setProject(prev => prev ? {
+                    ...prev,
+                    customer_name: customerFormData.customer_name,
+                    mobile_number: customerFormData.mobile_number,
+                    address_mandal_village: customerFormData.address_mandal_village,
+                    service_number: customerFormData.service_number,
+                  } : null);
+
+                  toast({
+                    title: 'Success',
+                    description: 'Customer details updated successfully',
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                  });
+
+                  onCustomerEditClose();
+                } catch (error) {
+                  console.error('Error updating customer:', error);
+                  toast({
+                    title: 'Error',
+                    description: 'Failed to update customer details',
+                    status: 'error',
+                    duration: 3000,
+                    isClosable: true,
+                  });
+                }
+              }}
+            >
+              Save Changes
             </Button>
           </ModalFooter>
         </ModalContent>
