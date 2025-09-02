@@ -85,6 +85,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
   const sidebarBg = useColorModeValue('gray.50', 'gray.900');
+  const logoUrl = "https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F5065c74f0a374ff4a36efc224f468f09?format=webp&width=800";
 
   const handleSignOut = async () => {
     try {
