@@ -133,7 +133,7 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
 
       if (wants === 'chitoor' && !canAccess) {
         // No access to Chitoor: show empty but do not error
-        setStats({ totalCustomers: 0, activeProjects: 0, completedProjects: 0, totalRevenue: 0, totalKWH: 0 });
+        setStats({ totalProjects: 0, activeProjects: 0, completedProjects: 0, totalRevenue: 0, totalKWH: 0 });
         setStageStats({});
         setMonthlyKWH({});
         setIsLoading(false);
