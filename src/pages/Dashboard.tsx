@@ -192,7 +192,7 @@ const Dashboard = () => {
       if (projects) {
         // Log all possible status values to debug
         const allStatusesMap: Record<string, boolean> = {};
-        projects.forEach(p => {
+        projects.forEach((p: any) => {
           if (p.status) allStatusesMap[p.status] = true;
         });
         const allStatuses = Object.keys(allStatusesMap);
@@ -209,7 +209,7 @@ const Dashboard = () => {
           typeof p.status === 'string' && p.status.toLowerCase() === 'active'
         );
         console.log('All active projects (case-insensitive):', activeProjects.length);
-        console.log('Active project IDs:', activeProjects.map(p => p.id));
+        console.log('Active project IDs:', activeProjects.map((p: any) => p.id));
 
         // Case-insensitive filtering for completed projects (main table)
         const completedProjects = projects.filter((p: Project) =>
@@ -256,7 +256,7 @@ const Dashboard = () => {
 
         // Count unique customers
         const customerMap: Record<string, boolean> = {};
-        projects.forEach(p => {
+        projects.forEach((p: any) => {
           if (p.customer_name) customerMap[p.customer_name] = true;
         });
         const uniqueCustomersCount = Object.keys(customerMap).length;
