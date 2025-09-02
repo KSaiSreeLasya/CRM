@@ -38,7 +38,6 @@ import { AddIcon } from '@chakra-ui/icons';
 
 interface ChitoorProject {
   id: string;
-  
   customer_name: string;
   mobile_number: string;
   date_of_order: string;
@@ -106,7 +105,6 @@ const ChitoorProjects = () => {
   const [projects, setProjects] = useState<ChitoorProject[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [newProject, setNewProject] = useState({
-    sl_no: '',
     customer_name: '',
     mobile_number: '',
     date_of_order: '',
@@ -201,7 +199,6 @@ const ChitoorProjects = () => {
       setLoading(true);
       
       const projectData = {
-        sl_no: newProject.sl_no ? parseInt(newProject.sl_no) : null,
         customer_name: newProject.customer_name,
         mobile_number: newProject.mobile_number,
         date_of_order: newProject.date_of_order,
@@ -243,7 +240,6 @@ const ChitoorProjects = () => {
 
       onClose();
       setNewProject({
-        sl_no: '',
         customer_name: '',
         mobile_number: '',
         date_of_order: '',
@@ -365,7 +361,6 @@ const ChitoorProjects = () => {
                 <Table variant="simple" size="sm">
                   <Thead bg="gray.50">
                     <Tr>
-                      <Th fontWeight="semibold" color="gray.700">Sl No</Th>
                       <Th fontWeight="semibold" color="gray.700">Customer Name</Th>
                       <Th fontWeight="semibold" color="gray.700">Mobile Number</Th>
                       <Th fontWeight="semibold" color="gray.700">Date of Order</Th>
@@ -384,7 +379,6 @@ const ChitoorProjects = () => {
                   <Tbody>
                     {projects.map(project => (
                       <Tr key={project.id} _hover={{ bg: 'gray.50' }} transition="all 0.2s">
-                        <Td>{project.sl_no || 'N/A'}</Td>
                         <Td>
                           <Text fontWeight="medium" fontSize="sm">
                             {project.customer_name}
@@ -576,9 +570,9 @@ const ChitoorProjects = () => {
                     <option value="Pending">Pending</option>
                     <option value="In Progress">In Progress</option>
                     <option value="Completed">Completed</option>
-                    <option value="Installation completed "> Installation Completed</option>
-                    <option value="Material sent ">Material Sent </option>
-                    <option value="Material Pending ">Material Pending</option>
+                    <option value="Installation Completed">Installation Completed</option>
+                    <option value="Material Sent">Material Sent</option>
+                    <option value="Material Pending">Material Pending</option>
                     <option value="On Hold">On Hold</option>
                   </Select>
                 </FormControl>
