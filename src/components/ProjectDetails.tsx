@@ -334,6 +334,17 @@ const ProjectDetails = () => {
   }
 }, [project, isEditOpen]);
 
+const location = useLocation();
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const edit = params.get('edit');
+  if (edit === 'customer') {
+    handleEditOpen();
+  } else if (edit === 'project') {
+    handleProjectEditOpen();
+  }
+}, [location.search]);
+
 // Reset form data when opening the modal
 const handleEditOpen = () => {
   if (project) {
