@@ -102,10 +102,10 @@ const ChitoorProjectDetails = () => {
 
   const fetchProjectDetails = async () => {
     if (!id) return;
-    
+
     try {
       setLoading(true);
-      
+
       // Fetch project details
       const { data: projectData, error: projectError } = await supabase
         .from('chitoor_projects')
@@ -142,19 +142,18 @@ const ChitoorProjectDetails = () => {
         });
       }
 
-      // Fetch payment history (if you have a separate payments table for chitoor)
-      // For now, we'll create mock payment history based on amount_received
-      const mockPayments: PaymentHistory[] = [];
-      if (projectData?.amount_received && projectData.amount_received > 0) {
-        mockPayments.push({
-          id: '1',
-          amount: projectData.amount_received,
-          payment_date: projectData.date_of_order || new Date().toISOString(),
-          payment_mode: 'Cash',
-          created_at: projectData.created_at || new Date().toISOString(),
-        });
+      // Fetch phase-wise payment history from shared payment_history table
+      const { data: payData, error: payError } = await supabase
+        .from('payment_history')
+        .select('*')
+        .eq('project_id', id)
+        .order('created_at', { ascending: true });
+      if (payError) {
+        console.warn('No payment history found for chitoor project or table missing', payError?.message || payError);
+        setPaymentHistory([]);
+      } else {
+        setPaymentHistory((payData as any[]) as PaymentHistory[]);
       }
-      setPaymentHistory(mockPayments);
 
     } catch (error) {
       console.error('Error:', error);
@@ -180,38 +179,39 @@ const ChitoorProjectDetails = () => {
     try {
       setProcessingPayment(true);
 
+      // Insert a new phase entry
+      const insertRes = await supabase
+        .from('payment_history')
+        .insert([{
+          project_id: project.id,
+          amount: parseFloat(paymentAmount),
+          payment_mode: paymentMode,
+          payment_date: paymentDate,
+        }])
+        .select('*')
+        .single();
+
+      if (insertRes.error) {
+        throw insertRes.error;
+      }
+
       const newAmountReceived = (project.amount_received || 0) + parseFloat(paymentAmount);
 
       // Update project with new amount received
-      const { error } = await supabase
+      const { error: updateError } = await supabase
         .from('chitoor_projects')
-        .update({
-          amount_received: newAmountReceived,
-        })
+        .update({ amount_received: newAmountReceived })
         .eq('id', project.id);
 
-      if (error) {
-        console.error('Error updating project:', error);
-        toast({
-          title: 'Error',
-          description: `Failed to add payment. ${formatSupabaseError(error)}`,
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
-        return;
-      }
+      if (updateError) throw updateError;
 
-      // Add to local payment history
-      const newPayment: PaymentHistory = {
-        id: Date.now().toString(),
-        amount: parseFloat(paymentAmount),
-        payment_date: paymentDate,
-        payment_mode: paymentMode,
-        created_at: new Date().toISOString(),
-      };
-
-      setPaymentHistory(prev => [newPayment, ...prev]);
+      // Refresh payments from DB to ensure IDs are consistent
+      const { data: payData } = await supabase
+        .from('payment_history')
+        .select('*')
+        .eq('project_id', project.id)
+        .order('created_at', { ascending: true });
+      setPaymentHistory((payData as any[]) as PaymentHistory[]);
       setProject(prev => prev ? { ...prev, amount_received: newAmountReceived } : null);
 
       toast({
@@ -231,7 +231,7 @@ const ChitoorProjectDetails = () => {
       console.error('Error adding payment:', error);
       toast({
         title: 'Error',
-        description: 'An unexpected error occurred',
+        description: 'Failed to add payment',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -244,14 +244,28 @@ const ChitoorProjectDetails = () => {
   const handleDeletePayment = async (payment: PaymentHistory) => {
     if (!project) return;
     try {
+      // Delete payment row
+      const { error: delError } = await supabase
+        .from('payment_history')
+        .delete()
+        .eq('id', payment.id);
+      if (delError) throw delError;
+
       const updatedAmount = Math.max((project.amount_received || 0) - (payment.amount || 0), 0);
-      const { error } = await supabase
+      const { error: updError } = await supabase
         .from('chitoor_projects')
         .update({ amount_received: updatedAmount })
         .eq('id', project.id);
-      if (error) throw error;
+      if (updError) throw updError;
 
-      setPaymentHistory(prev => prev.filter(p => p.id !== payment.id));
+      // Refresh list
+      const { data: payData } = await supabase
+        .from('payment_history')
+        .select('*')
+        .eq('project_id', project.id)
+        .order('created_at', { ascending: true });
+
+      setPaymentHistory((payData as any[]) as PaymentHistory[]);
       setProject(prev => prev ? { ...prev, amount_received: updatedAmount } : null);
 
       toast({
