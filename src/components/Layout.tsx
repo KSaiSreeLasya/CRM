@@ -356,7 +356,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <Box minH="100vh" bg="gray.50">
+    <Box h="100vh" overflow="hidden" bg="gray.50">
       {/* Mobile Navigation */}
       <Flex
         display={{ base: 'flex', lg: 'none' }}
@@ -426,8 +426,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Show global dashboard header only on main dashboard */}
 
           {/* Page Content */}
-          <Box p={6}>
-            {children}
+          <Box p={4}>
+            {/* Ensure every page fits within the visible viewport without vertical scroll */}
+            {React.createElement(require('./FitToScreen').default, null, (
+              <Box>{children}</Box>
+            ))}
           </Box>
         </Box>
       </Flex>
