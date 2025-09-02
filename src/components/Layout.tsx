@@ -113,6 +113,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { icon: '🏗️', label: 'CHITOOR', to: '/projects/chitoor', region: 'Chitoor' },
   ];
 
+  const stateDashboards = [
+    { icon: '📈', label: 'TG Dashboard', to: '/dashboard/tg' },
+    { icon: '📈', label: 'AP Dashboard', to: '/dashboard/ap' },
+    { icon: '📈', label: 'Chitoor Dashboard', to: '/dashboard/chitoor' },
+  ];
+
   // Always show these items in sidebar (per request)
   const stateProjects = allStateProjects;
 
