@@ -9,7 +9,8 @@ interface RegionGuardProps {
 
 const RegionGuard: React.FC<RegionGuardProps> = ({ allowed, children }) => {
   const { assignedRegions, isAdmin } = useAuth();
-  if (isAdmin) return <>{children}</>;
+  const noAssignments = (assignedRegions?.length || 0) === 0;
+  if (isAdmin || noAssignments) return <>{children}</>;
   const hasAccess = allowed.some((r) => assignedRegions.includes(r));
   if (!hasAccess) return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
