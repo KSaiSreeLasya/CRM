@@ -33,6 +33,7 @@ import {
   Circle,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
+import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDownIcon, TimeIcon } from '@chakra-ui/icons';
 
@@ -239,6 +240,7 @@ const DashboardChitoor = () => {
             <Text color="gray.600">District-level analytics and progress</Text>
           </Box>
           <HStack spacing={4} wrap="wrap">
+            <Button as={RouterLink as any} to="/reports/chitoor" colorScheme="green" variant="solid" size="sm">View Chitoor Reports</Button>
             <Menu>
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />} variant="outline" size="sm">
                 Sort by: {sortBy.charAt(0).toUpperCase() + sortBy.slice(1)}
