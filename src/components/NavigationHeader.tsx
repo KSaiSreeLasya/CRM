@@ -4,7 +4,6 @@ import {
   Flex,
   HStack,
   Button,
-  useColorModeValue,
   Text,
   Menu,
   MenuButton,
@@ -57,11 +56,11 @@ const NavButton: React.FC<NavButtonProps> = ({ icon, label, to, isActive }) => {
 const NavigationHeader = () => {
   const location = useLocation();
   const { isAdmin, assignedRegions } = useAuth();
-  const headerBg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const reportActiveBg = useColorModeValue('green.50', 'green.900');
-  const reportActiveColor = useColorModeValue('green.600', 'green.200');
-  const reportHoverBg = useColorModeValue('gray.50', 'gray.700');
+  const headerBg = 'white';
+  const borderColor = 'gray.200';
+  const reportActiveBg = 'green.50';
+  const reportActiveColor = 'green.600';
+  const reportHoverBg = 'gray.50';
 
   const navigationItems = [
     { icon: '📊', label: 'Dashboard', to: '/dashboard' },
