@@ -24,7 +24,7 @@ import {
 } from '@chakra-ui/react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ChevronDownIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, DragHandleIcon } from '@chakra-ui/icons';
 import DashboardHeader from './DashboardHeader';
 import NavigationHeader from './NavigationHeader';
 
