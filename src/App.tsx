@@ -18,6 +18,7 @@ import ChitoorProjects from './pages/ChitoorProjects';
 import Admin from './pages/Admin';
 import StockWarehouse from './pages/StockWarehouse';
 import Logistics from './pages/Logistics';
+import Procurement from './pages/Procurement';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
 import { AuthProvider } from './context/AuthContext';
