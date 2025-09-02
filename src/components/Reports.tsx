@@ -113,7 +113,7 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
 
   // Check if current user is contact@axisogreen.in
-  const isRestrictedUser = user?.email === 'contact@axisogreen.in';
+  const isRestrictedUser = false;
 
   const cardBg = useColorModeValue('white', 'gray.800');
 
@@ -310,7 +310,7 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
         </Flex>
 
         {/* Stats Cards */}
-        <SimpleGrid columns={{ base: 1, md: 2, lg: isRestrictedUser ? 4 : 5 }} spacing={6}>
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 5 }} spacing={6}>
           <StatsCard
             title="Total Projects"
             value={stats.totalProjects}
@@ -332,15 +332,13 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
             color="purple"
             helpText="Successfully delivered"
           />
-          {!isRestrictedUser && (
-            <StatsCard
-              title="Total Revenue"
-              value={`₹${stats.totalRevenue.toLocaleString()}`}
-              icon="💰"
-              color="orange"
-              helpText="Project value"
-            />
-          )}
+          <StatsCard
+            title="Total Revenue"
+            value={`₹${stats.totalRevenue.toLocaleString()}`}
+            icon="💰"
+            color="orange"
+            helpText="Project value"
+          />
           <StatsCard
             title="Total Capacity"
             value={`${stats.totalKWH.toLocaleString()} kW`}
