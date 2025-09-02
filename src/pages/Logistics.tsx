@@ -70,6 +70,14 @@ const Logistics: React.FC = () => {
 
   const addRow = async () => {
     try {
+      if (!item.trim() || !fromLoc.trim() || !toLoc.trim()) {
+        toast({ title: 'Missing details', description: 'Please fill Item, From and To locations', status: 'warning', duration: 3000, isClosable: true });
+        return;
+      }
+      if (!quantity || quantity <= 0) {
+        toast({ title: 'Invalid quantity', description: 'Quantity must be greater than zero', status: 'warning', duration: 3000, isClosable: true });
+        return;
+      }
       setLoading(true);
       const payload = {
         date: dateVal || null,
