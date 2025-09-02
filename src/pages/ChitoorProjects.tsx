@@ -272,8 +272,12 @@ const ChitoorProjects = () => {
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'completed': return 'green';
+      case 'installation completed': return 'green';
       case 'pending': return 'yellow';
-      case 'in_progress': return 'blue';
+      case 'material pending': return 'yellow';
+      case 'in progress': return 'blue';
+      case 'material sent': return 'purple';
+      case 'on hold': return 'red';
       default: return 'gray';
     }
   };
