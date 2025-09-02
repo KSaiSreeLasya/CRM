@@ -101,6 +101,17 @@ const ChitoorProjectDetails = () => {
     project_status: '' as string | undefined,
   });
 
+  const location = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const edit = params.get('edit');
+    if (edit === 'customer') {
+      onCustomerEditOpen();
+    } else if (edit === 'project') {
+      onEditOpen();
+    }
+  }, [location.search]);
+
   const fetchProjectDetails = async () => {
     if (!id) return;
 
