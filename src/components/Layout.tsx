@@ -26,6 +26,7 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDownIcon, DragHandleIcon } from '@chakra-ui/icons';
 import DashboardHeader from './DashboardHeader';
+import { supabase } from '../lib/supabase';
 import NavigationHeader from './NavigationHeader';
 
 interface LayoutProps {
@@ -80,7 +81,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { logout, isFinance, isAdmin, user } = useAuth();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: pwOpen, onOpen: onPwOpen, onClose: onPwClose } = useDisclosure();
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [newPassword, setNewPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const [changingPw, setChangingPw] = React.useState(false);
 
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
@@ -276,6 +281,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               )}
             </MenuButton>
             <MenuList>
+              <MenuItem onClick={onPwOpen} fontSize="sm" icon={<Text>🔐</Text>}>
+                Change Password
+              </MenuItem>
               <MenuItem
                 icon={<Text>🚪</Text>}
                 onClick={handleSignOut}
@@ -290,6 +298,30 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </Flex>
     </Box>
   );
+
+  const handleChangePassword = async () => {
+    try {
+      if (newPassword.length < 6) {
+        toast({ title: 'Password too short', description: 'Use at least 6 characters', status: 'warning', duration: 3000, isClosable: true });
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        toast({ title: 'Mismatch', description: 'Passwords do not match', status: 'error', duration: 3000, isClosable: true });
+        return;
+      }
+      setChangingPw(true);
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error as any;
+      toast({ title: 'Password updated', status: 'success', duration: 3000, isClosable: true });
+      setNewPassword('');
+      setConfirmPassword('');
+      onPwClose();
+    } catch (e: any) {
+      toast({ title: 'Failed to update password', description: e?.message || String(e), status: 'error', duration: 5000, isClosable: true });
+    } finally {
+      setChangingPw(false);
+    }
+  };
 
   return (
     <Box minH="100vh" bg="gray.50">
@@ -359,8 +391,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Navigation Header */}
           <NavigationHeader />
 
-          {/* Always show dashboard header for consistency across TG, AP, Chitoor and ALL */}
-          <DashboardHeader />
+          {/* Show dashboard header only on dashboard routes */}
+          {location.pathname.startsWith('/dashboard') && <DashboardHeader />}
 
           {/* Page Content */}
           <Box p={6}>
@@ -368,6 +400,33 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </Box>
         </Box>
       </Flex>
+
+      {/* Change Password Modal */}
+      <Drawer isOpen={pwOpen} placement="right" onClose={onPwClose} size="xs">
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerBody>
+            <VStack spacing={4} mt={10} align="stretch">
+              <Text fontSize="lg" fontWeight="bold">Change Password</Text>
+              <Text fontSize="sm" color="gray.600">Update your account password</Text>
+              <Input
+                type="password"
+                placeholder="New password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+              <Input
+                type="password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              <Button colorScheme="green" onClick={handleChangePassword} isLoading={changingPw}>Save Password</Button>
+            </VStack>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </Box>
   );
 };
