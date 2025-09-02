@@ -52,6 +52,11 @@ interface Project {
   kwh: number;
 }
 
+interface ChitoorProject {
+  id: string;
+  project_status?: string;
+}
+
 interface StatsCardProps {
   title: string;
   value: string | number;
