@@ -11,6 +11,8 @@ import {
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 import Projects from '../components/Projects';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface Project {
   id: string;
