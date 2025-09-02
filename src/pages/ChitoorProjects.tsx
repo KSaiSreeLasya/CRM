@@ -32,10 +32,17 @@ import {
   SimpleGrid,
   useColorModeValue,
   Divider,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  IconButton,
+  Tooltip,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 import { formatSupabaseError } from '../utils/error';
-import { AddIcon } from '@chakra-ui/icons';
+import { AddIcon, ChevronDownIcon, ViewIcon, EditIcon, DeleteIcon, PhoneIcon, EmailIcon } from '@chakra-ui/icons';
+import { useNavigate } from 'react-router-dom';
 
 interface ChitoorProject {
   id: string;
@@ -105,6 +112,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, color, helpTe
 const ChitoorProjects = () => {
   const [projects, setProjects] = useState<ChitoorProject[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const navigate = useNavigate();
   const [newProject, setNewProject] = useState({
     customer_name: '',
     mobile_number: '',
@@ -358,163 +366,174 @@ const ChitoorProjects = () => {
           </Button>
         </Flex>
 
-        {/* Projects Cards/Table */}
+        {/* Projects Table */}
         <Card bg={cardBg} border="1px solid" borderColor={borderColor}>
           <CardBody p={0}>
             {projects.length > 0 ? (
-              <Box>
-                {/* Mobile/Tablet: Card Layout */}
-                <Box display={{ base: 'block', xl: 'none' }} p={4}>
-                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+              <TableContainer>
+                <Table variant="simple" size="sm">
+                  <Thead bg="gray.50">
+                    <Tr>
+                      <Th fontWeight="semibold" color="gray.700">Project Details</Th>
+                      <Th fontWeight="semibold" color="gray.700">Customer Info</Th>
+                      <Th fontWeight="semibold" color="gray.700">Financial</Th>
+                      <Th fontWeight="semibold" color="gray.700">Timeline</Th>
+                      <Th fontWeight="semibold" color="gray.700">Status</Th>
+                      <Th fontWeight="semibold" color="gray.700">Actions</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
                     {projects.map(project => (
-                      <Card key={project.id} bg="white" border="1px solid" borderColor="gray.200" _hover={{ shadow: 'md' }}>
-                        <CardBody p={4}>
-                          <VStack spacing={3} align="stretch">
-                            <Flex justify="space-between" align="center">
-                              <Text fontWeight="bold" fontSize="lg" color="blue.600">
+                      <Tr key={project.id} _hover={{ bg: 'gray.50' }} transition="all 0.2s">
+                        <Td>
+                          <VStack align="start" spacing={1}>
+                            <Text fontWeight="medium" fontSize="sm" cursor="pointer"
+                                  onClick={() => navigate(`/projects/chitoor/${project.id}`)}>
+                              Chitoor-{project.id.slice(-6)}
+                            </Text>
+                            <HStack spacing={2}>
+                              <Badge colorScheme="purple" size="sm">
+                                {project.capacity} kW
+                              </Badge>
+                              <Badge variant="outline" size="sm">
+                                {project.subsidy_scope || 'N/A'}
+                              </Badge>
+                            </HStack>
+                            <HStack spacing={1}>
+                              <Text fontSize="xs" color="yellow.500">⚡</Text>
+                              <Text fontSize="xs" color="gray.600">
+                                {project.capacity || 'N/A'} kW
+                              </Text>
+                            </HStack>
+                          </VStack>
+                        </Td>
+                        <Td>
+                          <VStack align="start" spacing={1}>
+                            <HStack spacing={1}>
+                              <Text fontSize="xs" color="gray.400">👤</Text>
+                              <Text fontSize="sm" fontWeight="medium">
                                 {project.customer_name}
                               </Text>
-                              <Badge
-                                colorScheme={getStatusColor(project.project_status || 'pending')}
-                                px={2}
-                                py={1}
-                                borderRadius="full"
-                                fontSize="xs"
-                              >
-                                {project.project_status || 'Pending'}
-                              </Badge>
-                            </Flex>
-
-                            <SimpleGrid columns={2} spacing={2} fontSize="sm">
-                              <Box>
-                                <Text color="gray.500" fontSize="xs">Mobile</Text>
-                                <Text fontWeight="medium">{project.mobile_number}</Text>
-                              </Box>
-                              <Box>
-                                <Text color="gray.500" fontSize="xs">Capacity</Text>
-                                <Text fontWeight="medium">{project.capacity} kW</Text>
-                              </Box>
-                              <Box>
-                                <Text color="gray.500" fontSize="xs">Project Cost</Text>
-                                <Text fontWeight="medium" color="green.600">₹{project.project_cost.toLocaleString()}</Text>
-                              </Box>
-                              <Box>
-                                <Text color="gray.500" fontSize="xs">Amount Received</Text>
-                                <Text fontWeight="medium" color="blue.600">
-                                  {project.amount_received ? `₹${project.amount_received.toLocaleString()}` : 'N/A'}
-                                </Text>
-                              </Box>
-                            </SimpleGrid>
-
-                            <Box>
-                              <Text color="gray.500" fontSize="xs">Address</Text>
-                              <Text fontSize="sm">{project.address_mandal_village}</Text>
-                            </Box>
-
-                            <SimpleGrid columns={2} spacing={2} fontSize="xs" color="gray.600">
-                              <Box>
-                                <Text>Order Date: {project.date_of_order ? new Date(project.date_of_order).toLocaleDateString() : 'N/A'}</Text>
-                              </Box>
-                              <Box>
-                                <Text>Material Date: {project.material_sent_date ? new Date(project.material_sent_date).toLocaleDateString() : 'N/A'}</Text>
-                              </Box>
-                            </SimpleGrid>
+                            </HStack>
+                            <HStack spacing={1}>
+                              <PhoneIcon color="gray.400" boxSize={3} />
+                              <Text fontSize="xs" color="gray.600">
+                                {project.mobile_number}
+                              </Text>
+                            </HStack>
+                            <HStack spacing={1}>
+                              <Text fontSize="xs" color="gray.400">📍</Text>
+                              <Text fontSize="xs" color="gray.600" isTruncated maxW="150px">
+                                {project.address_mandal_village}
+                              </Text>
+                            </HStack>
                           </VStack>
-                        </CardBody>
-                      </Card>
-                    ))}
-                  </SimpleGrid>
-                </Box>
-
-                {/* Desktop: Responsive Table */}
-                <Box display={{ base: 'none', xl: 'block' }}>
-                  <TableContainer>
-                    <Table variant="simple" size="sm">
-                      <Thead bg="gray.50">
-                        <Tr>
-                          <Th fontWeight="semibold" color="gray.700" minW="150px">Customer Details</Th>
-                          <Th fontWeight="semibold" color="gray.700" minW="120px">Project Info</Th>
-                          <Th fontWeight="semibold" color="gray.700" minW="140px">Financial</Th>
-                          <Th fontWeight="semibold" color="gray.700" minW="120px">Status & Dates</Th>
-                          <Th fontWeight="semibold" color="gray.700" minW="100px">Payments</Th>
-                        </Tr>
-                      </Thead>
-                      <Tbody>
-                        {projects.map(project => (
-                          <Tr key={project.id} _hover={{ bg: 'gray.50' }} transition="all 0.2s">
-                            <Td>
-                              <VStack align="start" spacing={1}>
-                                <Text fontWeight="bold" fontSize="sm" color="blue.600">
-                                  {project.customer_name}
-                                </Text>
-                                <Text fontSize="xs" color="gray.600">{project.mobile_number}</Text>
-                                <Text fontSize="xs" color="gray.500">{project.address_mandal_village}</Text>
-                                {project.service_number && (
-                                  <Text fontSize="xs" color="gray.500">Service: {project.service_number}</Text>
-                                )}
-                              </VStack>
-                            </Td>
-                            <Td>
-                              <VStack align="start" spacing={1}>
-                                <Text fontSize="sm" fontWeight="medium">{project.capacity} kW</Text>
+                        </Td>
+                        <Td>
+                          <VStack align="start" spacing={1}>
+                            <HStack spacing={1}>
+                              <Text fontSize="xs" color="green.500">₹</Text>
+                              <Text fontSize="sm" fontWeight="bold" color="green.600">
+                                ₹{project.project_cost.toLocaleString()}
+                              </Text>
+                            </HStack>
+                            <Text fontSize="xs" color="blue.600">
+                              Received: ₹{project.amount_received?.toLocaleString() || '0'}
+                            </Text>
+                            <Text fontSize="xs" color="orange.600">
+                              Balance: ₹{((project.project_cost || 0) - (project.amount_received || 0)).toLocaleString()}
+                            </Text>
+                          </VStack>
+                        </Td>
+                        <Td>
+                          <VStack align="start" spacing={1}>
+                            <Tooltip label="Order Date">
+                              <HStack spacing={1}>
+                                <Text fontSize="xs" color="gray.400">📅</Text>
                                 <Text fontSize="xs" color="gray.600">
-                                  Order: {project.date_of_order ? new Date(project.date_of_order).toLocaleDateString() : 'N/A'}
+                                  {project.date_of_order ? new Date(project.date_of_order).toLocaleDateString() : 'N/A'}
                                 </Text>
-                                {project.subsidy_scope && (
-                                  <Badge size="sm" colorScheme="blue">{project.subsidy_scope}</Badge>
-                                )}
-                              </VStack>
-                            </Td>
-                            <Td>
-                              <VStack align="start" spacing={1}>
-                                <Text fontSize="sm" fontWeight="bold" color="green.600">
-                                  ₹{project.project_cost.toLocaleString()}
-                                </Text>
-                                <Text fontSize="xs" color="blue.600">
-                                  Received: {project.amount_received ? `₹${project.amount_received.toLocaleString()}` : 'N/A'}
-                                </Text>
-                              </VStack>
-                            </Td>
-                            <Td>
-                              <VStack align="start" spacing={1}>
-                                <Badge
-                                  colorScheme={getStatusColor(project.project_status || 'pending')}
-                                  px={2}
-                                  py={1}
-                                  borderRadius="full"
-                                  fontSize="xs"
-                                >
-                                  {project.project_status || 'Pending'}
-                                </Badge>
-                                <Text fontSize="xs" color="gray.600">
-                                  Material: {project.material_sent_date ? new Date(project.material_sent_date).toLocaleDateString() : 'N/A'}
-                                </Text>
-                              </VStack>
-                            </Td>
-                            <Td>
-                              <VStack align="start" spacing={1}>
-                                {project.velugu_officer_payments && (
+                              </HStack>
+                            </Tooltip>
+                            {project.material_sent_date && (
+                              <Tooltip label="Material Sent Date">
+                                <HStack spacing={1}>
+                                  <Text fontSize="xs" color="purple.400">📦</Text>
                                   <Text fontSize="xs" color="purple.600">
-                                    Velugu: ₹{project.velugu_officer_payments.toLocaleString()}
+                                    {new Date(project.material_sent_date).toLocaleDateString()}
                                   </Text>
-                                )}
-                                {project.balamuragan_payment && (
-                                  <Text fontSize="xs" color="orange.600">
-                                    Balamuragan: ₹{project.balamuragan_payment.toLocaleString()}
-                                  </Text>
-                                )}
-                                {!project.velugu_officer_payments && !project.balamuragan_payment && (
-                                  <Text fontSize="xs" color="gray.400">No payments</Text>
-                                )}
-                              </VStack>
-                            </Td>
-                          </Tr>
-                        ))}
-                      </Tbody>
-                    </Table>
-                  </TableContainer>
-                </Box>
-              </Box>
+                                </HStack>
+                              </Tooltip>
+                            )}
+                          </VStack>
+                        </Td>
+                        <Td>
+                          <Badge
+                            colorScheme={getStatusColor(project.project_status || 'pending')}
+                            px={3}
+                            py={1}
+                            borderRadius="full"
+                            fontSize="xs"
+                          >
+                            {project.project_status || 'Pending'}
+                          </Badge>
+                        </Td>
+                        <Td>
+                          <Menu>
+                            <MenuButton
+                              as={IconButton}
+                              icon={<ChevronDownIcon />}
+                              variant="ghost"
+                              size="sm"
+                            />
+                            <MenuList>
+                              <MenuItem
+                                icon={<ViewIcon />}
+                                onClick={() => navigate(`/projects/chitoor/${project.id}`)}
+                              >
+                                View Details
+                              </MenuItem>
+                              <MenuItem
+                                icon={<EditIcon />}
+                                onClick={() => {
+                                  // TODO: Implement edit functionality
+                                  toast({
+                                    title: 'Edit Feature',
+                                    description: 'Edit functionality coming soon!',
+                                    status: 'info',
+                                    duration: 3000,
+                                    isClosable: true,
+                                  });
+                                }}
+                              >
+                                Edit Project
+                              </MenuItem>
+                              <MenuItem
+                                icon={<DeleteIcon />}
+                                color="red.500"
+                                onClick={() => {
+                                  if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+                                    // TODO: Implement delete functionality
+                                    toast({
+                                      title: 'Delete Feature',
+                                      description: 'Delete functionality coming soon!',
+                                      status: 'info',
+                                      duration: 3000,
+                                      isClosable: true,
+                                    });
+                                  }
+                                }}
+                              >
+                                Delete Project
+                              </MenuItem>
+                            </MenuList>
+                          </Menu>
+                        </Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              </TableContainer>
             ) : (
               <Flex direction="column" align="center" py={16}>
                 <Text fontSize="6xl" color="gray.300" mb={4}>📊</Text>
