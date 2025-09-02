@@ -575,6 +575,9 @@ const ChitoorProjects = () => {
                     <option value="Pending">Pending</option>
                     <option value="In Progress">In Progress</option>
                     <option value="Completed">Completed</option>
+                    <option value="Installation completed "> Installation Completed</option>
+                    <option value="Material sent ">Material Sent </option>
+                    <option value="Material Pending ">Material Pending</option>
                     <option value="On Hold">On Hold</option>
                   </Select>
                 </FormControl>
