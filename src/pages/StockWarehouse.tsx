@@ -11,6 +11,8 @@ interface StockItem {
   updated_at?: string;
 }
 
+interface EditState { id: string; item_name: string; quantity: number; location: string; notes: string; }
+
 const StockWarehouse: React.FC = () => {
   const [items, setItems] = useState<StockItem[]>([]);
   const [itemName, setItemName] = useState('');
@@ -19,6 +21,7 @@ const StockWarehouse: React.FC = () => {
   const [notes, setNotes] = useState('');
   const [tableMissing, setTableMissing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [editing, setEditing] = useState<EditState | null>(null);
   const toast = useToast();
 
   const fetchItems = async () => {
@@ -90,16 +93,43 @@ const StockWarehouse: React.FC = () => {
             <Th>Location</Th>
             <Th>Notes</Th>
             <Th>Updated</Th>
+            <Th>Actions</Th>
           </Tr>
         </Thead>
         <Tbody>
           {items.map((it) => (
             <Tr key={it.id}>
-              <Td>{it.item_name}</Td>
-              <Td>{it.quantity}</Td>
-              <Td>{it.location || '-'}</Td>
-              <Td>{it.notes || '-'}</Td>
+              <Td>{editing?.id === it.id ? (<Input value={editing.item_name} onChange={(e)=>setEditing({...editing!, item_name:e.target.value})} />) : it.item_name}</Td>
+              <Td>{editing?.id === it.id ? (<Input type="number" value={editing.quantity} onChange={(e)=>setEditing({...editing!, quantity:Number(e.target.value)})} />) : it.quantity}</Td>
+              <Td>{editing?.id === it.id ? (<Input value={editing.location} onChange={(e)=>setEditing({...editing!, location:e.target.value})} />) : (it.location || '-')}</Td>
+              <Td>{editing?.id === it.id ? (<Input value={editing.notes} onChange={(e)=>setEditing({...editing!, notes:e.target.value})} />) : (it.notes || '-')}</Td>
               <Td>{it.updated_at ? new Date(it.updated_at).toLocaleString() : '-'}</Td>
+              <Td>
+                {editing?.id === it.id ? (
+                  <HStack>
+                    <Button size="sm" colorScheme="green" onClick={async ()=>{
+                      try{
+                        setLoading(true);
+                        const payload:any={ item_name:editing.item_name, quantity:editing.quantity, location:editing.location||null, notes:editing.notes||null };
+                        const { data, error } = await supabase.from('stock_warehouse').update(payload).eq('id', it.id).select('*');
+                        if(error) throw error as any;
+                        setItems(items.map(x=>x.id===it.id ? (data as any)[0] : x));
+                        setEditing(null);
+                        toast({ title:'Updated', status:'success', duration:2000});
+                      }catch(e:any){ toast({ title:'Failed to update', description:e?.message||String(e), status:'error', duration:4000}); }
+                      finally{ setLoading(false);}
+                    }}>Save</Button>
+                    <Button size="sm" variant="ghost" onClick={()=>setEditing(null)}>Cancel</Button>
+                  </HStack>
+                ) : (
+                  <HStack>
+                    <Button size="sm" onClick={()=>setEditing({ id:it.id, item_name:it.item_name, quantity:it.quantity, location:it.location||'', notes:it.notes||'' })}>Edit</Button>
+                    <Button size="sm" colorScheme="red" onClick={async ()=>{
+                      try{ const { error } = await supabase.from('stock_warehouse').delete().eq('id', it.id); if(error) throw error as any; setItems(items.filter(x=>x.id!==it.id)); toast({ title:'Deleted', status:'success', duration:2000}); }catch(e:any){ toast({ title:'Failed to delete', description:e?.message||String(e), status:'error', duration:4000}); }
+                    }}>Delete</Button>
+                  </HStack>
+                )}
+              </Td>
             </Tr>
           ))}
         </Tbody>
