@@ -149,7 +149,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             )}
             <IconButton
               aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              icon={<Text>{isCollapsed ? '▶' : '◀'}</Text>}
+              icon={<DragHandleIcon />}
               size="sm"
               variant="ghost"
               onClick={() => setIsCollapsed(v => !v)}
