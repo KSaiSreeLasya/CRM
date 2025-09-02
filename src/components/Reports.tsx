@@ -125,15 +125,6 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
       setIsLoading(true);
       setError(null);
 
-      if (wants === 'chitoor' && !canAccess) {
-        // No access to Chitoor: show empty but do not error
-        setStats({ totalProjects: 0, activeProjects: 0, completedProjects: 0, totalRevenue: 0, totalKWH: 0 });
-        setStageStats({});
-        setMonthlyKWH({});
-        setIsLoading(false);
-        return;
-      }
-      
       console.log('Fetching projects from Supabase...');
       let query = supabase
         .from('projects')
