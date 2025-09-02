@@ -61,6 +61,8 @@ const NavigationHeader = () => {
     { icon: '📈', label: 'Projects', to: '/projects' },
     { icon: '🏭', label: 'Stock Warehouse', to: '/stock' },
     { icon: '🚚', label: 'Logistics & Supply Chain', to: '/logistics' },
+    // Reports has submenu; keep parent link to /reports
+    { icon: '📑', label: 'Reports', to: '/reports' },
     { icon: '🎫', label: 'Service Tickets', to: '/service-tickets' },
     ...(isAdmin ? [{ icon: '⚙️', label: 'Admin', to: '/admin' }] : []),
   ];
@@ -76,15 +78,49 @@ const NavigationHeader = () => {
     >
       <Flex justify="space-between" align="center">
         <HStack spacing={1}>
-          {navigationItems.map((item) => (
-            <NavButton
-              key={item.to}
-              icon={item.icon}
-              label={item.label}
-              to={item.to}
-              isActive={location.pathname === item.to}
-            />
-          ))}
+          {navigationItems.map((item) => {
+            if (item.label === 'Reports') {
+              const active = location.pathname.startsWith('/reports');
+              const activeBg = useColorModeValue('green.50', 'green.900');
+              const activeColor = useColorModeValue('green.600', 'green.200');
+              const hoverBg = useColorModeValue('gray.50', 'gray.700');
+              return (
+                <Menu key={item.to} isLazy>
+                  <MenuButton
+                    as={Button}
+                    variant="ghost"
+                    size="lg"
+                    bg={active ? activeBg : 'transparent'}
+                    color={active ? activeColor : 'gray.600'}
+                    fontWeight={active ? 'semibold' : 'medium'}
+                    _hover={{ bg: active ? activeBg : hoverBg, transform: 'translateY(-1px)' }}
+                    _active={{ transform: 'translateY(0)' }}
+                    borderRadius="lg"
+                    px={6}
+                    py={3}
+                    leftIcon={<Text fontSize="lg">{item.icon}</Text>}
+                  >
+                    {item.label}
+                  </MenuButton>
+                  <MenuList>
+                    <MenuItem as={RouterLink} to="/reports">All Reports</MenuItem>
+                    <MenuItem as={RouterLink} to="/reports/tg">TG Reports</MenuItem>
+                    <MenuItem as={RouterLink} to="/reports/ap">AP Reports</MenuItem>
+                    <MenuItem as={RouterLink} to="/reports/chitoor">Chitoor Reports</MenuItem>
+                  </MenuList>
+                </Menu>
+              );
+            }
+            return (
+              <NavButton
+                key={item.to}
+                icon={item.icon}
+                label={item.label}
+                to={item.to}
+                isActive={location.pathname === item.to}
+              />
+            );
+          })}
         </HStack>
         
         <Box>
