@@ -76,6 +76,14 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, color, helpTe
 };
 
 const APProjects = () => {
+  const { isAdmin, assignedRegions } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!isAdmin && !assignedRegions.includes('Andhra Pradesh')) {
+      navigate('/dashboard');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdmin, assignedRegions]);
   const [stats, setStats] = useState({
     totalProjects: 0,
     activeProjects: 0,
