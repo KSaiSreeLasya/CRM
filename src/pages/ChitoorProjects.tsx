@@ -452,16 +452,7 @@ const ChitoorProjects = () => {
           <ModalBody pb={6}>
             <VStack spacing={4}>
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4} w="full">
-                <FormControl>
-                  <FormLabel fontSize="sm" fontWeight="medium">Sl No</FormLabel>
-                  <Input
-                    name="sl_no"
-                    type="number"
-                    value={newProject.sl_no}
-                    onChange={handleInputChange}
-                    placeholder="Serial number"
-                  />
-                </FormControl>
+                
 
                 <FormControl isRequired>
                   <FormLabel fontSize="sm" fontWeight="medium">Customer Name <Text as="span" color="red.500">*</Text></FormLabel>
