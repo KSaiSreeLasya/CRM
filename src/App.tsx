@@ -290,6 +290,16 @@ const App: React.FC = () => {
                 }
               />
               <Route
+                path="/procurement"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <Procurement />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/logistics"
                 element={
                   <PrivateRoute>
