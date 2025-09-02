@@ -37,7 +37,7 @@ import { AddIcon } from '@chakra-ui/icons';
 
 interface ChitoorProject {
   id: string;
-  sl_no?: number;
+  
   customer_name: string;
   mobile_number: string;
   date_of_order: string;
