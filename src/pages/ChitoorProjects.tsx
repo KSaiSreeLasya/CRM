@@ -197,6 +197,11 @@ const ChitoorProjects = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    if (name === 'capacity') {
+      const mappedCost = value === '2' ? '148000' : (value === '3' ? '205000' : newProject.project_cost);
+      setNewProject(prev => ({ ...prev, capacity: value, project_cost: mappedCost }));
+      return;
+    }
     setNewProject(prev => ({
       ...prev,
       [name]: value
@@ -314,11 +319,11 @@ const ChitoorProjects = () => {
             helpText="All Chitoor projects"
           />
           <StatsCard
-            title="Pending Projects"
+            title="Active Projects"
             value={stats.pendingProjects}
-            icon="⏳"
-            color="yellow"
-            helpText="Awaiting action"
+            icon="🚀"
+            color="green"
+            helpText="In progress"
           />
           <StatsCard
             title="Completed Projects"
@@ -494,33 +499,38 @@ const ChitoorProjects = () => {
                                 View Details
                               </MenuItem>
                               <MenuItem
-                                icon={<EditIcon />}
-                                onClick={() => {
-                                  // TODO: Implement edit functionality
-                                  toast({
-                                    title: 'Edit Feature',
-                                    description: 'Edit functionality coming soon!',
-                                    status: 'info',
-                                    duration: 3000,
-                                    isClosable: true,
-                                  });
+                                icon={<Text>✅</Text>}
+                                onClick={async () => {
+                                  try {
+                                    const { error } = await supabase
+                                      .from('chitoor_projects')
+                                      .update({ project_status: 'Completed' })
+                                      .eq('id', project.id);
+                                    if (error) throw error;
+                                    toast({ title: 'Marked complete', status: 'success', duration: 2000, isClosable: true });
+                                    fetchChitoorProjects();
+                                  } catch (e) {
+                                    toast({ title: 'Failed to mark complete', description: formatSupabaseError(e), status: 'error', duration: 3000, isClosable: true });
+                                  }
                                 }}
                               >
-                                Edit Project
+                                Mark Complete
                               </MenuItem>
                               <MenuItem
                                 icon={<DeleteIcon />}
                                 color="red.500"
-                                onClick={() => {
-                                  if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
-                                    // TODO: Implement delete functionality
-                                    toast({
-                                      title: 'Delete Feature',
-                                      description: 'Delete functionality coming soon!',
-                                      status: 'info',
-                                      duration: 3000,
-                                      isClosable: true,
-                                    });
+                                onClick={async () => {
+                                  if (!window.confirm('Delete this project permanently?')) return;
+                                  try {
+                                    const { error } = await supabase
+                                      .from('chitoor_projects')
+                                      .delete()
+                                      .eq('id', project.id);
+                                    if (error) throw error;
+                                    toast({ title: 'Project deleted', status: 'success', duration: 2000, isClosable: true });
+                                    fetchChitoorProjects();
+                                  } catch (e) {
+                                    toast({ title: 'Failed to delete', description: formatSupabaseError(e), status: 'error', duration: 3000, isClosable: true });
                                   }
                                 }}
                               >
@@ -643,8 +653,8 @@ const ChitoorProjects = () => {
                     onChange={handleInputChange}
                     placeholder="Select total amount"
                   >
-                    <option value="205000">₹2,05,000</option>
-                    <option value="140000">���1,40,000</option>
+                    <option value="148000">₹1,48,000 (2 kW)</option>
+                    <option value="205000">₹2,05,000 (3 kW)</option>
                   </Select>
                 </FormControl>
 

@@ -81,10 +81,7 @@ const NavigationHeader = () => {
               icon={item.icon}
               label={item.label}
               to={item.to}
-              isActive={
-                location.pathname === item.to || 
-                (item.to === '/projects' && location.pathname.startsWith('/projects'))
-              }
+              isActive={location.pathname === item.to}
             />
           ))}
         </HStack>

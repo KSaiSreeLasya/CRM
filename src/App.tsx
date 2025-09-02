@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ChakraProvider, Box, Center, Text } from '@chakra-ui/react';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import DashboardTG from './pages/DashboardTG';
+import DashboardAP from './pages/DashboardAP';
+import DashboardChitoor from './pages/DashboardChitoor';
 import Projects from './components/Projects';
 import ProjectDetails from './components/ProjectDetails';
 import Reports from './components/Reports';
@@ -13,6 +16,8 @@ import TelanganaProjects from './pages/TelanganaProjects';
 import APProjects from './pages/APProjects';
 import ChitoorProjects from './pages/ChitoorProjects';
 import Admin from './pages/Admin';
+import StockWarehouse from './pages/StockWarehouse';
+import Logistics from './pages/Logistics';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
 import { AuthProvider } from './context/AuthContext';
@@ -78,6 +83,36 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <Layout>
                       <Dashboard />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/dashboard/tg"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <DashboardTG />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/dashboard/ap"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <DashboardAP />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/dashboard/chitoor"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <DashboardChitoor />
                     </Layout>
                   </PrivateRoute>
                 }
@@ -200,6 +235,26 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <Layout>
                       <Admin />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/stock"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <StockWarehouse />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/logistics"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <Logistics />
                     </Layout>
                   </PrivateRoute>
                 }

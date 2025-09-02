@@ -41,6 +41,7 @@ import { formatSupabaseError } from '../utils/error';
 import { CHITOOR_PROJECT_STAGES } from '../lib/constants';
 import { useAuth } from '../context/AuthContext';
 import { ArrowBackIcon, EditIcon, CalendarIcon } from '@chakra-ui/icons';
+import { generatePaymentReceiptPDF } from './PaymentReceipt';
 
 interface ChitoorProject {
   id: string;
@@ -79,6 +80,7 @@ const ChitoorProjectDetails = () => {
   
   const [project, setProject] = useState<ChitoorProject | null>(null);
   const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
+  const [paymentsTable, setPaymentsTable] = useState<'payment_history' | 'chitoor_payment_history'>('payment_history');
   const [loading, setLoading] = useState(true);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
@@ -91,12 +93,20 @@ const ChitoorProjectDetails = () => {
     service_number: '',
   });
 
+  const [projectFormData, setProjectFormData] = useState({
+    capacity: 0,
+    project_cost: 0,
+    subsidy_scope: '',
+    material_sent_date: '',
+    project_status: '' as string | undefined,
+  });
+
   const fetchProjectDetails = async () => {
     if (!id) return;
-    
+
     try {
       setLoading(true);
-      
+
       // Fetch project details
       const { data: projectData, error: projectError } = await supabase
         .from('chitoor_projects')
@@ -124,21 +134,63 @@ const ChitoorProjectDetails = () => {
           address_mandal_village: projectData.address_mandal_village || '',
           service_number: projectData.service_number || '',
         });
-      }
-
-      // Fetch payment history (if you have a separate payments table for chitoor)
-      // For now, we'll create mock payment history based on amount_received
-      const mockPayments: PaymentHistory[] = [];
-      if (projectData?.amount_received && projectData.amount_received > 0) {
-        mockPayments.push({
-          id: '1',
-          amount: projectData.amount_received,
-          payment_date: projectData.date_of_order || new Date().toISOString(),
-          payment_mode: 'Cash',
-          created_at: projectData.created_at || new Date().toISOString(),
+        setProjectFormData({
+          capacity: Number(projectData.capacity) || 0,
+          project_cost: Number(projectData.project_cost) || 0,
+          subsidy_scope: projectData.subsidy_scope || '',
+          material_sent_date: projectData.material_sent_date ? new Date(projectData.material_sent_date).toISOString().split('T')[0] : '',
+          project_status: projectData.project_status || 'Pending',
         });
       }
-      setPaymentHistory(mockPayments);
+
+      // Fetch phase-wise payment history. Try shared table first, then chitoor-specific as fallback
+      let localPayments: any[] = [];
+      let usedTable: 'payment_history' | 'chitoor_payment_history' = 'payment_history';
+      let projectIdField: 'project_id' | 'chitoor_project_id' = 'project_id';
+
+      try {
+        const { data: payData } = await supabase
+          .from('payment_history')
+          .select('*')
+          .eq('project_id', id)
+          .order('created_at', { ascending: true });
+        localPayments = (payData as any[]) || [];
+      } catch (firstErr) {
+        // ignore and try fallback
+      }
+
+      if ((!localPayments || localPayments.length === 0)) {
+        try {
+          const { data: chPayData } = await supabase
+            .from('chitoor_payment_history')
+            .select('*')
+            .eq('chitoor_project_id', id)
+            .order('created_at', { ascending: true });
+          if (chPayData && Array.isArray(chPayData)) {
+            localPayments = chPayData as any[];
+            usedTable = 'chitoor_payment_history';
+            projectIdField = 'chitoor_project_id';
+          }
+        } catch (secondErr) {
+          console.warn('Payment history fallback failed', secondErr);
+        }
+      }
+
+      setPaymentsTable(usedTable);
+      if ((!localPayments || localPayments.length === 0) && projectData?.amount_received && projectData.amount_received > 0) {
+        const d = projectData.date_of_order || projectData.created_at || new Date().toISOString();
+        setPaymentHistory([
+          {
+            id: 'initial',
+            amount: projectData.amount_received,
+            payment_date: d,
+            payment_mode: 'Cash',
+            created_at: d,
+          },
+        ]);
+      } else {
+        setPaymentHistory(localPayments as PaymentHistory[]);
+      }
 
     } catch (error) {
       console.error('Error:', error);
@@ -163,39 +215,76 @@ const ChitoorProjectDetails = () => {
 
     try {
       setProcessingPayment(true);
-      
-      const newAmountReceived = (project.amount_received || 0) + parseFloat(paymentAmount);
-      
-      // Update project with new amount received
-      const { error } = await supabase
-        .from('chitoor_projects')
-        .update({ 
-          amount_received: newAmountReceived,
-        })
-        .eq('id', project.id);
 
-      if (error) {
-        console.error('Error updating project:', error);
-        toast({
-          title: 'Error',
-          description: `Failed to add payment. ${formatSupabaseError(error)}`,
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
+      // Validate amount
+      const amountNum = Number(paymentAmount);
+      if (!isFinite(amountNum) || amountNum <= 0) {
+        toast({ title: 'Invalid amount', status: 'warning', duration: 3000, isClosable: true });
+        return;
+      }
+      const maxPayable = Math.max((project.project_cost || 0) - (project.amount_received || 0), 0);
+      if (amountNum > maxPayable) {
+        toast({ title: 'Amount exceeds balance', description: `Max: ₹${maxPayable.toLocaleString()}`, status: 'warning', duration: 4000, isClosable: true });
+        return;
+      }
+      if (!paymentDate) {
+        toast({ title: 'Choose a payment date', status: 'warning', duration: 3000, isClosable: true });
         return;
       }
 
-      // Add to local payment history
-      const newPayment: PaymentHistory = {
-        id: Date.now().toString(),
-        amount: parseFloat(paymentAmount),
-        payment_date: paymentDate,
-        payment_mode: paymentMode,
-        created_at: new Date().toISOString(),
-      };
+      // Insert a new phase entry into detected table; fallback to chitoor_payment_history on FK error
+      let usedTable: 'payment_history' | 'chitoor_payment_history' = paymentsTable;
+      let projectIdField: 'project_id' | 'chitoor_project_id' = usedTable === 'payment_history' ? 'project_id' : 'chitoor_project_id';
 
-      setPaymentHistory(prev => [newPayment, ...prev]);
+      let insertError: any | null = null;
+      try {
+        const { error } = await supabase
+          .from(usedTable)
+          .insert([{
+            [projectIdField]: project.id,
+            amount: amountNum,
+            payment_mode: paymentMode,
+            payment_date: paymentDate,
+          } as any]);
+        insertError = error || null;
+      } catch (e) {
+        insertError = e;
+      }
+
+      if (insertError) {
+        usedTable = 'chitoor_payment_history';
+        projectIdField = 'chitoor_project_id';
+        const { error: fbError } = await supabase
+          .from(usedTable)
+          .insert([{
+            [projectIdField]: project.id,
+            amount: amountNum,
+            payment_mode: paymentMode,
+            payment_date: paymentDate,
+          } as any]);
+        if (fbError) throw fbError;
+        setPaymentsTable(usedTable);
+      }
+
+      const newAmountReceived = (project.amount_received || 0) + amountNum;
+
+      // Update project with new amount received
+      const { error: updateError } = await supabase
+        .from('chitoor_projects')
+        .update({ amount_received: newAmountReceived })
+        .eq('id', project.id);
+
+      if (updateError) throw updateError;
+
+      // Refresh payments from the detected table
+      const tableToRead = usedTable;
+      const projectField = usedTable === 'payment_history' ? 'project_id' : 'chitoor_project_id';
+      const { data: payData } = await supabase
+        .from(tableToRead)
+        .select('*')
+        .eq(projectField, project.id)
+        .order('created_at', { ascending: true });
+      setPaymentHistory((payData as any[]) as PaymentHistory[]);
       setProject(prev => prev ? { ...prev, amount_received: newAmountReceived } : null);
 
       toast({
@@ -211,17 +300,65 @@ const ChitoorProjectDetails = () => {
       setPaymentDate(new Date().toISOString().split('T')[0]);
       setPaymentMode('Cash');
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding payment:', error);
+      const message = formatSupabaseError(error) || (error?.message || 'Failed to add payment');
       toast({
-        title: 'Error',
-        description: 'An unexpected error occurred',
+        title: 'Error adding payment',
+        description: message,
         status: 'error',
         duration: 5000,
         isClosable: true,
       });
     } finally {
       setProcessingPayment(false);
+    }
+  };
+
+  const handleDeletePayment = async (payment: PaymentHistory) => {
+    if (!project) return;
+    try {
+      // Delete payment row
+      const tableToUse = paymentsTable;
+      const { error: delError } = await supabase
+        .from(tableToUse)
+        .delete()
+        .eq('id', payment.id);
+      if (delError) throw delError;
+
+      const updatedAmount = Math.max((project.amount_received || 0) - (payment.amount || 0), 0);
+      const { error: updError } = await supabase
+        .from('chitoor_projects')
+        .update({ amount_received: updatedAmount })
+        .eq('id', project.id);
+      if (updError) throw updError;
+
+      // Refresh list
+      const projectField = tableToUse === 'payment_history' ? 'project_id' : 'chitoor_project_id';
+      const { data: payData } = await supabase
+        .from(tableToUse)
+        .select('*')
+        .eq(projectField, project.id)
+        .order('created_at', { ascending: true });
+
+      setPaymentHistory((payData as any[]) as PaymentHistory[]);
+      setProject(prev => prev ? { ...prev, amount_received: updatedAmount } : null);
+
+      toast({
+        title: 'Payment deleted',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (err) {
+      console.error('Error deleting payment:', err);
+      toast({
+        title: 'Error',
+        description: formatSupabaseError(err) || 'Failed to delete payment',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -329,9 +466,20 @@ const ChitoorProjectDetails = () => {
           {/* Project Details */}
           <Card>
             <CardHeader>
-              <Text fontSize="lg" fontWeight="semibold" color="gray.700">
-                Project Details
-              </Text>
+              <Flex justify="space-between" align="center">
+                <Text fontSize="lg" fontWeight="semibold" color="gray.700">
+                  Project Details
+                </Text>
+                <Button
+                  leftIcon={<EditIcon />}
+                  colorScheme="blue"
+                  variant="outline"
+                  size="sm"
+                  onClick={onEditOpen}
+                >
+                  Edit
+                </Button>
+              </Flex>
             </CardHeader>
             <CardBody>
               <VStack align="stretch" spacing={3}>
@@ -541,9 +689,45 @@ const ChitoorProjectDetails = () => {
                         <Td>₹{payment.amount.toLocaleString()}</Td>
                         <Td>{payment.payment_mode || 'Cash'}</Td>
                         <Td>
-                          <Button size="xs" colorScheme="blue" variant="outline">
+                          <Button
+                            size="xs"
+                            colorScheme="blue"
+                            variant="outline"
+                            onClick={async () => {
+                              try {
+                                if (!project) return;
+                                await generatePaymentReceiptPDF({
+                                  date: payment.payment_date,
+                                  amount: payment.amount,
+                                  receivedFrom: project.customer_name,
+                                  paymentMode: payment.payment_mode || 'Cash',
+                                  placeOfSupply: 'Andhra Pradesh',
+                                  customerAddress: project.address_mandal_village,
+                                });
+                              } catch (e) {
+                                console.error('Receipt generation failed', e);
+                                toast({
+                                  title: 'Failed to generate receipt',
+                                  status: 'error',
+                                  duration: 3000,
+                                  isClosable: true,
+                                });
+                              }
+                            }}
+                          >
                             Download Receipt
                           </Button>
+                          {payment.id !== 'initial' && (
+                            <Button
+                              size="xs"
+                              ml={2}
+                              colorScheme="red"
+                              variant="outline"
+                              onClick={() => handleDeletePayment(payment)}
+                            >
+                              Delete
+                            </Button>
+                          )}
                         </Td>
                       </Tr>
                     ))}
@@ -722,17 +906,113 @@ const ChitoorProjectDetails = () => {
         </ModalContent>
       </Modal>
 
-      {/* Edit Project Modal - Placeholder */}
-      <Modal isOpen={isEditOpen} onClose={onEditClose}>
+      {/* Edit Project Modal */}
+      <Modal isOpen={isEditOpen} onClose={onEditClose} size="lg">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Edit Project</ModalHeader>
+          <ModalHeader>Edit Project Details</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text>Edit functionality coming soon!</Text>
+            <VStack spacing={4} align="stretch">
+              <FormControl isRequired>
+                <FormLabel>Capacity (kW)</FormLabel>
+                <Input
+                  type="number"
+                  value={projectFormData.capacity}
+                  onChange={(e) => setProjectFormData(prev => ({ ...prev, capacity: Number(e.target.value) }))}
+                  placeholder="Enter capacity"
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel>Project Cost (₹)</FormLabel>
+                <Input
+                  type="number"
+                  value={projectFormData.project_cost}
+                  onChange={(e) => setProjectFormData(prev => ({ ...prev, project_cost: Number(e.target.value) }))}
+                  placeholder="Enter project cost"
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Subsidy Scope</FormLabel>
+                <Input
+                  value={projectFormData.subsidy_scope}
+                  onChange={(e) => setProjectFormData(prev => ({ ...prev, subsidy_scope: e.target.value }))}
+                  placeholder="Enter subsidy scope"
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Material Sent Date</FormLabel>
+                <Input
+                  type="date"
+                  value={projectFormData.material_sent_date}
+                  onChange={(e) => setProjectFormData(prev => ({ ...prev, material_sent_date: e.target.value }))}
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Project Status</FormLabel>
+                <Select
+                  value={projectFormData.project_status}
+                  onChange={(e) => setProjectFormData(prev => ({ ...prev, project_status: e.target.value }))}
+                >
+                  {CHITOOR_PROJECT_STAGES.map(stage => (
+                    <option key={stage} value={stage}>{stage}</option>
+                  ))}
+                </Select>
+              </FormControl>
+            </VStack>
           </ModalBody>
           <ModalFooter>
-            <Button onClick={onEditClose}>Close</Button>
+            <Button mr={3} onClick={onEditClose}>Cancel</Button>
+            <Button
+              colorScheme="blue"
+              onClick={async () => {
+                try {
+                  if (!project) return;
+                  const updates: any = {
+                    capacity: projectFormData.capacity,
+                    project_cost: projectFormData.project_cost,
+                    subsidy_scope: projectFormData.subsidy_scope || null,
+                    project_status: projectFormData.project_status || null,
+                  };
+                  if (projectFormData.material_sent_date) {
+                    updates.material_sent_date = new Date(projectFormData.material_sent_date).toISOString();
+                  } else {
+                    updates.material_sent_date = null;
+                  }
+
+                  const { error } = await supabase
+                    .from('chitoor_projects')
+                    .update(updates)
+                    .eq('id', project.id);
+
+                  if (error) throw error;
+
+                  setProject(prev => prev ? { ...prev, ...updates } : null);
+
+                  toast({
+                    title: 'Project updated',
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                  });
+                  onEditClose();
+                } catch (err) {
+                  console.error('Project update failed', err);
+                  toast({
+                    title: 'Failed to update project',
+                    status: 'error',
+                    duration: 3000,
+                    isClosable: true,
+                  });
+                }
+              }}
+            >
+              Save Changes
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
