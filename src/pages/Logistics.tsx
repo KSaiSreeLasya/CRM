@@ -176,18 +176,18 @@ const Logistics: React.FC = () => {
           <HStack wrap="wrap" spacing={3}>
             <Input type="date" value={dateVal} onChange={(e)=>setDateVal(e.target.value)} w="160px" />
             <Input placeholder="Item" value={item} onChange={(e)=>setItem(e.target.value)} w="180px" />
-            <Input type="number" placeholder="Qty" value={quantity} onChange={(e)=>setQuantity(Number(e.target.value))} w="100px" />
-            <Input placeholder="From" value={fromLoc} onChange={(e)=>setFromLoc(e.target.value)} w="160px" />
-            <Input placeholder="To" value={toLoc} onChange={(e)=>setToLoc(e.target.value)} w="160px" />
+            <Input type="number" placeholder="Qty" min={1} value={quantity} onChange={(e)=>setQuantity(Math.max(1, Number(e.target.value)))} w="100px" />
+            <Input placeholder="From (Location)" value={fromLoc} onChange={(e)=>setFromLoc(e.target.value)} w="160px" />
+            <Input placeholder="To (Location)" value={toLoc} onChange={(e)=>setToLoc(e.target.value)} w="160px" />
             <Input as="select" value={status} onChange={(e)=>setStatus(e.target.value as any)} w="160px">
               <option value="Pending">Pending</option>
               <option value="Shipped">Shipped</option>
               <option value="Delivered">Delivered</option>
             </Input>
-            <Input placeholder="Reference" value={reference} onChange={(e)=>setReference(e.target.value)} w="160px" />
-            <Input placeholder="Vehicle" value={vehicle} onChange={(e)=>setVehicle(e.target.value)} w="140px" />
-            <Input type="date" placeholder="Expected" value={expected} onChange={(e)=>setExpected(e.target.value)} w="160px" />
-            <Input placeholder="Tracking" value={tracking} onChange={(e)=>setTracking(e.target.value)} w="160px" />
+            <Input placeholder="Reference (PO/Invoice)" value={reference} onChange={(e)=>setReference(e.target.value)} w="160px" />
+            <Input placeholder="Vehicle (No./Type)" value={vehicle} onChange={(e)=>setVehicle(e.target.value)} w="140px" />
+            <Input type="date" placeholder="Expected Delivery" value={expected} onChange={(e)=>setExpected(e.target.value)} w="160px" />
+            <Input placeholder="Tracking (AWB/Ref)" value={tracking} onChange={(e)=>setTracking(e.target.value)} w="160px" />
             <Input placeholder="Notes" value={notes} onChange={(e)=>setNotes(e.target.value)} w="220px" />
             <Button colorScheme="green" onClick={addRow} isLoading={loading}>Add</Button>
           </HStack>
