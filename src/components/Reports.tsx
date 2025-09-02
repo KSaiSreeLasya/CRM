@@ -94,7 +94,7 @@ const STAGE_GROUPS = [
 ];
 
 const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
-  const { user } = useAuth();
+  const { user, isAdmin, assignedRegions } = useAuth();
   const [stats, setStats] = useState({
     totalCustomers: 0,
     activeProjects: 0,
