@@ -397,8 +397,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Navigation Header */}
           <NavigationHeader />
 
-          {/* Show dashboard header only on dashboard routes */}
-          {location.pathname.startsWith('/dashboard') && <DashboardHeader />}
+          {/* Show global dashboard header only on main dashboard */}
+          {location.pathname === '/dashboard' && <DashboardHeader />}
 
           {/* Page Content */}
           <Box p={6}>
