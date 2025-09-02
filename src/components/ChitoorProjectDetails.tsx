@@ -38,6 +38,8 @@ import {
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 import { formatSupabaseError } from '../utils/error';
+import { CHITOOR_PROJECT_STAGES } from '../lib/constants';
+import { useAuth } from '../context/AuthContext';
 import { ArrowBackIcon, EditIcon, CalendarIcon } from '@chakra-ui/icons';
 
 interface ChitoorProject {
@@ -70,6 +72,7 @@ const ChitoorProjectDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const toast = useToast();
+  const { isAuthenticated } = useAuth();
   const { isOpen: isPaymentOpen, onOpen: onPaymentOpen, onClose: onPaymentClose } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
   
@@ -340,15 +343,125 @@ const ChitoorProjectDetails = () => {
           <CardBody>
             <VStack spacing={4}>
               <HStack justify="space-between" w="full">
-                <Text><strong>Status:</strong></Text>
-                <Badge 
+                <Text><strong>Current Stage:</strong></Text>
+                <Badge
                   colorScheme={getStatusColor(project.project_status || 'pending')}
                   px={3} py={2} borderRadius="full"
                 >
                   {project.project_status || 'Pending'}
                 </Badge>
               </HStack>
-              
+
+              {/* Stage Progress Bar */}
+              <Box w="full">
+                <Flex justify="space-between" mb={2}>
+                  <Text fontSize="sm" color="gray.600">Stage Progress</Text>
+                  <Text fontSize="sm" color="gray.600">
+                    Stage {CHITOOR_PROJECT_STAGES.findIndex(s => s === project.project_status) + 1} of {CHITOOR_PROJECT_STAGES.length}
+                  </Text>
+                </Flex>
+                <Box bg="gray.200" borderRadius="full" h="3">
+                  <Box
+                    bg="blue.400"
+                    h="3"
+                    borderRadius="full"
+                    width={`${Math.max(((CHITOOR_PROJECT_STAGES.findIndex(s => s === project.project_status) + 1) / CHITOOR_PROJECT_STAGES.length) * 100, 5)}%`}
+                  />
+                </Box>
+              </Box>
+
+              {/* Stage Navigation Buttons */}
+              {isAuthenticated && (
+                <HStack pt={2} spacing={4}>
+                  <Button
+                    size="sm"
+                    colorScheme="gray"
+                    onClick={async () => {
+                      if (!project) return;
+                      const currentStageIdx = CHITOOR_PROJECT_STAGES.findIndex(s => s.toLowerCase() === (project.project_status || 'pending').toLowerCase());
+                      if (currentStageIdx > 0) {
+                        try {
+                          const newStage = CHITOOR_PROJECT_STAGES[currentStageIdx - 1];
+                          const { error } = await supabase
+                            .from('chitoor_projects')
+                            .update({ project_status: newStage })
+                            .eq('id', project.id);
+
+                          if (error) throw error;
+
+                          setProject({ ...project, project_status: newStage });
+                          await fetchProjectDetails();
+
+                          toast({
+                            title: 'Stage Updated',
+                            description: `Moved to: ${newStage}`,
+                            status: 'success',
+                            duration: 3000,
+                            isClosable: true
+                          });
+                        } catch (error) {
+                          console.error('Error updating stage:', error);
+                          toast({
+                            title: 'Error',
+                            description: 'Failed to update stage',
+                            status: 'error',
+                            duration: 3000,
+                            isClosable: true
+                          });
+                        }
+                      }
+                    }}
+                    isDisabled={!project || !project.project_status || CHITOOR_PROJECT_STAGES.findIndex(s => s.toLowerCase() === (project.project_status || 'pending').toLowerCase()) <= 0}
+                    leftIcon={<Text>←</Text>}
+                  >
+                    Previous Stage
+                  </Button>
+                  <Button
+                    size="sm"
+                    colorScheme="green"
+                    onClick={async () => {
+                      if (!project) return;
+                      const currentStageIdx = CHITOOR_PROJECT_STAGES.findIndex(s => s.toLowerCase() === (project.project_status || 'pending').toLowerCase());
+                      if (currentStageIdx >= 0 && currentStageIdx < CHITOOR_PROJECT_STAGES.length - 1) {
+                        try {
+                          const newStage = CHITOOR_PROJECT_STAGES[currentStageIdx + 1];
+                          const { error } = await supabase
+                            .from('chitoor_projects')
+                            .update({ project_status: newStage })
+                            .eq('id', project.id);
+
+                          if (error) throw error;
+
+                          setProject({ ...project, project_status: newStage });
+                          await fetchProjectDetails();
+
+                          toast({
+                            title: 'Stage Updated',
+                            description: `Advanced to: ${newStage}`,
+                            status: 'success',
+                            duration: 3000,
+                            isClosable: true
+                          });
+                        } catch (error) {
+                          console.error('Error updating stage:', error);
+                          toast({
+                            title: 'Error',
+                            description: 'Failed to update stage',
+                            status: 'error',
+                            duration: 3000,
+                            isClosable: true
+                          });
+                        }
+                      }
+                    }}
+                    isDisabled={!project || !project.project_status || CHITOOR_PROJECT_STAGES.findIndex(s => s.toLowerCase() === (project.project_status || 'pending').toLowerCase()) >= CHITOOR_PROJECT_STAGES.length - 1}
+                    rightIcon={<Text>→</Text>}
+                  >
+                    Next Stage
+                  </Button>
+                </HStack>
+              )}
+
               {/* Payment Progress */}
               <Box w="full">
                 <Flex justify="space-between" mb={2}>
