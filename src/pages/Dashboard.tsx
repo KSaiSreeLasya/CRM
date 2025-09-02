@@ -257,8 +257,8 @@ const Dashboard = () => {
 
         setStats({
           totalCustomers: uniqueCustomersCount,
-          activeProjects: activeProjects.length,
-          completedProjects: completedProjects.length,
+          activeProjects: activeProjects.length + chitoorActiveCount,
+          completedProjects: completedProjects.length + chitoorCompleted.length,
           totalRevenue,
           totalKWH
         });
@@ -373,7 +373,7 @@ const Dashboard = () => {
           <StatsCard
             title="Active Projects"
             value={stats.activeProjects}
-            icon="��"
+            icon="📊"
             color="green"
             helpText="In progress"
           />
