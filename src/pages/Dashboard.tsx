@@ -394,7 +394,7 @@ const Dashboard = () => {
             <StatsCard
               title="Total Revenue"
               value={`₹${stats.totalRevenue.toLocaleString()}`}
-              icon="���"
+              icon="💰"
               color="orange"
               helpText="Project value"
             />
