@@ -121,6 +121,30 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(false);
   const [newUser, setNewUser] = useState({ email: '', password: '' });
+
+  const handleCreateUser = async () => {
+    try {
+      if (!newUser.email || !newUser.password) {
+        toast({ title: 'Missing details', description: 'Email and password are required', status: 'warning', duration: 4000, isClosable: true });
+        return;
+      }
+      setLoading(true);
+      const { data, error } = await supabase.auth.signUp({ email: newUser.email, password: newUser.password });
+      if (error) throw error;
+
+      if (data?.user?.id) {
+        await supabase.from('users').upsert({ id: data.user.id, role: 'user' });
+      }
+
+      toast({ title: 'Invitation sent', description: 'If email confirmations are enabled, the user must verify their email.', status: 'success', duration: 6000, isClosable: true });
+      setNewUser({ email: '', password: '' });
+      onUserClose();
+    } catch (e: any) {
+      toast({ title: 'Failed to create user', description: e?.message || String(e), status: 'error', duration: 6000, isClosable: true });
+    } finally {
+      setLoading(false);
+    }
+  };
   const [stats, setStats] = useState({
     totalAssignments: 0,
     activeAssignees: 0,
@@ -668,15 +692,10 @@ const AdminDashboard = () => {
               </FormControl>
               <Alert status="info" borderRadius="md">
                 <AlertIcon />
-                Creating users securely requires the Supabase Admin API (service role). Connect Supabase in MCP and provide a server-side endpoint to enable this.
+                This will create an auth user via sign-up. If email confirmation is enabled, the user must verify their email to activate.
               </Alert>
-              <Button
-                colorScheme="blue"
-                onClick={() => {
-                  toast({ title: 'Action required', description: 'Connect to Supabase via MCP and enable Admin API to create users from Admin.', status: 'info', duration: 6000, isClosable: true });
-                }}
-              >
-                Enable User Creation
+              <Button colorScheme="blue" onClick={handleCreateUser} isLoading={loading}>
+                Create User
               </Button>
             </VStack>
           </ModalBody>
