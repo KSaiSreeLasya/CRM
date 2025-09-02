@@ -142,7 +142,7 @@ const calculateElapsedTime = (startDateStr: string | null) => {
 const Dashboard = () => {
   const { isAuthenticated, user } = useAuth();
   const [stats, setStats] = useState({
-    totalCustomers: 0,
+    totalProjects: 0,
     activeProjects: 0,
     completedProjects: 0,
     totalRevenue: 0,
@@ -254,15 +254,11 @@ const Dashboard = () => {
         const totalRevenue = totalRevenueProjects + chitoorRevenue;
         const totalKWH = totalKWHProjects + chitoorKWH;
 
-        // Count unique customers
-        const customerMap: Record<string, boolean> = {};
-        projects.forEach((p: any) => {
-          if (p.customer_name) customerMap[p.customer_name] = true;
-        });
-        const uniqueCustomersCount = Object.keys(customerMap).length;
+        // Total projects across all sources
+        const totalProjectsCount = (projects?.length || 0) + ((chitoorProjects as any)?.length || 0);
 
         setStats({
-          totalCustomers: uniqueCustomersCount,
+          totalProjects: totalProjectsCount,
           activeProjects: activeProjects.length + chitoorActiveCount,
           completedProjects: completedProjects.length + chitoorCompleted.length,
           totalRevenue,
@@ -370,11 +366,11 @@ const Dashboard = () => {
         {/* Stats Cards */}
         <SimpleGrid columns={{ base: 1, md: 2, lg: isRestrictedUser ? 4 : 5 }} spacing={6}>
           <StatsCard
-            title="Total Customers"
-            value={stats.totalCustomers}
-            icon="👥"
+            title="Total Projects"
+            value={stats.totalProjects}
+            icon="🏗️"
             color="blue"
-            helpText="Unique customers"
+            helpText="All projects"
           />
           <StatsCard
             title="Active Projects"
