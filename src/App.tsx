@@ -184,6 +184,17 @@ const App: React.FC = () => {
                 }
               />
               <Route
+                path="/projects/chitoor/:id"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      {/* Chitoor Project Details */}
+                      {React.createElement(require('./components/ChitoorProjectDetails').default)}
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/admin"
                 element={
                   <PrivateRoute>
