@@ -37,35 +37,42 @@ interface NavItemProps {
   to: string;
   isActive: boolean;
   onClick?: () => void;
+  collapsed?: boolean;
 }
 
-const NavItem: React.FC<NavItemProps> = ({ icon, label, to, isActive, onClick }) => (
-  <ChakraLink
-    as={RouterLink}
-    to={to}
-    onClick={onClick}
-    display="flex"
-    alignItems="center"
-    px={4}
-    py={3}
-    borderRadius="lg"
-    bg={isActive ? 'green.50' : 'transparent'}
-    color={isActive ? 'green.600' : 'gray.600'}
-    fontWeight={isActive ? 'semibold' : 'medium'}
-    _hover={{
-      bg: isActive ? 'green.100' : 'gray.50',
-      color: isActive ? 'green.700' : 'gray.700',
-      textDecoration: 'none',
-      transform: 'translateX(2px)',
-    }}
-    transition="all 0.2s"
-    border="1px solid"
-    borderColor={isActive ? 'green.200' : 'transparent'}
-  >
-    <Text fontSize="lg" mr={3}>{icon}</Text>
-    <Text fontSize="sm">{label}</Text>
-  </ChakraLink>
-);
+const NavItem: React.FC<NavItemProps> = ({ icon, label, to, isActive, onClick, collapsed }) => {
+  const link = (
+    <ChakraLink
+      as={RouterLink}
+      to={to}
+      onClick={onClick}
+      display="flex"
+      alignItems="center"
+      justifyContent={collapsed ? 'center' : 'flex-start'}
+      px={4}
+      py={3}
+      borderRadius="lg"
+      bg={isActive ? 'green.50' : 'transparent'}
+      color={isActive ? 'green.600' : 'gray.600'}
+      fontWeight={isActive ? 'semibold' : 'medium'}
+      _hover={{
+        bg: isActive ? 'green.100' : 'gray.50',
+        color: isActive ? 'green.700' : 'gray.700',
+        textDecoration: 'none',
+        transform: 'translateX(2px)',
+      }}
+      transition="all 0.2s"
+      border="1px solid"
+      borderColor={isActive ? 'green.200' : 'transparent'}
+    >
+      <Text fontSize="lg" mr={collapsed ? 0 : 3}>{icon}</Text>
+      {!collapsed && <Text fontSize="sm">{label}</Text>}
+    </ChakraLink>
+  );
+  return collapsed ? (
+    <Tooltip label={label} placement="right" hasArrow>{link}</Tooltip>
+  ) : link;
+};
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
