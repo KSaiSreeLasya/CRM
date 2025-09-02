@@ -63,6 +63,7 @@ import {
   ChevronDownIcon,
   EmailIcon,
   PhoneIcon,
+  EditIcon,
 } from '@chakra-ui/icons';
 
 interface Project {
