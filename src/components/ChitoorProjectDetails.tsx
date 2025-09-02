@@ -179,13 +179,13 @@ const ChitoorProjectDetails = () => {
 
     try {
       setProcessingPayment(true);
-      
+
       const newAmountReceived = (project.amount_received || 0) + parseFloat(paymentAmount);
-      
+
       // Update project with new amount received
       const { error } = await supabase
         .from('chitoor_projects')
-        .update({ 
+        .update({
           amount_received: newAmountReceived,
         })
         .eq('id', project.id);
@@ -238,6 +238,37 @@ const ChitoorProjectDetails = () => {
       });
     } finally {
       setProcessingPayment(false);
+    }
+  };
+
+  const handleDeletePayment = async (payment: PaymentHistory) => {
+    if (!project) return;
+    try {
+      const updatedAmount = Math.max((project.amount_received || 0) - (payment.amount || 0), 0);
+      const { error } = await supabase
+        .from('chitoor_projects')
+        .update({ amount_received: updatedAmount })
+        .eq('id', project.id);
+      if (error) throw error;
+
+      setPaymentHistory(prev => prev.filter(p => p.id !== payment.id));
+      setProject(prev => prev ? { ...prev, amount_received: updatedAmount } : null);
+
+      toast({
+        title: 'Payment deleted',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (err) {
+      console.error('Error deleting payment:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete payment',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -595,6 +626,15 @@ const ChitoorProjectDetails = () => {
                             }}
                           >
                             Download Receipt
+                          </Button>
+                          <Button
+                            size="xs"
+                            ml={2}
+                            colorScheme="red"
+                            variant="outline"
+                            onClick={() => handleDeletePayment(payment)}
+                          >
+                            Delete
                           </Button>
                         </Td>
                       </Tr>
