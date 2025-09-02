@@ -264,8 +264,8 @@ const ChitoorProjectDetails = () => {
       if (updateError) throw updateError;
 
       // Refresh payments from the detected table
-      const projectField = (paymentsTable === 'payment_history') ? 'project_id' : 'chitoor_project_id';
-      const tableToRead = paymentsTable;
+      const tableToRead = usedTable;
+      const projectField = usedTable === 'payment_history' ? 'project_id' : 'chitoor_project_id';
       const { data: payData } = await supabase
         .from(tableToRead)
         .select('*')
