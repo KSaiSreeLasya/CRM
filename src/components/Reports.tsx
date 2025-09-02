@@ -93,7 +93,7 @@ const STAGE_GROUPS = [
   { name: 'Finalization', stages: ['Approved Inspection -- Subsidy in Progress', 'Subsidy Disbursed -- Final payment', 'Final Payment Done'], color: 'red' }
 ];
 
-const Reports = () => {
+const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
   const { user } = useAuth();
   const [stats, setStats] = useState({
     totalCustomers: 0,
@@ -120,7 +120,7 @@ const Reports = () => {
   useEffect(() => {
     fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedYear]);
+  }, [selectedYear, stateFilter]);
 
   const fetchStats = async () => {
     try {
@@ -128,10 +128,14 @@ const Reports = () => {
       setError(null);
       
       console.log('Fetching projects from Supabase...');
-      const { data: projects, error } = await supabase
+      let query = supabase
         .from('projects')
         .select('*')
         .neq('status', 'deleted');
+      if (stateFilter && stateFilter.toLowerCase() !== 'chitoor') {
+        query = query.ilike('state', `%${stateFilter.toLowerCase()}%`);
+      }
+      const { data: projects, error } = await query;
 
       if (error) {
         console.error('Supabase error:', (error as any)?.message || error, error);
@@ -139,6 +143,25 @@ const Reports = () => {
       }
 
       console.log('Projects fetched:', projects);
+
+      if (stateFilter && stateFilter.toLowerCase() === 'chitoor') {
+        const { data: chitoor, error: chErr } = await supabase.from('chitoor_projects').select('*');
+        if (chErr && chErr.code !== 'PGRST116') throw chErr as any;
+        const chProjects = (chitoor || []) as any[];
+        const totalRevenue = chProjects.reduce((sum: number, p: any) => sum + (p.project_cost || 0), 0);
+        const totalKWH = chProjects.reduce((sum: number, p: any) => sum + (p.capacity || 0), 0);
+        const active = chProjects.filter((p: any) => (p.project_status || '').toLowerCase() !== 'completed');
+        const completed = chProjects.filter((p: any) => (p.project_status || '').toLowerCase() === 'completed');
+        const customerMap: Record<string, boolean> = {};
+        chProjects.forEach((p: any) => { if (p.customer_name) customerMap[p.customer_name] = true; });
+        setStats({ totalCustomers: Object.keys(customerMap).length, activeProjects: active.length, completedProjects: completed.length, totalRevenue, totalKWH });
+        const monthlyKWHData: Record<string, number> = { 'January': 0, 'February': 0, 'March': 0, 'April': 0, 'May': 0, 'June': 0, 'July': 0, 'August': 0, 'September': 0, 'October': 0, 'November': 0, 'December': 0 };
+        const monthNames = Object.keys(monthlyKWHData);
+        chProjects.forEach((p: any) => { const d = new Date(p.date_of_order || p.created_at); if (!isNaN(d.getTime())) { const m = d.getMonth(); if (p.capacity) monthlyKWHData[monthNames[m]] += p.capacity; } });
+        setMonthlyKWH(monthlyKWHData);
+        setStageStats({});
+        return;
+      }
 
       if (projects) {
         // Filter projects for selected year
