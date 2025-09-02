@@ -209,6 +209,15 @@ const ChitoorProjectDetails = () => {
         toast({ title: 'Invalid amount', status: 'warning', duration: 3000, isClosable: true });
         return;
       }
+      const maxPayable = Math.max((project.project_cost || 0) - (project.amount_received || 0), 0);
+      if (amountNum > maxPayable) {
+        toast({ title: 'Amount exceeds balance', description: `Max: ₹${maxPayable.toLocaleString()}`, status: 'warning', duration: 4000, isClosable: true });
+        return;
+      }
+      if (!paymentDate) {
+        toast({ title: 'Choose a payment date', status: 'warning', duration: 3000, isClosable: true });
+        return;
+      }
 
       // Insert a new phase entry into detected table; fallback to chitoor_payment_history on FK error
       let usedTable: 'payment_history' | 'chitoor_payment_history' = paymentsTable;
