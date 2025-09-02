@@ -45,16 +45,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await supabase
         .from('project_assignments')
         .select('assigned_states')
-        .eq('assignee_email', userEmail);
+        .eq('assignee_email', userEmail)
+        .single();
 
       if (error) {
-        console.warn('No region assignments found for user:', userEmail, (error as any)?.message || error);
+        console.warn('No region assignments found for user:', userEmail);
         return [];
       }
 
-      const lists = (data || []).map((r: any) => r.assigned_states || []);
-      const flat = lists.flat().filter(Boolean);
-      return Array.from(new Set(flat.map((s: string) => s.trim())));
+      return data?.assigned_states || [];
     } catch (error) {
       console.error('Error fetching assigned regions:', error);
       return [];
@@ -82,12 +81,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsFinance(false);
       }
 
-      // Check if the user has edit permissions (admin, contact, or yellesh)
-      if (
-        sessionEmail === 'admin@axisogreen.in' ||
-        sessionEmail === 'contact@axisogreen.in' ||
-        sessionEmail === 'yellesh@axisogreen.in'
-      ) {
+      // Check if the user has edit permissions (admin or contact)
+      if (sessionEmail === 'admin@axisogreen.in' || sessionEmail === 'contact@axisogreen.in') {
         setIsEditor(true);
       } else {
         setIsEditor(false);
@@ -183,11 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // Check if the user has edit permissions
-        if (
-          normalizedEmail === 'admin@axisogreen.in' ||
-          normalizedEmail === 'contact@axisogreen.in' ||
-          normalizedEmail === 'yellesh@axisogreen.in'
-        ) {
+        if (normalizedEmail === 'admin@axisogreen.in' || normalizedEmail === 'contact@axisogreen.in') {
           setIsEditor(true);
         } else {
           setIsEditor(false);

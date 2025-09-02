@@ -48,7 +48,6 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../context/AuthContext';
 import {
   AddIcon,
   SearchIcon,
@@ -133,7 +132,6 @@ const mapStateToFullName = (state: string): string => {
 const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isAdmin, assignedRegions } = useAuth();
   const navigate = useNavigate();
   const [newProject, setNewProject] = useState({
     name: '',
@@ -196,13 +194,8 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
       }
       
       if (data) {
-        let list = data as Project[];
-        if (!isAdmin) {
-          const allowed = new Set((assignedRegions || []).map(s => (s || '').toLowerCase()));
-          list = list.filter(p => allowed.has((p as any).state?.toLowerCase?.() || ''));
-        }
-        setAllProjects(list);
-        setProjects(list);
+        setAllProjects(data);
+        setProjects(data);
       }
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -940,7 +933,8 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
                       state: e.target.value
                     }))}
                   >
-                   
+                    <option value="TG">TG (Telangana)</option>
+                    <option value="AP">AP (Andhra Pradesh)</option>
                     <option disabled>─────────────</option>
                     <option value="Andhra Pradesh">Andhra Pradesh</option>
                     <option value="Arunachal Pradesh">Arunachal Pradesh</option>
