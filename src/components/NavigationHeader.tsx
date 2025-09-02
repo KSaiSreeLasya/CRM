@@ -52,7 +52,7 @@ const NavButton: React.FC<NavButtonProps> = ({ icon, label, to, isActive }) => {
 
 const NavigationHeader = () => {
   const location = useLocation();
-  const { isAdmin, assignedRegions } = useAuth();
+  const { isAdmin } = useAuth();
   const headerBg = 'white';
   const borderColor = 'gray.200';
   const reportActiveBg = 'green.50';
