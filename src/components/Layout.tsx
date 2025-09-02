@@ -218,6 +218,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             collapsed={isCollapsed}
           />
           <NavItem
+            icon="🛒"
+            label={isCollapsed ? '' : 'Procurement'}
+            to="/procurement"
+            isActive={location.pathname === '/procurement'}
+            onClick={onClose}
+            collapsed={isCollapsed}
+          />
+          <NavItem
             icon="🚚"
             label={isCollapsed ? '' : 'Logistics & Supply Chain'}
             to="/logistics"
