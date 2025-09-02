@@ -41,6 +41,7 @@ import { formatSupabaseError } from '../utils/error';
 import { CHITOOR_PROJECT_STAGES } from '../lib/constants';
 import { useAuth } from '../context/AuthContext';
 import { ArrowBackIcon, EditIcon, CalendarIcon } from '@chakra-ui/icons';
+import { generatePaymentReceiptPDF } from './PaymentReceipt';
 
 interface ChitoorProject {
   id: string;
@@ -91,6 +92,14 @@ const ChitoorProjectDetails = () => {
     service_number: '',
   });
 
+  const [projectFormData, setProjectFormData] = useState({
+    capacity: 0,
+    project_cost: 0,
+    subsidy_scope: '',
+    material_sent_date: '',
+    project_status: '' as string | undefined,
+  });
+
   const fetchProjectDetails = async () => {
     if (!id) return;
     
@@ -123,6 +132,13 @@ const ChitoorProjectDetails = () => {
           mobile_number: projectData.mobile_number || '',
           address_mandal_village: projectData.address_mandal_village || '',
           service_number: projectData.service_number || '',
+        });
+        setProjectFormData({
+          capacity: Number(projectData.capacity) || 0,
+          project_cost: Number(projectData.project_cost) || 0,
+          subsidy_scope: projectData.subsidy_scope || '',
+          material_sent_date: projectData.material_sent_date ? new Date(projectData.material_sent_date).toISOString().split('T')[0] : '',
+          project_status: projectData.project_status || 'Pending',
         });
       }
 
@@ -329,9 +345,20 @@ const ChitoorProjectDetails = () => {
           {/* Project Details */}
           <Card>
             <CardHeader>
-              <Text fontSize="lg" fontWeight="semibold" color="gray.700">
-                Project Details
-              </Text>
+              <Flex justify="space-between" align="center">
+                <Text fontSize="lg" fontWeight="semibold" color="gray.700">
+                  Project Details
+                </Text>
+                <Button
+                  leftIcon={<EditIcon />}
+                  colorScheme="blue"
+                  variant="outline"
+                  size="sm"
+                  onClick={onEditOpen}
+                >
+                  Edit
+                </Button>
+              </Flex>
             </CardHeader>
             <CardBody>
               <VStack align="stretch" spacing={3}>
@@ -541,7 +568,32 @@ const ChitoorProjectDetails = () => {
                         <Td>₹{payment.amount.toLocaleString()}</Td>
                         <Td>{payment.payment_mode || 'Cash'}</Td>
                         <Td>
-                          <Button size="xs" colorScheme="blue" variant="outline">
+                          <Button
+                            size="xs"
+                            colorScheme="blue"
+                            variant="outline"
+                            onClick={async () => {
+                              try {
+                                if (!project) return;
+                                await generatePaymentReceiptPDF({
+                                  date: payment.payment_date,
+                                  amount: payment.amount,
+                                  receivedFrom: project.customer_name,
+                                  paymentMode: payment.payment_mode || 'Cash',
+                                  placeOfSupply: 'Andhra Pradesh',
+                                  customerAddress: project.address_mandal_village,
+                                });
+                              } catch (e) {
+                                console.error('Receipt generation failed', e);
+                                toast({
+                                  title: 'Failed to generate receipt',
+                                  status: 'error',
+                                  duration: 3000,
+                                  isClosable: true,
+                                });
+                              }
+                            }}
+                          >
                             Download Receipt
                           </Button>
                         </Td>
@@ -722,17 +774,113 @@ const ChitoorProjectDetails = () => {
         </ModalContent>
       </Modal>
 
-      {/* Edit Project Modal - Placeholder */}
-      <Modal isOpen={isEditOpen} onClose={onEditClose}>
+      {/* Edit Project Modal */}
+      <Modal isOpen={isEditOpen} onClose={onEditClose} size="lg">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Edit Project</ModalHeader>
+          <ModalHeader>Edit Project Details</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text>Edit functionality coming soon!</Text>
+            <VStack spacing={4} align="stretch">
+              <FormControl isRequired>
+                <FormLabel>Capacity (kW)</FormLabel>
+                <Input
+                  type="number"
+                  value={projectFormData.capacity}
+                  onChange={(e) => setProjectFormData(prev => ({ ...prev, capacity: Number(e.target.value) }))}
+                  placeholder="Enter capacity"
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel>Project Cost (₹)</FormLabel>
+                <Input
+                  type="number"
+                  value={projectFormData.project_cost}
+                  onChange={(e) => setProjectFormData(prev => ({ ...prev, project_cost: Number(e.target.value) }))}
+                  placeholder="Enter project cost"
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Subsidy Scope</FormLabel>
+                <Input
+                  value={projectFormData.subsidy_scope}
+                  onChange={(e) => setProjectFormData(prev => ({ ...prev, subsidy_scope: e.target.value }))}
+                  placeholder="Enter subsidy scope"
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Material Sent Date</FormLabel>
+                <Input
+                  type="date"
+                  value={projectFormData.material_sent_date}
+                  onChange={(e) => setProjectFormData(prev => ({ ...prev, material_sent_date: e.target.value }))}
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Project Status</FormLabel>
+                <Select
+                  value={projectFormData.project_status}
+                  onChange={(e) => setProjectFormData(prev => ({ ...prev, project_status: e.target.value }))}
+                >
+                  {CHITOOR_PROJECT_STAGES.map(stage => (
+                    <option key={stage} value={stage}>{stage}</option>
+                  ))}
+                </Select>
+              </FormControl>
+            </VStack>
           </ModalBody>
           <ModalFooter>
-            <Button onClick={onEditClose}>Close</Button>
+            <Button mr={3} onClick={onEditClose}>Cancel</Button>
+            <Button
+              colorScheme="blue"
+              onClick={async () => {
+                try {
+                  if (!project) return;
+                  const updates: any = {
+                    capacity: projectFormData.capacity,
+                    project_cost: projectFormData.project_cost,
+                    subsidy_scope: projectFormData.subsidy_scope || null,
+                    project_status: projectFormData.project_status || null,
+                  };
+                  if (projectFormData.material_sent_date) {
+                    updates.material_sent_date = new Date(projectFormData.material_sent_date).toISOString();
+                  } else {
+                    updates.material_sent_date = null;
+                  }
+
+                  const { error } = await supabase
+                    .from('chitoor_projects')
+                    .update(updates)
+                    .eq('id', project.id);
+
+                  if (error) throw error;
+
+                  setProject(prev => prev ? { ...prev, ...updates } : null);
+
+                  toast({
+                    title: 'Project updated',
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                  });
+                  onEditClose();
+                } catch (err) {
+                  console.error('Project update failed', err);
+                  toast({
+                    title: 'Failed to update project',
+                    status: 'error',
+                    duration: 3000,
+                    isClosable: true,
+                  });
+                }
+              }}
+            >
+              Save Changes
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
