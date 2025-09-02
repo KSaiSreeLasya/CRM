@@ -179,7 +179,12 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
         const monthNames = Object.keys(monthlyKWHData);
         chProjects.forEach((p: any) => { const d = new Date(p.date_of_order || p.created_at); if (!isNaN(d.getTime())) { const m = d.getMonth(); if (p.capacity) monthlyKWHData[monthNames[m]] += p.capacity; } });
         setMonthlyKWH(monthlyKWHData);
-        setStageStats({});
+        const statusCounts: Record<string, number> = {};
+        chProjects.forEach((p: any) => {
+          const s = (p.project_status || 'Unknown').trim();
+          statusCounts[s] = (statusCounts[s] || 0) + 1;
+        });
+        setStageStats(statusCounts);
         return;
       }
 
