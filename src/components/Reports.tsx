@@ -96,7 +96,7 @@ const STAGE_GROUPS = [
 const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
   const { user, isAdmin, assignedRegions } = useAuth();
   const [stats, setStats] = useState({
-    totalCustomers: 0,
+    totalProjects: 0,
     activeProjects: 0,
     completedProjects: 0,
     totalRevenue: 0,
@@ -174,7 +174,7 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
           const cname = p.customer_name || p.customer || p.name;
           if (cname) customerMap[String(cname)] = true;
         });
-        setStats({ totalCustomers: Object.keys(customerMap).length, activeProjects: active.length, completedProjects: completed.length, totalRevenue, totalKWH });
+        setStats({ totalProjects: chProjects.length, activeProjects: active.length, completedProjects: completed.length, totalRevenue, totalKWH });
         const monthlyKWHData: Record<string, number> = { 'January': 0, 'February': 0, 'March': 0, 'April': 0, 'May': 0, 'June': 0, 'July': 0, 'August': 0, 'September': 0, 'October': 0, 'November': 0, 'December': 0 };
         const monthNames = Object.keys(monthlyKWHData);
         chProjects.forEach((p: any) => { const d = new Date(p.date_of_order || p.created_at); if (!isNaN(d.getTime())) { const m = d.getMonth(); if (p.capacity) monthlyKWHData[monthNames[m]] += p.capacity; } });
@@ -195,20 +195,15 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
           return projectDate.getFullYear() === selectedYear;
         });
 
-        const active = projects.filter((p: Project) => p.status === 'active');
-        const completed = projects.filter((p: Project) => p.status === 'completed');
+        const active = projects.filter((p: Project) => typeof p.status === 'string' && p.status.toLowerCase() === 'active');
+        const completed = projects.filter((p: Project) => typeof p.status === 'string' && p.status.toLowerCase() === 'completed');
         const totalRevenue = projects.reduce((sum: number, p: Project) => sum + (p.proposal_amount || 0), 0);
         const totalKWH = projects.reduce((sum: number, p: Project) => sum + (p.kwh || 0), 0);
 
-        // Count unique customers
-        const customerMap: Record<string, boolean> = {};
-        projects.forEach((p: any) => {
-          if (p.customer_name) customerMap[p.customer_name] = true;
-        });
-        const uniqueCustomersCount = Object.keys(customerMap).length;
+        const totalProjectsCount = projects.length;
 
         setStats({
-          totalCustomers: uniqueCustomersCount,
+          totalProjects: totalProjectsCount,
           activeProjects: active.length,
           completedProjects: completed.length,
           totalRevenue,
@@ -311,11 +306,11 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
         {/* Stats Cards */}
         <SimpleGrid columns={{ base: 1, md: 2, lg: isRestrictedUser ? 4 : 5 }} spacing={6}>
           <StatsCard
-            title="Total Customers"
-            value={stats.totalCustomers}
-            icon="👥"
+            title="Total Projects"
+            value={stats.totalProjects}
+            icon="🏗️"
             color="blue"
-            helpText="Unique customers"
+            helpText="All projects"
           />
           <StatsCard
             title="Active Projects"
