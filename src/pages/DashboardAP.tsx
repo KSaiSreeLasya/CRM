@@ -239,6 +239,7 @@ const DashboardAP = () => {
             <Text color="gray.600">Andhra Pradesh region analytics</Text>
           </Box>
           <HStack spacing={4} wrap="wrap">
+            <Button as={RouterLink as any} to="/reports/ap" colorScheme="green" variant="solid" size="sm">View AP Reports</Button>
             <Menu>
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />} variant="outline" size="sm">
                 Sort by: {sortBy.charAt(0).toUpperCase() + sortBy.slice(1)}
