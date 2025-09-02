@@ -648,8 +648,8 @@ const ChitoorProjects = () => {
                     onChange={handleInputChange}
                     placeholder="Select total amount"
                   >
-                    <option value="205000">₹2,05,000</option>
-                    <option value="140000">���1,40,000</option>
+                    <option value="148000">₹1,48,000 (2 kW)</option>
+                    <option value="205000">₹2,05,000 (3 kW)</option>
                   </Select>
                 </FormControl>
 
