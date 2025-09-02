@@ -167,6 +167,25 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {!isCollapsed && (
             <Box w="full" my={4}>
               <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
+                STATE DASHBOARDS
+              </Text>
+            </Box>
+          )}
+          {stateDashboards.map((item) => (
+            <NavItem
+              key={item.to}
+              icon={item.icon}
+              label={item.label}
+              to={item.to}
+              isActive={location.pathname === item.to || location.pathname.startsWith(item.to)}
+              onClick={onClose}
+              collapsed={isCollapsed}
+            />
+          ))}
+
+          {!isCollapsed && (
+            <Box w="full" my={4}>
+              <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
                 STATE PROJECTS
               </Text>
             </Box>
@@ -175,10 +194,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <NavItem
               key={item.to}
               icon={item.icon}
-              label={isCollapsed ? '' : item.label}
+              label={item.label}
               to={item.to}
               isActive={location.pathname === item.to || location.pathname.includes(item.to)}
               onClick={onClose}
+              collapsed={isCollapsed}
             />
           ))}
 
