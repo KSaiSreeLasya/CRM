@@ -499,33 +499,38 @@ const ChitoorProjects = () => {
                                 View Details
                               </MenuItem>
                               <MenuItem
-                                icon={<EditIcon />}
-                                onClick={() => {
-                                  // TODO: Implement edit functionality
-                                  toast({
-                                    title: 'Edit Feature',
-                                    description: 'Edit functionality coming soon!',
-                                    status: 'info',
-                                    duration: 3000,
-                                    isClosable: true,
-                                  });
+                                icon={<Text>✅</Text>}
+                                onClick={async () => {
+                                  try {
+                                    const { error } = await supabase
+                                      .from('chitoor_projects')
+                                      .update({ project_status: 'Completed' })
+                                      .eq('id', project.id);
+                                    if (error) throw error;
+                                    toast({ title: 'Marked complete', status: 'success', duration: 2000, isClosable: true });
+                                    fetchChitoorProjects();
+                                  } catch (e) {
+                                    toast({ title: 'Failed to mark complete', description: formatSupabaseError(e), status: 'error', duration: 3000, isClosable: true });
+                                  }
                                 }}
                               >
-                                Edit Project
+                                Mark Complete
                               </MenuItem>
                               <MenuItem
                                 icon={<DeleteIcon />}
                                 color="red.500"
-                                onClick={() => {
-                                  if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
-                                    // TODO: Implement delete functionality
-                                    toast({
-                                      title: 'Delete Feature',
-                                      description: 'Delete functionality coming soon!',
-                                      status: 'info',
-                                      duration: 3000,
-                                      isClosable: true,
-                                    });
+                                onClick={async () => {
+                                  if (!window.confirm('Delete this project permanently?')) return;
+                                  try {
+                                    const { error } = await supabase
+                                      .from('chitoor_projects')
+                                      .delete()
+                                      .eq('id', project.id);
+                                    if (error) throw error;
+                                    toast({ title: 'Project deleted', status: 'success', duration: 2000, isClosable: true });
+                                    fetchChitoorProjects();
+                                  } catch (e) {
+                                    toast({ title: 'Failed to delete', description: formatSupabaseError(e), status: 'error', duration: 3000, isClosable: true });
                                   }
                                 }}
                               >
