@@ -93,7 +93,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      <DashboardTG />
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Telangana'] }, React.createElement(DashboardTG))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -103,7 +103,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      <DashboardAP />
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Andhra Pradesh'] }, React.createElement(DashboardAP))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -113,7 +113,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      <DashboardChitoor />
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(DashboardChitoor))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -193,7 +193,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {React.createElement(require('./components/Reports').default, { stateFilter: 'Telangana' })}
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Telangana'] }, React.createElement(require('./components/Reports').default, { stateFilter: 'Telangana' }))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -203,7 +203,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {React.createElement(require('./components/Reports').default, { stateFilter: 'Andhra Pradesh' })}
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Andhra Pradesh'] }, React.createElement(require('./components/Reports').default, { stateFilter: 'Andhra Pradesh' }))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -213,7 +213,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {React.createElement(require('./components/Reports').default, { stateFilter: 'Chitoor' })}
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(require('./components/Reports').default, { stateFilter: 'Chitoor' }))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -233,7 +233,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      <TelanganaProjects />
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Telangana'] }, React.createElement(TelanganaProjects))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -243,7 +243,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      <APProjects />
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Andhra Pradesh'] }, React.createElement(APProjects))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -253,7 +253,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      <ChitoorProjects />
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(ChitoorProjects))}
                     </Layout>
                   </PrivateRoute>
                 }
@@ -263,8 +263,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {/* Chitoor Project Details */}
-                      {React.createElement(require('./components/ChitoorProjectDetails').default)}
+                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(require('./components/ChitoorProjectDetails').default))}
                     </Layout>
                   </PrivateRoute>
                 }

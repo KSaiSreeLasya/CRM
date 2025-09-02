@@ -66,7 +66,6 @@ const NavigationHeader = () => {
     { icon: '📊', label: 'Dashboard', to: '/dashboard' },
     { icon: '📈', label: 'Projects', to: '/projects' },
     { icon: '🏭', label: 'Stock Warehouse', to: '/stock' },
-    { icon: '🛒', label: 'Procurement', to: '/procurement' },
     { icon: '🚚', label: 'Logistics & Supply Chain', to: '/logistics' },
     // Reports has submenu; keep parent link to /reports
     { icon: '📑', label: 'Reports', to: '/reports' },
@@ -144,6 +143,36 @@ const NavigationHeader = () => {
                   <MenuList>
                     <MenuItem as={RouterLink} to="/logistics">Logistics (Default)</MenuItem>
                     <MenuItem as={RouterLink} to="/logistics/modules">Modules & Inventory</MenuItem>
+                  </MenuList>
+                </Menu>
+              );
+            }
+            if (item.label === 'Stock Warehouse') {
+              const active = location.pathname === '/stock' || location.pathname.startsWith('/procurement');
+              const activeBg = reportActiveBg;
+              const activeColor = reportActiveColor;
+              const hoverBg = reportHoverBg;
+              return (
+                <Menu key={item.to} isLazy>
+                  <MenuButton
+                    as={Button}
+                    variant="ghost"
+                    size="lg"
+                    bg={active ? activeBg : 'transparent'}
+                    color={active ? activeColor : 'gray.600'}
+                    fontWeight={active ? 'semibold' : 'medium'}
+                    _hover={{ bg: active ? activeBg : hoverBg, transform: 'translateY(-1px)' }}
+                    _active={{ transform: 'translateY(0)' }}
+                    borderRadius="lg"
+                    px={6}
+                    py={3}
+                    leftIcon={<Text fontSize="lg">{item.icon}</Text>}
+                  >
+                    {item.label}
+                  </MenuButton>
+                  <MenuList>
+                    <MenuItem as={RouterLink} to="/stock">Stock (Default)</MenuItem>
+                    <MenuItem as={RouterLink} to="/procurement">Procurement</MenuItem>
                   </MenuList>
                 </Menu>
               );
