@@ -83,7 +83,7 @@ const Finance: React.FC = () => {
         setProjects(data);
 
         // Calculate total outstanding
-        const totalOutstanding = data.reduce((sum, project) => {
+        const totalOutstanding = data.reduce((sum: number, project: any) => {
           return sum + (project.balance_amount || 0);
         }, 0);
         setTotalOutstanding(totalOutstanding);
@@ -91,8 +91,8 @@ const Finance: React.FC = () => {
         // Calculate expected this month based on 45-day collection timeframe
         const currentDate = new Date();
         const expectedThisMonth = data
-          .filter(p => p.status === 'active' && p.start_date)
-          .reduce((sum, project) => {
+          .filter((p: any) => p.status === 'active' && p.start_date)
+          .reduce((sum: number, project: any) => {
             const startDate = new Date(project.start_date);
             
             // If start date isn't valid, skip this project
@@ -276,4 +276,4 @@ const Finance: React.FC = () => {
   );
 };
 
-export default Finance; 
+export default Finance;
