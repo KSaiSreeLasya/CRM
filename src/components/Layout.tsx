@@ -72,6 +72,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { logout, isFinance, isAdmin, user, assignedRegions } = useAuth();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
@@ -97,7 +98,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   };
 
-  // Map regions to navigation items
+  // Map regions to navigation items (ALL PROJECTS first as requested)
   const allStateProjects = [
     { icon: '📊', label: 'ALL PROJECTS', to: '/projects', region: 'all' },
     { icon: '🏢', label: 'TG', to: '/projects/telangana', region: 'Telangana' },
@@ -105,27 +106,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { icon: '🏗️', label: 'CHITOOR', to: '/projects/chitoor', region: 'Chitoor' },
   ];
 
-  // Filter state projects based on user's assigned regions
-  const stateProjects = allStateProjects.filter(project => {
-    // Admin users see all projects
-    if (isAdmin) return true;
-
-    // Show "ALL PROJECTS" only if user has access to multiple regions or is admin
-    if (project.region === 'all') {
-      return assignedRegions.length > 1 || isAdmin;
-    }
-
-    // Show region if user is assigned to it
-    const hasRegionAccess = assignedRegions.includes(project.region);
-
-    // Fallback: If no assigned regions found, show all regions for authenticated users
-    // This ensures users can still navigate even if assignments aren't set up
-    if (assignedRegions.length === 0) {
-      return project.region !== 'all'; // Show individual regions but not "ALL PROJECTS"
-    }
-
-    return hasRegionAccess;
-  });
+  // Always show these items in sidebar (per request)
+  const stateProjects = allStateProjects;
 
   const financeItems = [
     { icon: '💰', label: 'Finance', to: '/finance' },
@@ -136,38 +118,51 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <Box>
       <Flex direction="column" h="full">
         <Box p={6}>
-          <Flex align="center" justify="center" mb={8}>
+          <Flex align="center" justify="space-between" mb={8}>
             <img
               src="https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F5065c74f0a374ff4a36efc224f468f09?format=webp&width=800"
               alt="Axiso Green Energy Logo"
               style={{ height: '60px', width: 'auto' }}
             />
+            <IconButton
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              icon={<Text>{isCollapsed ? '▶' : '◀'}</Text>}
+              size="sm"
+              variant="ghost"
+              onClick={() => setIsCollapsed(v => !v)}
+            />
           </Flex>
-          <Text
-            fontSize="lg"
-            fontWeight="bold"
-            color="green.600"
-            textAlign="center"
-            mb={2}
-          >
-            Axiso Green Energy
-          </Text>
-          <Text fontSize="xs" color="gray.500" textAlign="center">
-            Sustainable Energy Platform
-          </Text>
+          {!isCollapsed && (
+            <>
+              <Text
+                fontSize="lg"
+                fontWeight="bold"
+                color="green.600"
+                textAlign="center"
+                mb={2}
+              >
+                Axiso Green Energy
+              </Text>
+              <Text fontSize="xs" color="gray.500" textAlign="center">
+                Sustainable Energy Platform
+              </Text>
+            </>
+          )}
         </Box>
 
         <VStack spacing={2} px={4} flex="1">
-          <Box w="full" my={4}>
-            <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
-              STATE PROJECTS
-            </Text>
-          </Box>
+          {!isCollapsed && (
+            <Box w="full" my={4}>
+              <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
+                STATE PROJECTS
+              </Text>
+            </Box>
+          )}
           {stateProjects.map((item) => (
             <NavItem
               key={item.to}
               icon={item.icon}
-              label={item.label}
+              label={isCollapsed ? '' : item.label}
               to={item.to}
               isActive={location.pathname === item.to || location.pathname.includes(item.to)}
               onClick={onClose}
@@ -224,14 +219,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               textAlign="left"
               fontSize="sm"
             >
-              <Box>
-                <Text fontWeight="medium" isTruncated>
-                  {user?.email?.split('@')[0] || 'User'}
-                </Text>
-                <Text fontSize="xs" color="gray.500">
-                  {isFinance ? 'Finance User' : 'Standard User'}
-                </Text>
-              </Box>
+              {!isCollapsed && (
+                <Box>
+                  <Text fontWeight="medium" isTruncated>
+                    {user?.email?.split('@')[0] || 'User'}
+                  </Text>
+                  <Text fontSize="xs" color="gray.500">
+                    {isFinance ? 'Finance User' : 'Standard User'}
+                  </Text>
+                </Box>
+              )}
             </MenuButton>
             <MenuList>
               <MenuItem
@@ -285,13 +282,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Desktop Sidebar */}
         <Box
           display={{ base: 'none', lg: 'block' }}
-          w="240px"
+          w={isCollapsed ? '72px' : '240px'}
           bg={sidebarBg}
           borderRight="1px"
           borderColor={borderColor}
           position="fixed"
           h="100vh"
           overflowY="auto"
+          transition="width 0.2s"
         >
           <SidebarContent />
         </Box>
@@ -310,18 +308,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Main Content */}
         <Box
           flex="1"
-          ml={{ base: 0, lg: '240px' }}
+          ml={{ base: 0, lg: isCollapsed ? '72px' : '240px' }}
           transition="margin-left 0.2s"
         >
           {/* Navigation Header */}
           <NavigationHeader />
 
-          {/* Dashboard Header - Hidden on specific region pages */}
-          {!location.pathname.includes('/projects/telangana') &&
-           !location.pathname.includes('/projects/ap') &&
-           !location.pathname.includes('/projects/chitoor') && (
-            <DashboardHeader />
-          )}
+          {/* Always show dashboard header for consistency across TG, AP, Chitoor and ALL */}
+          <DashboardHeader />
 
           {/* Page Content */}
           <Box p={6}>
