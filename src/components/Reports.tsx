@@ -130,17 +130,8 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
         .from('projects')
         .select('*')
         .neq('status', 'deleted');
-      if (stateFilter && wants !== 'chitoor' && canAccess) {
+      if (stateFilter && wants !== 'chitoor') {
         query = query.ilike('state', `%${wants}%`);
-      }
-      if ((!stateFilter || !canAccess) && (assignedRegions || []).length > 0 && !isAdmin) {
-        const regionsForProjects = (assignedRegions || []).filter(r => (r || '').toLowerCase() !== 'chitoor');
-        if (regionsForProjects.length > 0) {
-          const orFilter = regionsForProjects
-            .map(r => `state.ilike.%${r}%`)
-            .join(',');
-          query = (query as any).or(orFilter);
-        }
       }
       const { data: projects, error } = await query;
 
