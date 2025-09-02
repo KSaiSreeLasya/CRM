@@ -356,7 +356,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <Box minH="100vh" bg="gray.50" overflowX="hidden">
+    <Box minH="100vh" bg="gray.50" overflowX="auto">
       {/* Mobile Navigation */}
       <Flex
         display={{ base: 'flex', lg: 'none' }}
