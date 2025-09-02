@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Heading, VStack, HStack, Input, Button, Table, Thead, Tbody, Tr, Th, Td, useToast, Alert, AlertIcon, Text, Card, CardBody } from '@chakra-ui/react';
+import { Box, Heading, VStack, HStack, Input, Button, Table, Thead, Tbody, Tr, Th, Td, useToast, Alert, AlertIcon, Text, Card, CardBody, IconButton } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 
 interface LogisticsRecord {
@@ -12,6 +12,15 @@ interface LogisticsRecord {
   updated_at?: string;
 }
 
+interface EditState {
+  id: string;
+  tracking_no: string;
+  vendor: string;
+  status: string;
+  expected_date: string;
+  notes: string;
+}
+
 const Logistics: React.FC = () => {
   const [rows, setRows] = useState<LogisticsRecord[]>([]);
   const [tracking, setTracking] = useState('');
@@ -21,6 +30,7 @@ const Logistics: React.FC = () => {
   const [notes, setNotes] = useState('');
   const [tableMissing, setTableMissing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [editing, setEditing] = useState<EditState | null>(null);
   const toast = useToast();
 
   const fetchRows = async () => {
@@ -39,7 +49,7 @@ const Logistics: React.FC = () => {
   const addRow = async () => {
     try {
       setLoading(true);
-      const payload = { tracking_no: tracking, vendor: vendor || null, status: status || null, expected_date: expected || null, notes: notes || null };
+      const payload = { tracking_no: tracking, vendor: vendor || null, status: status || null, expected_date: expected || null, notes: notes || null } as any;
       const { data, error } = await supabase.from('logistics').insert([payload]).select('*');
       if (error) throw error as any;
       setRows([...(rows || []), ...(data as any)]);
@@ -48,6 +58,49 @@ const Logistics: React.FC = () => {
     } catch (e: any) {
       toast({ title: 'Failed to add logistics', description: e?.message || String(e), status: 'error', duration: 4000, isClosable: true });
     } finally { setLoading(false); }
+  };
+
+  const startEdit = (r: LogisticsRecord) => {
+    setEditing({
+      id: r.id,
+      tracking_no: r.tracking_no,
+      vendor: r.vendor || '',
+      status: r.status || '',
+      expected_date: r.expected_date || '',
+      notes: r.notes || ''
+    });
+  };
+
+  const saveEdit = async () => {
+    if (!editing) return;
+    try {
+      setLoading(true);
+      const payload: any = {
+        tracking_no: editing.tracking_no,
+        vendor: editing.vendor || null,
+        status: editing.status || null,
+        expected_date: editing.expected_date || null,
+        notes: editing.notes || null
+      };
+      const { data, error } = await supabase.from('logistics').update(payload).eq('id', editing.id).select('*');
+      if (error) throw error as any;
+      setRows(rows.map(r => (r.id === editing.id ? (data as any)[0] : r)));
+      setEditing(null);
+      toast({ title: 'Updated', status: 'success', duration: 2000 });
+    } catch (e: any) {
+      toast({ title: 'Failed to update', description: e?.message || String(e), status: 'error', duration: 4000 });
+    } finally { setLoading(false); }
+  };
+
+  const deleteRow = async (id: string) => {
+    try {
+      const { error } = await supabase.from('logistics').delete().eq('id', id);
+      if (error) throw error as any;
+      setRows(rows.filter(r => r.id !== id));
+      toast({ title: 'Deleted', status: 'success', duration: 2000 });
+    } catch (e: any) {
+      toast({ title: 'Failed to delete', description: e?.message || String(e), status: 'error', duration: 4000 });
+    }
   };
 
   useEffect(() => { fetchRows(); }, []);
@@ -86,17 +139,31 @@ const Logistics: React.FC = () => {
             <Th>Expected</Th>
             <Th>Notes</Th>
             <Th>Updated</Th>
+            <Th>Actions</Th>
           </Tr>
         </Thead>
         <Tbody>
           {rows.map((r) => (
             <Tr key={r.id}>
-              <Td>{r.tracking_no}</Td>
-              <Td>{r.vendor || '-'}</Td>
-              <Td>{r.status || '-'}</Td>
-              <Td>{r.expected_date ? new Date(r.expected_date).toLocaleDateString() : '-'}</Td>
-              <Td>{r.notes || '-'}</Td>
+              <Td>{editing?.id === r.id ? (<Input value={editing.tracking_no} onChange={(e)=>setEditing({...editing!, tracking_no:e.target.value})} />) : r.tracking_no}</Td>
+              <Td>{editing?.id === r.id ? (<Input value={editing.vendor} onChange={(e)=>setEditing({...editing!, vendor:e.target.value})} />) : (r.vendor || '-')}</Td>
+              <Td>{editing?.id === r.id ? (<Input value={editing.status} onChange={(e)=>setEditing({...editing!, status:e.target.value})} />) : (r.status || '-')}</Td>
+              <Td>{editing?.id === r.id ? (<Input type="date" value={editing.expected_date} onChange={(e)=>setEditing({...editing!, expected_date:e.target.value})} />) : (r.expected_date ? new Date(r.expected_date).toLocaleDateString() : '-')}</Td>
+              <Td>{editing?.id === r.id ? (<Input value={editing.notes} onChange={(e)=>setEditing({...editing!, notes:e.target.value})} />) : (r.notes || '-')}</Td>
               <Td>{r.updated_at ? new Date(r.updated_at).toLocaleString() : '-'}</Td>
+              <Td>
+                {editing?.id === r.id ? (
+                  <HStack>
+                    <Button size="sm" colorScheme="green" onClick={saveEdit} isLoading={loading}>Save</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setEditing(null)}>Cancel</Button>
+                  </HStack>
+                ) : (
+                  <HStack>
+                    <Button size="sm" onClick={() => startEdit(r)}>Edit</Button>
+                    <Button size="sm" colorScheme="red" onClick={() => deleteRow(r.id)}>Delete</Button>
+                  </HStack>
+                )}
+              </Td>
             </Tr>
           ))}
         </Tbody>
