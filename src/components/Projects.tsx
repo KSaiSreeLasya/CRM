@@ -734,31 +734,33 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
                               variant="ghost"
                               size="sm"
                             />
-                            <MenuList>
-                              <MenuItem 
-                                icon={<ViewIcon />}
-                                onClick={() => navigate(`/projects/${project.id}`)}
-                              >
-                                View Details
-                              </MenuItem>
-                              <MenuItem 
-                                icon={project.status === 'active' ? <CheckCircleIcon /> : <CloseIcon />}
-                                onClick={() => toggleProjectStatus(project.id, project.status)}
-                              >
-                                Mark {project.status === 'active' ? 'Complete' : 'Active'}
-                              </MenuItem>
-                              <MenuItem 
-                                icon={<DeleteIcon />}
-                                color="red.500"
-                                onClick={() => {
-                                  if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
-                                    deleteProject(project.id);
-                                  }
-                                }}
-                              >
-                                Delete Project
-                              </MenuItem>
-                            </MenuList>
+                            <Portal>
+                              <MenuList>
+                                <MenuItem
+                                  icon={<ViewIcon />}
+                                  onClick={() => navigate(`/projects/${project.id}`)}
+                                >
+                                  View Details
+                                </MenuItem>
+                                <MenuItem
+                                  icon={project.status === 'active' ? <CheckCircleIcon /> : <CloseIcon />}
+                                  onClick={() => toggleProjectStatus(project.id, project.status)}
+                                >
+                                  Mark {project.status === 'active' ? 'Complete' : 'Active'}
+                                </MenuItem>
+                                <MenuItem
+                                  icon={<DeleteIcon />}
+                                  color="red.500"
+                                  onClick={() => {
+                                    if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+                                      deleteProject(project.id);
+                                    }
+                                  }}
+                                >
+                                  Delete Project
+                                </MenuItem>
+                              </MenuList>
+                            </Portal>
                           </Menu>
                         </Td>
                       </Tr>
