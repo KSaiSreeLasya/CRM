@@ -123,7 +123,14 @@ const calculateElapsedTime = (startDateStr: string | null) => {
 };
 
 const DashboardAP = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, assignedRegions, isAdmin } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!isAdmin && !assignedRegions.includes('Andhra Pradesh')) {
+      navigate('/dashboard');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdmin, assignedRegions]);
   const [stats, setStats] = useState({
     totalCustomers: 0,
     activeProjects: 0,
