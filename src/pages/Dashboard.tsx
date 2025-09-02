@@ -202,17 +202,23 @@ const Dashboard = () => {
           return projectDate.getFullYear() === selectedYear;
         });
         
-        // Case-insensitive filtering for active projects
-        const activeProjects = projects.filter((p: Project) => 
+        // Case-insensitive filtering for active projects (main table)
+        const activeProjects = projects.filter((p: Project) =>
           typeof p.status === 'string' && p.status.toLowerCase() === 'active'
         );
         console.log('All active projects (case-insensitive):', activeProjects.length);
         console.log('Active project IDs:', activeProjects.map(p => p.id));
-        
-        // Case-insensitive filtering for completed projects
-        const completedProjects = projects.filter((p: Project) => 
+
+        // Case-insensitive filtering for completed projects (main table)
+        const completedProjects = projects.filter((p: Project) =>
           typeof p.status === 'string' && p.status.toLowerCase() === 'completed'
         );
+
+        // Chitoor classification: only status === 'Completed' is completed; everything else counts as active
+        const chitoorCompleted = (chitoorProjects as ChitoorProject[] | null)?.filter(
+          (p) => (p.project_status || '').toLowerCase() === 'completed'
+        ) || [];
+        const chitoorActiveCount = (chitoorProjects?.length || 0) - chitoorCompleted.length;
 
         // Sort projects based on selected criteria
         const sortedProjects = [...yearProjects].sort((a: Project, b: Project) => {
@@ -367,7 +373,7 @@ const Dashboard = () => {
           <StatsCard
             title="Active Projects"
             value={stats.activeProjects}
-            icon="📊"
+            icon="��"
             color="green"
             helpText="In progress"
           />
