@@ -148,7 +148,7 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
       if (stateFilter && wants !== 'chitoor' && canAccess) {
         query = query.ilike('state', `%${wants}%`);
       }
-      if (!canAccess && (assignedRegions || []).length > 0) {
+      if ((!stateFilter || !canAccess) && (assignedRegions || []).length > 0 && !isAdmin) {
         query = (query as any).in('state', assignedRegions);
       }
       const { data: projects, error } = await query;
@@ -164,12 +164,16 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
         const { data: chitoor, error: chErr } = await supabase.from('chitoor_projects').select('*');
         if (chErr && chErr.code !== 'PGRST116') throw new Error(chErr.message || 'Failed to load Chitoor reports');
         const chProjects = (chitoor || []) as any[];
-        const totalRevenue = chProjects.reduce((sum: number, p: any) => sum + (p.project_cost || 0), 0);
-        const totalKWH = chProjects.reduce((sum: number, p: any) => sum + (p.capacity || 0), 0);
+        const num = (v: any) => typeof v === 'number' ? v : parseFloat(v || '0') || 0;
+        const totalRevenue = chProjects.reduce((sum: number, p: any) => sum + num(p.project_cost), 0);
+        const totalKWH = chProjects.reduce((sum: number, p: any) => sum + num(p.capacity), 0);
         const active = chProjects.filter((p: any) => (p.project_status || '').toLowerCase() !== 'completed');
         const completed = chProjects.filter((p: any) => (p.project_status || '').toLowerCase() === 'completed');
         const customerMap: Record<string, boolean> = {};
-        chProjects.forEach((p: any) => { if (p.customer_name) customerMap[p.customer_name] = true; });
+        chProjects.forEach((p: any) => {
+          const cname = p.customer_name || p.customer || p.name;
+          if (cname) customerMap[String(cname)] = true;
+        });
         setStats({ totalCustomers: Object.keys(customerMap).length, activeProjects: active.length, completedProjects: completed.length, totalRevenue, totalKWH });
         const monthlyKWHData: Record<string, number> = { 'January': 0, 'February': 0, 'March': 0, 'April': 0, 'May': 0, 'June': 0, 'July': 0, 'August': 0, 'September': 0, 'October': 0, 'November': 0, 'December': 0 };
         const monthNames = Object.keys(monthlyKWHData);
