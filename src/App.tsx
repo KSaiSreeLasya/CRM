@@ -152,7 +152,16 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {/* Dynamically import to avoid circular import issues */}
+                      {React.createElement(require('./components/ModulesPage').default)}
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/logistics/modules"
+                element={
+                  <PrivateRoute>
+                    <Layout>
                       {React.createElement(require('./components/ModulesPage').default)}
                     </Layout>
                   </PrivateRoute>
@@ -174,6 +183,36 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <Layout>
                       <Reports />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reports/tg"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      {React.createElement(require('./components/Reports').default, { stateFilter: 'Telangana' })}
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reports/ap"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      {React.createElement(require('./components/Reports').default, { stateFilter: 'Andhra Pradesh' })}
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/reports/chitoor"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      {React.createElement(require('./components/Reports').default, { stateFilter: 'Chitoor' })}
                     </Layout>
                   </PrivateRoute>
                 }
