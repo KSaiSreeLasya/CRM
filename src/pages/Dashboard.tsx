@@ -173,9 +173,16 @@ const Dashboard = () => {
         .select('*')
         .neq('status', 'deleted');
 
+      const { data: chitoorProjects, error: chitoorError } = await supabase
+        .from('chitoor_projects')
+        .select('*');
+
       if (error) {
         console.error('Supabase error:', (error as any)?.message || error, error);
         throw error;
+      }
+      if (chitoorError && (chitoorError as any)?.code !== 'PGRST116') {
+        console.error('Supabase chitoor error:', (chitoorError as any)?.message || chitoorError);
       }
 
       console.log('Projects fetched:', projects);
