@@ -121,8 +121,6 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
   const fetchStats = async () => {
     try {
       const wants = (stateFilter || '').toLowerCase();
-      const lowerAssigned = (assignedRegions || []).map(s => (s || '').toLowerCase());
-      const canAccess = !stateFilter || isAdmin || lowerAssigned.includes(wants);
 
       setIsLoading(true);
       setError(null);
