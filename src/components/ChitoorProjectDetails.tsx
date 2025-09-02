@@ -177,7 +177,20 @@ const ChitoorProjectDetails = () => {
       }
 
       setPaymentsTable(usedTable);
-      setPaymentHistory(localPayments as PaymentHistory[]);
+      if ((!localPayments || localPayments.length === 0) && projectData?.amount_received && projectData.amount_received > 0) {
+        const d = projectData.date_of_order || projectData.created_at || new Date().toISOString();
+        setPaymentHistory([
+          {
+            id: 'initial',
+            amount: projectData.amount_received,
+            payment_date: d,
+            payment_mode: 'Cash',
+            created_at: d,
+          },
+        ]);
+      } else {
+        setPaymentHistory(localPayments as PaymentHistory[]);
+      }
 
     } catch (error) {
       console.error('Error:', error);
