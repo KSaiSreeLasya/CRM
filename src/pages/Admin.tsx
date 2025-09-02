@@ -41,6 +41,7 @@ import {
   Checkbox,
   CheckboxGroup,
   Stack,
+  Input,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 import { formatSupabaseError } from '../utils/error';
