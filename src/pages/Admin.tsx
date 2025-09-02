@@ -419,7 +419,7 @@ const AdminDashboard = () => {
           <StatsCard
             title="States Managed"
             value={stats.statesManaged}
-            icon="🏛️"
+            icon="🏛���"
             color="purple"
             helpText="Geographic coverage"
           />
@@ -626,6 +626,44 @@ const AdminDashboard = () => {
                 size="lg"
               >
                 Create Assignment
+              </Button>
+            </VStack>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
+      {/* Add User Modal */}
+      <Modal isOpen={isUserOpen} onClose={onUserClose} size="md">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>
+            <Flex align="center" gap={2}>
+              <AddIcon color="blue.500" />
+              Add New User
+            </Flex>
+          </ModalHeader>
+          <CloseButton position="absolute" right={2} top={2} onClick={onUserClose} />
+          <ModalBody pb={6}>
+            <VStack spacing={4} align="stretch">
+              <FormControl isRequired>
+                <FormLabel fontSize="sm" fontWeight="medium">Email</FormLabel>
+                <Input type="email" value={newUser.email} onChange={(e)=>setNewUser({ ...newUser, email: e.target.value })} placeholder="user@example.com" />
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel fontSize="sm" fontWeight="medium">Password</FormLabel>
+                <Input type="password" value={newUser.password} onChange={(e)=>setNewUser({ ...newUser, password: e.target.value })} placeholder="Min 6 characters" />
+              </FormControl>
+              <Alert status="info" borderRadius="md">
+                <AlertIcon />
+                Creating users securely requires the Supabase Admin API (service role). Connect Supabase in MCP and provide a server-side endpoint to enable this.
+              </Alert>
+              <Button
+                colorScheme="blue"
+                onClick={() => {
+                  toast({ title: 'Action required', description: 'Connect to Supabase via MCP and enable Admin API to create users from Admin.', status: 'info', duration: 6000, isClosable: true });
+                }}
+              >
+                Enable User Creation
               </Button>
             </VStack>
           </ModalBody>
