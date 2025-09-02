@@ -16,6 +16,8 @@ import TelanganaProjects from './pages/TelanganaProjects';
 import APProjects from './pages/APProjects';
 import ChitoorProjects from './pages/ChitoorProjects';
 import Admin from './pages/Admin';
+import StockWarehouse from './pages/StockWarehouse';
+import Logistics from './pages/Logistics';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
 import { AuthProvider } from './context/AuthContext';
@@ -233,6 +235,26 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <Layout>
                       <Admin />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/stock"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <StockWarehouse />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/logistics"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <Logistics />
                     </Layout>
                   </PrivateRoute>
                 }
