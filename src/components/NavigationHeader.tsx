@@ -36,12 +36,9 @@ const NavButton: React.FC<NavButtonProps> = ({ icon, label, to, isActive }) => {
       fontWeight={isActive ? 'semibold' : 'medium'}
       _hover={{
         bg: isActive ? activeBg : hoverBg,
-        transform: 'translateY(-1px)',
       }}
-      _active={{
-        transform: 'translateY(0)',
-      }}
-      transition="all 0.2s"
+      _active={{}}
+      transition="background-color 0.2s"
       borderRadius="lg"
       px={6}
       py={3}
@@ -99,8 +96,8 @@ const NavigationHeader = () => {
                     bg={active ? activeBg : 'transparent'}
                     color={active ? activeColor : 'gray.600'}
                     fontWeight={active ? 'semibold' : 'medium'}
-                    _hover={{ bg: active ? activeBg : hoverBg, transform: 'translateY(-1px)' }}
-                    _active={{ transform: 'translateY(0)' }}
+                    _hover={{ bg: active ? activeBg : hoverBg }}
+                    _active={{}}
                     borderRadius="lg"
                     px={6}
                     py={3}
@@ -131,8 +128,8 @@ const NavigationHeader = () => {
                     bg={active ? activeBg : 'transparent'}
                     color={active ? activeColor : 'gray.600'}
                     fontWeight={active ? 'semibold' : 'medium'}
-                    _hover={{ bg: active ? activeBg : hoverBg, transform: 'translateY(-1px)' }}
-                    _active={{ transform: 'translateY(0)' }}
+                    _hover={{ bg: active ? activeBg : hoverBg }}
+                    _active={{}}
                     borderRadius="lg"
                     px={6}
                     py={3}
@@ -161,8 +158,8 @@ const NavigationHeader = () => {
                     bg={active ? activeBg : 'transparent'}
                     color={active ? activeColor : 'gray.600'}
                     fontWeight={active ? 'semibold' : 'medium'}
-                    _hover={{ bg: active ? activeBg : hoverBg, transform: 'translateY(-1px)' }}
-                    _active={{ transform: 'translateY(0)' }}
+                    _hover={{ bg: active ? activeBg : hoverBg }}
+                    _active={{}}
                     borderRadius="lg"
                     px={6}
                     py={3}

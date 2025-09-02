@@ -61,9 +61,8 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, to, isActive, onClick, c
         bg: isActive ? 'green.100' : 'gray.50',
         color: isActive ? 'green.700' : 'gray.700',
         textDecoration: 'none',
-        transform: 'translateX(2px)',
       }}
-      transition="all 0.2s"
+      transition="background-color 0.2s, color 0.2s"
       border="1px solid"
       borderColor={isActive ? 'green.200' : 'transparent'}
     >
