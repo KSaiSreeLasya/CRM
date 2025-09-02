@@ -10,6 +10,19 @@ interface PaymentReceiptProps {
   customerAddress: string;
 }
 
+const SIGNATURE_IMAGE_URL = 'https://cdn.builder.io/api/v1/image/assets%2F07ba826074254d3191a55ee32e800a58%2Fdba80239da89463d902e6021298aa064?format=png&width=600';
+
+async function fetchImageAsDataURL(url: string): Promise<string> {
+  const res = await fetch(url, { mode: 'cors' });
+  const blob = await res.blob();
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 export async function generatePaymentReceiptPDF({ date, amount, receivedFrom, paymentMode, placeOfSupply, customerAddress }: PaymentReceiptProps) {
   // Helper function to convert number to words
   const convertToWords = (num: number): string => {
@@ -255,20 +268,54 @@ export async function generatePaymentReceiptPDF({ date, amount, receivedFrom, pa
     
     // Footer section
     const footerY = pageHeight - 40;
-    
+
     // Thank you note
     doc.setFont('helvetica', 'italic');
     doc.setFontSize(11);
     doc.setTextColor(100, 100, 100);
     doc.text('Thank you for choosing sustainable energy solutions!', leftColX, footerY);
-    
-    // Company signature area
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.setTextColor(60, 60, 60);
-    doc.text('Authorized Signatory', pageWidth - margin - 40, footerY + 10);
-    doc.text('Axiso Green Energies Pvt. Ltd.', pageWidth - margin - 50, footerY + 18);
-    
+
+    // Authorized signature block (with company text, signature image, role, and label)
+    try {
+      const sigX = pageWidth - margin - 75;
+      const sigTopY = footerY - 2;
+
+      // "For Company" text
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(60, 60, 60);
+      doc.text('For AXISO GREEN ENERGIES PVT. LTD.', sigX, sigTopY);
+
+      // Signature image
+      const imgData = await fetchImageAsDataURL(SIGNATURE_IMAGE_URL);
+      const imgW = 70; // mm
+      const imgH = 22; // mm
+      doc.addImage(imgData, 'PNG', sigX, sigTopY + 3, imgW, imgH);
+
+      // Role text below image
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(40, 86, 170);
+      doc.text('Manager', sigX + imgW - 22, sigTopY + imgH + 10);
+
+      // Grey line and Authorized Signature label on left
+      const lineY = footerY + 10;
+      doc.setDrawColor(150, 150, 150);
+      doc.setLineWidth(0.6);
+      doc.line(leftColX, lineY, leftColX + 70, lineY);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.setTextColor(80, 80, 80);
+      doc.text('Authorized Signature', leftColX, lineY + 6);
+    } catch (e) {
+      // Fallback to simple text if image fails
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(60, 60, 60);
+      doc.text('For AXISO GREEN ENERGIES PVT. LTD.', pageWidth - margin - 75, footerY + 4);
+      doc.text('Authorized Signature', leftColX, footerY + 16);
+    }
+
     // Bottom border
     doc.setFillColor(72, 187, 120);
     doc.rect(0, pageHeight - 8, pageWidth, 8, 'F');
