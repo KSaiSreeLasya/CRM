@@ -124,27 +124,32 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
 
   const fetchStats = async () => {
     try {
-      if (stateFilter && !isAdmin) {
-        const allowed = assignedRegions.includes(stateFilter);
-        if (!allowed) {
-          setStats({ totalCustomers: 0, activeProjects: 0, completedProjects: 0, totalRevenue: 0, totalKWH: 0 });
-          setStageStats({});
-          setMonthlyKWH({});
-          setError('You do not have access to this report');
-          setIsLoading(false);
-          return;
-        }
-      }
+      const wants = (stateFilter || '').toLowerCase();
+      const lowerAssigned = (assignedRegions || []).map(s => (s || '').toLowerCase());
+      const canAccess = !stateFilter || isAdmin || lowerAssigned.includes(wants);
+
       setIsLoading(true);
       setError(null);
+
+      if (wants === 'chitoor' && !canAccess) {
+        // No access to Chitoor: show empty but do not error
+        setStats({ totalCustomers: 0, activeProjects: 0, completedProjects: 0, totalRevenue: 0, totalKWH: 0 });
+        setStageStats({});
+        setMonthlyKWH({});
+        setIsLoading(false);
+        return;
+      }
       
       console.log('Fetching projects from Supabase...');
       let query = supabase
         .from('projects')
         .select('*')
         .neq('status', 'deleted');
-      if (stateFilter && stateFilter.toLowerCase() !== 'chitoor') {
-        query = query.ilike('state', `%${stateFilter.toLowerCase()}%`);
+      if (stateFilter && wants !== 'chitoor' && canAccess) {
+        query = query.ilike('state', `%${wants}%`);
+      }
+      if (!canAccess && (assignedRegions || []).length > 0) {
+        query = (query as any).in('state', assignedRegions);
       }
       const { data: projects, error } = await query;
 
@@ -157,7 +162,7 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
 
       if (stateFilter && stateFilter.toLowerCase() === 'chitoor') {
         const { data: chitoor, error: chErr } = await supabase.from('chitoor_projects').select('*');
-        if (chErr && chErr.code !== 'PGRST116') throw chErr as any;
+        if (chErr && chErr.code !== 'PGRST116') throw new Error(chErr.message || 'Failed to load Chitoor reports');
         const chProjects = (chitoor || []) as any[];
         const totalRevenue = chProjects.reduce((sum: number, p: any) => sum + (p.project_cost || 0), 0);
         const totalKWH = chProjects.reduce((sum: number, p: any) => sum + (p.capacity || 0), 0);
