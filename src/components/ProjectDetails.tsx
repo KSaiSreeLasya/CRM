@@ -207,7 +207,7 @@ const ProjectDetails = () => {
           payment_date: projectData.start_date || projectData.created_at,
         };
         // Only add if not already present (by amount & date)
-        if (!history.some(p => p.amount === advanceRow.amount && p.payment_date === advanceRow.payment_date)) {
+        if (!history.some((p: any) => p.amount === advanceRow.amount && p.payment_date === advanceRow.payment_date)) {
           history = [advanceRow, ...history];
         }
       }

@@ -151,7 +151,7 @@ const ServiceTickets = () => {
       if (error) throw error;
       
       // Filter out any tickets that are in our deleted IDs list
-      const filteredData = data?.filter(ticket => !deletedIds.includes(ticket.id)) || [];
+      const filteredData = data?.filter((ticket: any) => !deletedIds.includes(ticket.id)) || [];
       
       // Set the tickets state with the filtered data
       setTickets(filteredData);
@@ -181,7 +181,7 @@ const ServiceTickets = () => {
       
       // Remove duplicates by customer name
       const uniqueCustomers: { [key: string]: Customer } = {};
-      data?.forEach(customer => {
+      data?.forEach((customer: any) => {
         if (!uniqueCustomers[customer.customer_name]) {
           uniqueCustomers[customer.customer_name] = customer;
         }
@@ -726,4 +726,4 @@ const ServiceTickets = () => {
   );
 };
 
-export default ServiceTickets; 
+export default ServiceTickets;

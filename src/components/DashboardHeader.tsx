@@ -87,10 +87,10 @@ const DashboardHeader = () => {
         }
 
         if (projects || chitoorProjects) {
-          const activeProjects = projects?.filter(p => p.status?.toLowerCase() === 'active').length || 0;
-          const completedProjects = projects?.filter(p => p.status?.toLowerCase() === 'completed').length || 0;
-          const totalRevenue = projects?.reduce((sum, p) => sum + (p.proposal_amount || 0), 0) || 0;
-          const totalCapacity = projects?.reduce((sum, p) => sum + (p.kwh || 0), 0) || 0;
+          const activeProjects = projects?.filter((p: any) => p.status?.toLowerCase() === 'active').length || 0;
+          const completedProjects = projects?.filter((p: any) => p.status?.toLowerCase() === 'completed').length || 0;
+          const totalRevenue = projects?.reduce((sum: number, p: any) => sum + (p.proposal_amount || 0), 0) || 0;
+          const totalCapacity = projects?.reduce((sum: number, p: any) => sum + (p.kwh || 0), 0) || 0;
           const chitoorTotal = chitoorProjects?.length || 0;
 
           const chitoorCompleted = (chitoorProjects || []).filter((p: any) => (p.project_status || '').toLowerCase() === 'completed').length;

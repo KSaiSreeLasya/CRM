@@ -154,7 +154,7 @@ const Reports = () => {
 
         // Count unique customers
         const customerMap: Record<string, boolean> = {};
-        projects.forEach(p => {
+        projects.forEach((p: any) => {
           if (p.customer_name) customerMap[p.customer_name] = true;
         });
         const uniqueCustomersCount = Object.keys(customerMap).length;

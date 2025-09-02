@@ -177,7 +177,7 @@ const DashboardTG = () => {
         const totalKWH: number = projects.reduce((sum: number, p: Project) => sum + (p.kwh || 0), 0);
 
         const customerMap: Record<string, boolean> = {};
-        projects.forEach(p => { if (p.customer_name) customerMap[p.customer_name] = true; });
+        projects.forEach((p: any) => { if (p.customer_name) customerMap[p.customer_name] = true; });
         const uniqueCustomersCount = Object.keys(customerMap).length;
 
         setStats({

@@ -163,10 +163,10 @@ const AdminDashboard = () => {
         setAssignments(data);
         
         // Calculate stats
-        const uniqueAssignees = new Set(data.map(a => a.assignee_email)).size;
-        const allStates = data.flatMap(a => a.assigned_states);
+        const uniqueAssignees = new Set(data.map((a: any) => a.assignee_email)).size;
+        const allStates = data.flatMap((a: any) => a.assigned_states);
         const uniqueStates = new Set(allStates).size;
-        const totalProjects = data.reduce((sum, a) => sum + (a.project_count || 0), 0);
+        const totalProjects = data.reduce((sum: number, a: any) => sum + (a.project_count || 0), 0);
 
         setStats({
           totalAssignments: data.length,
