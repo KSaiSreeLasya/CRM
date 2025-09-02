@@ -110,15 +110,9 @@ const NavigationHeader = () => {
                   </MenuButton>
                   <MenuList>
                     <MenuItem as={RouterLink} to="/reports">All Reports</MenuItem>
-                    {(isAdmin || assignedRegions.includes('Telangana')) && (
-                      <MenuItem as={RouterLink} to="/reports/tg">TG Reports</MenuItem>
-                    )}
-                    {(isAdmin || assignedRegions.includes('Andhra Pradesh')) && (
-                      <MenuItem as={RouterLink} to="/reports/ap">AP Reports</MenuItem>
-                    )}
-                    {(isAdmin || assignedRegions.includes('Chitoor')) && (
-                      <MenuItem as={RouterLink} to="/reports/chitoor">Chitoor Reports</MenuItem>
-                    )}
+                    <MenuItem as={RouterLink} to="/reports/tg">TG Reports</MenuItem>
+                    <MenuItem as={RouterLink} to="/reports/ap">AP Reports</MenuItem>
+                    <MenuItem as={RouterLink} to="/reports/chitoor">Chitoor Reports</MenuItem>
                   </MenuList>
                 </Menu>
               );
