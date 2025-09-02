@@ -420,14 +420,31 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
             </Flex>
           </CardHeader>
           <CardBody>
+            {stateFilter && stateFilter.toLowerCase() === 'chitoor' ? (
+              <VStack spacing={3} align="stretch">
+                <Text fontSize="sm" color="gray.600">Chitoor uses custom project_status values. Distribution below reflects those statuses.</Text>
+                {Object.keys(stageStats).length === 0 ? (
+                  <Text fontSize="sm" color="gray.500">No status distribution available.</Text>
+                ) : (
+                  <VStack spacing={3} align="stretch">
+                    {Object.entries(stageStats).map(([status, count]) => (
+                      <Flex key={status} justify="space-between" align="center" p={2} bg="gray.50" borderRadius="md" border="1px solid" borderColor="gray.100">
+                        <Text fontSize="sm" color="gray.700">{status}</Text>
+                        <Badge colorScheme={count > 0 ? 'green' : 'gray'} borderRadius="full">{count}</Badge>
+                      </Flex>
+                    ))}
+                  </VStack>
+                )}
+              </VStack>
+            ) : (
             <VStack spacing={6} align="stretch">
               {STAGE_GROUPS.map((group) => (
                 <Box key={group.name}>
                   <Flex align="center" mb={4}>
-                    <Badge 
-                      colorScheme={group.color} 
-                      px={3} 
-                      py={1} 
+                    <Badge
+                      colorScheme={group.color}
+                      px={3}
+                      py={1}
                       borderRadius="full"
                       fontSize="xs"
                       fontWeight="medium"
@@ -438,16 +455,16 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
                       {group.stages.reduce((count, stage) => count + (stageStats[stage] || 0), 0)} projects
                     </Text>
                   </Flex>
-                  
+
                   <VStack spacing={3} align="stretch">
                     {group.stages.map(stage => {
                       const count = stageStats[stage] || 0;
                       const percentage = maxProjectsInStage > 0 ? Math.round((count / maxProjectsInStage) * 100) : 0;
-                      
+
                       return (
-                        <Tooltip 
-                          key={stage} 
-                          label={`${count} project${count !== 1 ? 's' : ''} in "${stage}" stage`} 
+                        <Tooltip
+                          key={stage}
+                          label={`${count} project${count !== 1 ? 's' : ''} in "${stage}" stage`}
                           hasArrow
                         >
                           <Box>
@@ -455,8 +472,8 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
                               <Text fontSize="sm" color="gray.700" fontWeight="medium" noOfLines={1}>
                                 {stage}
                               </Text>
-                              <Badge 
-                                colorScheme={count > 0 ? group.color : 'gray'} 
+                              <Badge
+                                colorScheme={count > 0 ? group.color : 'gray'}
                                 variant={count > 0 ? 'solid' : 'outline'}
                                 fontSize="xs"
                               >
@@ -478,6 +495,7 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
                 </Box>
               ))}
             </VStack>
+            )}
           </CardBody>
         </Card>
       </VStack>
