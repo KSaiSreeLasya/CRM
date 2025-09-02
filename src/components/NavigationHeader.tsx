@@ -59,6 +59,9 @@ const NavigationHeader = () => {
   const { isAdmin, assignedRegions } = useAuth();
   const headerBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const reportActiveBg = useColorModeValue('green.50', 'green.900');
+  const reportActiveColor = useColorModeValue('green.600', 'green.200');
+  const reportHoverBg = useColorModeValue('gray.50', 'gray.700');
 
   const navigationItems = [
     { icon: '📊', label: 'Dashboard', to: '/dashboard' },
@@ -85,9 +88,9 @@ const NavigationHeader = () => {
           {navigationItems.map((item) => {
             if (item.label === 'Reports') {
               const active = location.pathname.startsWith('/reports');
-              const activeBg = useColorModeValue('green.50', 'green.900');
-              const activeColor = useColorModeValue('green.600', 'green.200');
-              const hoverBg = useColorModeValue('gray.50', 'gray.700');
+              const activeBg = reportActiveBg;
+              const activeColor = reportActiveColor;
+              const hoverBg = reportHoverBg;
               return (
                 <Menu key={item.to} isLazy>
                   <MenuButton
