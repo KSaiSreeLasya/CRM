@@ -738,6 +738,18 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
                             <Portal>
                               <MenuList>
                                 <MenuItem
+                                  icon={<EditIcon />}
+                                  onClick={() => navigate(`/projects/${project.id}?edit=customer`)}
+                                >
+                                  Edit Customer
+                                </MenuItem>
+                                <MenuItem
+                                  icon={<EditIcon />}
+                                  onClick={() => navigate(`/projects/${project.id}?edit=project`)}
+                                >
+                                  Edit Project
+                                </MenuItem>
+                                <MenuItem
                                   icon={<ViewIcon />}
                                   onClick={() => navigate(`/projects/${project.id}`)}
                                 >
