@@ -54,12 +54,6 @@ export async function generatePaymentReceiptPDF({ date, amount, receivedFrom, pa
   };
 
   try {
-    // Load images first
-    const [logoImg, signatureImg] = await Promise.all([
-      loadImage('/images/axiso-logo.png'),
-      loadImage('/images/axiso-signature.png')
-    ]);
-
     // Create a new PDF document with A4 size
     const doc = new jsPDF({
       orientation: "portrait",
@@ -76,73 +70,58 @@ export async function generatePaymentReceiptPDF({ date, amount, receivedFrom, pa
     doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, pageWidth, pageHeight, 'F');
     
-    // Header with green border
-    doc.setDrawColor(56, 161, 105);
-    doc.setLineWidth(4);
-    doc.line(0, 0, pageWidth, 0);
-    doc.line(0, 4, pageWidth, 4);
+    // Header with green accent
+    doc.setFillColor(72, 187, 120);
+    doc.rect(0, 0, pageWidth, 8, 'F');
     
-    // Company name - professional font
-    doc.setFont('times', 'bold');
-    doc.setFontSize(16);
-    doc.setTextColor(56, 161, 105);
-    doc.text('AXISO GREEN ENERGIES PRIVATE LIMITED', margin, 20);
+    // Company name - large and prominent
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.setTextColor(72, 187, 120);
+    doc.text('AXISO GREEN ENERGIES PRIVATE LIMITED', margin, 25);
     
     // Tagline
-    doc.setFont('times', 'italic');
-    doc.setFontSize(9);
-    doc.setTextColor(56, 161, 105);
-    doc.text('Sustainable Energy Solutions for a Greener Tomorrow', margin, 27);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Sustainable Energy Solutions for a Greener Tomorrow', margin, 33);
     
-    // Company details - properly aligned
-    doc.setFont('times', 'normal');
+    // Company details
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(60, 60, 60);
     
     const companyDetails = [
       'Address: PLOT NO-102,103 TEMPLE LANE MYTHRI NAGAR',
       'Shri Ambika Vidya Mandir, MATHRUSRINAGAR, SERILINGAMPALLY',
-      'Hyderabad, Rangareddy, Telangana, 500049',
-      'Email: contact@axisogreen.in',
-      'Website: www.axisogreen.in',
+      'Hyderabad, Rangareddy, Telangana, 500049',
+      'Email: contact@axisogreen.in | Website: www.axisogreen.in',
       'GSTIN: 36ABBCA4478M1Z9'
     ];
     
     companyDetails.forEach((detail, index) => {
-      doc.text(detail, margin, 35 + (index * 5));
+      doc.text(detail, margin, 42 + (index * 4));
     });
     
-    // Logo positioned properly - enlarged and better aligned
-    if (logoImg) {
-      doc.addImage(logoImg, 'PNG', pageWidth - margin - 50, 12, 45, 35);
-    }
+    // AXISO logo placeholder (text-based)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24);
+    doc.setTextColor(72, 187, 120);
+    doc.text('AXISO', pageWidth - margin - 25, 30);
     
     // Separator line
     doc.setDrawColor(220, 220, 220);
     doc.setLineWidth(0.5);
     doc.line(margin, 65, pageWidth - margin, 65);
     
-    // Payment Receipt title - centered and professional
-    doc.setFont('times', 'bold');
-    doc.setFontSize(20);
-    doc.setTextColor(56, 161, 105);
+    // Payment Receipt title - centered and bold
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24);
+    doc.setTextColor(72, 187, 120);
     const titleText = 'PAYMENT RECEIPT';
     const titleWidth = doc.getTextWidth(titleText);
     const titleX = (pageWidth - titleWidth) / 2;
-    doc.text(titleText, titleX, 75);
-    
-    // Title underline
-    doc.setDrawColor(56, 161, 105);
-    doc.setLineWidth(1);
-    doc.line(titleX, 78, titleX + titleWidth, 78);
-    
-    // Payment details section with proper grid layout
-    const detailsStartY = 90;
-    const leftColX = margin;
-    const rightColX = pageWidth / 2 + 10;
-    const labelWidth = 45;
-    const valueX = leftColX + labelWidth;
-    const lineHeight = 12;
+    doc.text(titleText, titleX, 80);
     
     // Format date properly
     let formattedDate = date;
@@ -160,7 +139,13 @@ export async function generatePaymentReceiptPDF({ date, amount, receivedFrom, pa
     // Reference number
     const refNumber = 'AGE' + Date.now().toString().slice(-6);
     
-    // Payment details with consistent formatting
+    // Payment details section
+    const detailsStartY = 100;
+    const leftColX = margin;
+    const labelWidth = 50;
+    const valueX = leftColX + labelWidth;
+    
+    // Payment details
     const paymentDetails = [
       { label: 'Payment Date:', value: formattedDate },
       { label: 'Reference No:', value: refNumber },
@@ -168,112 +153,82 @@ export async function generatePaymentReceiptPDF({ date, amount, receivedFrom, pa
       { label: 'Place of Supply:', value: getPlaceOfSupplyWithCode(placeOfSupply) }
     ];
     
-    // Draw payment details in a clean table format
+    // Draw payment details
     paymentDetails.forEach((detail, index) => {
-      const y = detailsStartY + (index * lineHeight);
+      const y = detailsStartY + (index * 8);
       
       // Label
-      doc.setFont('times', 'normal');
+      doc.setFont('helvetica', 'normal');
       doc.setFontSize(11);
-      doc.setTextColor(56, 161, 105);
+      doc.setTextColor(80, 80, 80);
       doc.text(detail.label, leftColX, y);
       
       // Value
-      doc.setFont('times', 'bold');
+      doc.setFont('helvetica', 'bold');
       doc.setFontSize(11);
       doc.setTextColor(40, 40, 40);
       doc.text(detail.value, valueX, y);
     });
     
-    // Amount section with professional styling
-    const amountBoxY = detailsStartY;
-    const amountBoxX = rightColX;
-    const amountBoxWidth = pageWidth - rightColX - margin;
-    const amountBoxHeight = 35;
+    // Amount section - prominent green box
+    const amountBoxY = detailsStartY - 5;
+    const amountBoxX = pageWidth - margin - 80;
+    const amountBoxWidth = 75;
+    const amountBoxHeight = 40;
     
-    // Amount box with border
-    doc.setFillColor(56, 161, 105);
-    doc.rect(amountBoxX, amountBoxY - 5, amountBoxWidth, amountBoxHeight, 'F');
-    
-    doc.setDrawColor(56, 161, 105);
-    doc.setLineWidth(1);
-    doc.rect(amountBoxX, amountBoxY - 5, amountBoxWidth, amountBoxHeight);
+    // Amount box with green background
+    doc.setFillColor(72, 187, 120);
+    doc.rect(amountBoxX, amountBoxY, amountBoxWidth, amountBoxHeight, 'F');
     
     // Amount text
-    doc.setFont('times', 'bold');
-    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
     doc.setTextColor(255, 255, 255);
-    doc.text('AMOUNT RECEIVED', amountBoxX + 5, amountBoxY + 3);
+    doc.text('AMOUNT RECEIVED', amountBoxX + 5, amountBoxY + 10);
     
-    doc.setFont('times', 'bold');
-    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
     const amountText = `Rs. ${amount.toLocaleString('en-IN')}`;
-    doc.text(amountText, amountBoxX + 5, amountBoxY + 15);
+    doc.text(amountText, amountBoxX + 5, amountBoxY + 25);
     
     // Amount in words section
-    const wordsY = detailsStartY + 60;
+    const wordsY = detailsStartY + 50;
     
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
     doc.setTextColor(80, 80, 80);
     doc.text('Amount in Words:', leftColX, wordsY);
     
-    // Amount in words with proper formatting
+    // Amount in words with background
     const amountInWords = `Indian Rupee ${convertToWords(amount)} Only`;
     
     // Background for amount in words
     doc.setFillColor(248, 250, 252);
-    doc.rect(leftColX, wordsY + 5, pageWidth - 2 * margin, 20, 'F');
+    doc.rect(leftColX, wordsY + 5, pageWidth - 2 * margin, 15, 'F');
     
     // Border for amount in words
     doc.setDrawColor(200, 200, 200);
     doc.setLineWidth(0.5);
-    doc.rect(leftColX, wordsY + 5, pageWidth - 2 * margin, 20);
+    doc.rect(leftColX, wordsY + 5, pageWidth - 2 * margin, 15);
     
-    // Amount in words text with proper line wrapping
-    doc.setFont('times', 'bold');
+    // Amount in words text
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
-    doc.setTextColor(56, 161, 105);
-    
-    const maxLineWidth = pageWidth - 2 * margin - 10;
-    const words = amountInWords.split(' ');
-    let line = '';
-    let yPosition = wordsY + 15;
-    
-    words.forEach(word => {
-      const testLine = line + (line ? ' ' : '') + word;
-      const testWidth = doc.getTextWidth(testLine);
-      
-      if (testWidth > maxLineWidth && line !== '') {
-        doc.text(line, leftColX + 5, yPosition);
-        line = word;
-        yPosition += 8;
-      } else {
-        line = testLine;
-      }
-    });
-    
-    if (line) {
-      doc.text(line, leftColX + 5, yPosition);
-    }
+    doc.setTextColor(72, 187, 120);
+    doc.text(amountInWords, leftColX + 5, wordsY + 15);
     
     // Customer details section
-    const customerY = wordsY + 40;
+    const customerY = wordsY + 35;
     
     // Section header
-    doc.setFont('times', 'bold');
-    doc.setFontSize(13);
-    doc.setTextColor(56, 161, 105);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(72, 187, 120);
     doc.text('RECEIVED FROM', leftColX, customerY);
-    
-    // Decorative line
-    doc.setDrawColor(56, 161, 105);
-    doc.setLineWidth(1);
-    doc.line(leftColX, customerY + 2, leftColX + 40, customerY + 2);
     
     // Customer details box
     const customerBoxY = customerY + 8;
-    const customerBoxHeight = 30;
+    const customerBoxHeight = 25;
     
     // Customer box background
     doc.setFillColor(248, 250, 252);
@@ -285,128 +240,90 @@ export async function generatePaymentReceiptPDF({ date, amount, receivedFrom, pa
     doc.rect(leftColX, customerBoxY, pageWidth - 2 * margin, customerBoxHeight);
     
     // Customer name
-    doc.setFont('times', 'bold');
-    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
     doc.setTextColor(40, 40, 40);
-    doc.text(receivedFrom, leftColX + 5, customerBoxY + 10);
+    doc.text(receivedFrom, leftColX + 5, customerBoxY + 12);
     
-    // Customer address with proper formatting
+    // Customer address
     if (customerAddress) {
-      doc.setFont('times', 'normal');
+      doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
       doc.setTextColor(80, 80, 80);
-      
-      const addressLines = formatAddressToLines(customerAddress, 70);
-      addressLines.slice(0, 2).forEach((line, index) => {
-        doc.text(line, leftColX + 5, customerBoxY + 20 + (index * 6));
-      });
+      doc.text(customerAddress, leftColX + 5, customerBoxY + 20);
     }
     
     // Footer section
-    const footerY = customerY + 55;
+    const footerY = pageHeight - 40;
     
-    // Thank you message
-    doc.setFont('times', 'italic');
-    doc.setFontSize(10);
-    doc.setTextColor(56, 161, 105);
+    // Thank you note
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(11);
+    doc.setTextColor(100, 100, 100);
     doc.text('Thank you for choosing sustainable energy solutions!', leftColX, footerY);
     
-    // Signature section
-    if (signatureImg) {
-      const signatureX = pageWidth - margin - 55;
-      doc.addImage(signatureImg, 'PNG', signatureX, footerY + 5, 45, 18);
-      
-      // Signature line
-      doc.setDrawColor(150, 150, 150);
-      doc.setLineWidth(0.5);
-      doc.line(signatureX, footerY + 25, signatureX + 45, footerY + 25);
-      
-      doc.setFont('times', 'normal');
-      doc.setFontSize(9);
-      doc.setTextColor(80, 80, 80);
-      doc.text('Authorized Signature', signatureX, footerY + 30);
-    }
+    // Company signature area
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(60, 60, 60);
+    doc.text('Authorized Signatory', pageWidth - margin - 40, footerY + 10);
+    doc.text('Axiso Green Energies Pvt. Ltd.', pageWidth - margin - 50, footerY + 18);
     
-    // Footer border
-    doc.setDrawColor(56, 161, 105);
-    doc.setLineWidth(2);
-    doc.line(0, pageHeight - 5, pageWidth, pageHeight - 5);
+    // Bottom border
+    doc.setFillColor(72, 187, 120);
+    doc.rect(0, pageHeight - 8, pageWidth, 8, 'F');
     
-    // Footer text
-    doc.setFont('times', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(120, 120, 120);
-    doc.text('Together, we power a sustainable future.', pageWidth / 2, pageHeight - 10, { align: 'center' });
+    // Save the PDF
+    const fileName = `Payment_Receipt_${refNumber}_${receivedFrom.replace(/\s+/g, '_')}.pdf`;
+    doc.save(fileName);
     
-    // Save PDF
-    const cleanCustomerName = receivedFrom.replace(/[^a-zA-Z0-9]/g, '_');
-    const dateStr = new Date().toISOString().split('T')[0];
-    doc.save(`Axiso_Payment_Receipt_${cleanCustomerName}_${dateStr}.pdf`);
+    return true;
     
   } catch (error) {
-    console.error('Error generating PDF:', error);
+    console.error('Error generating payment receipt:', error);
+    throw new Error('Failed to generate payment receipt. Please try again.');
   }
 }
 
 // Helper functions
 const getPlaceOfSupplyWithCode = (placeOfSupply: string): string => {
-  switch (placeOfSupply.toLowerCase()) {
-    case 'telangana':
-      return 'Telangana (36)';
-    case 'ap':
-    case 'andhra pradesh':
-      return 'Andhra Pradesh (37)';
-    default:
-      return placeOfSupply;
-  }
-};
-
-const formatAddressToLines = (address: string, maxLength: number = 60): string[] => {
-  if (!address) return [];
+  const stateCodes: Record<string, string> = {
+    'Andhra Pradesh': 'Andhra Pradesh (37)',
+    'Arunachal Pradesh': 'Arunachal Pradesh (12)',
+    'Assam': 'Assam (18)',
+    'Bihar': 'Bihar (10)',
+    'Chhattisgarh': 'Chhattisgarh (22)',
+    'Goa': 'Goa (30)',
+    'Gujarat': 'Gujarat (24)',
+    'Haryana': 'Haryana (06)',
+    'Himachal Pradesh': 'Himachal Pradesh (02)',
+    'Jharkhand': 'Jharkhand (20)',
+    'Karnataka': 'Karnataka (29)',
+    'Kerala': 'Kerala (32)',
+    'Madhya Pradesh': 'Madhya Pradesh (23)',
+    'Maharashtra': 'Maharashtra (27)',
+    'Manipur': 'Manipur (14)',
+    'Meghalaya': 'Meghalaya (17)',
+    'Mizoram': 'Mizoram (15)',
+    'Nagaland': 'Nagaland (13)',
+    'Odisha': 'Odisha (21)',
+    'Punjab': 'Punjab (03)',
+    'Rajasthan': 'Rajasthan (08)',
+    'Sikkim': 'Sikkim (11)',
+    'Tamil Nadu': 'Tamil Nadu (33)',
+    'Telangana': 'Telangana (36)',
+    'Tripura': 'Tripura (16)',
+    'Uttar Pradesh': 'Uttar Pradesh (09)',
+    'Uttarakhand': 'Uttarakhand (05)',
+    'West Bengal': 'West Bengal (19)',
+    'Delhi': 'Delhi (07)',
+    'TG': 'Telangana (36)',
+    'AP': 'Andhra Pradesh (37)'
+  };
   
-  const words = address.split(' ');
-  const lines: string[] = [];
-  let currentLine = '';
-  
-  words.forEach(word => {
-    if ((currentLine + ' ' + word).length <= maxLength) {
-      currentLine = currentLine ? currentLine + ' ' + word : word;
-    } else {
-      if (currentLine) lines.push(currentLine);
-      currentLine = word;
-    }
-  });
-  
-  if (currentLine) lines.push(currentLine);
-  return lines;
+  return stateCodes[placeOfSupply] || `${placeOfSupply} (36)`;
 };
 
 const PaymentReceipt: React.FC<PaymentReceiptProps> = () => null;
-
-// Helper function to load image
-const loadImage = (url: string): Promise<string> => {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.crossOrigin = 'Anonymous';
-    img.onload = () => {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(img, 0, 0);
-          resolve(canvas.toDataURL('image/png'));
-        } else {
-          resolve('');
-        }
-      } catch (error) {
-        resolve('');
-      }
-    };
-    img.onerror = () => resolve('');
-    img.src = url;
-  });
-};
 
 export default PaymentReceipt;
