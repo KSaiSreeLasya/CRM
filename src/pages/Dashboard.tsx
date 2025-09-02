@@ -55,6 +55,8 @@ interface Project {
 interface ChitoorProject {
   id: string;
   project_status?: string;
+  project_cost?: number;
+  capacity?: number;
 }
 
 interface StatsCardProps {
@@ -245,8 +247,12 @@ const Dashboard = () => {
         });
 
         // Calculate total revenue and KWH from all projects
-        const totalRevenue: number = projects.reduce((sum: number, p: Project) => sum + (p.proposal_amount || 0), 0);
-        const totalKWH: number = projects.reduce((sum: number, p: Project) => sum + (p.kwh || 0), 0);
+        const totalRevenueProjects: number = projects.reduce((sum: number, p: Project) => sum + (p.proposal_amount || 0), 0);
+        const totalKWHProjects: number = projects.reduce((sum: number, p: Project) => sum + (p.kwh || 0), 0);
+        const chitoorRevenue: number = (chitoorProjects as ChitoorProject[] | null)?.reduce((sum, p) => sum + (p.project_cost || 0), 0) || 0;
+        const chitoorKWH: number = (chitoorProjects as ChitoorProject[] | null)?.reduce((sum, p) => sum + (p.capacity || 0), 0) || 0;
+        const totalRevenue = totalRevenueProjects + chitoorRevenue;
+        const totalKWH = totalKWHProjects + chitoorKWH;
 
         // Count unique customers
         const customerMap: Record<string, boolean> = {};
@@ -388,7 +394,7 @@ const Dashboard = () => {
             <StatsCard
               title="Total Revenue"
               value={`₹${stats.totalRevenue.toLocaleString()}`}
-              icon="💰"
+              icon="���"
               color="orange"
               helpText="Project value"
             />
