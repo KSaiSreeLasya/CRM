@@ -26,7 +26,6 @@ import {
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDownIcon, DragHandleIcon } from '@chakra-ui/icons';
-import DashboardHeader from './DashboardHeader';
 import { supabase } from '../lib/supabase';
 import NavigationHeader from './NavigationHeader';
 
