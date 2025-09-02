@@ -12,4 +12,14 @@ export const PROJECT_STAGES = [
   'Approved Inspection -- Subsidy in Progress',
   'Subsidy Disbursed -- Final payment',
   'Final Payment Done'
-]; 
+];
+
+export const CHITOOR_PROJECT_STAGES = [
+  'Pending',
+  'In Progress',
+  'Material Pending',
+  'Material Sent',
+  'Installation Completed',
+  'Completed',
+  'On Hold'
+];
