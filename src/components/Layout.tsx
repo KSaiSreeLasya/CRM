@@ -225,14 +225,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             onClick={onClose}
             collapsed={isCollapsed}
           />
-          <NavItem
-            icon="📦"
-            label={isCollapsed ? '' : 'Modules & Inverters'}
-            to="/logistics/modules"
-            isActive={location.pathname === '/logistics/modules'}
-            onClick={onClose}
-            collapsed={isCollapsed}
-          />
 
           {!isCollapsed && (
             <Box w="full" my={4}>
@@ -389,7 +381,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </Flex>
         <IconButton
           aria-label="Open menu"
-          icon={<Text fontSize="xl">����</Text>}
+          icon={<Text fontSize="xl">���</Text>}
           variant="ghost"
           onClick={onOpen}
         />
