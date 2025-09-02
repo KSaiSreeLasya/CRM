@@ -149,7 +149,13 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
         query = query.ilike('state', `%${wants}%`);
       }
       if ((!stateFilter || !canAccess) && (assignedRegions || []).length > 0 && !isAdmin) {
-        query = (query as any).in('state', assignedRegions);
+        const regionsForProjects = (assignedRegions || []).filter(r => (r || '').toLowerCase() !== 'chitoor');
+        if (regionsForProjects.length > 0) {
+          const orFilter = regionsForProjects
+            .map(r => `state.ilike.%${r}%`)
+            .join(',');
+          query = (query as any).or(orFilter);
+        }
       }
       const { data: projects, error } = await query;
 
