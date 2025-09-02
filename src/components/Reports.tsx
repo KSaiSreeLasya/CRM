@@ -110,8 +110,6 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
   const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i);
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
 
-  // Check if current user is contact@axisogreen.in
-  const isRestrictedUser = false;
 
   const cardBg = useColorModeValue('white', 'gray.800');
 
