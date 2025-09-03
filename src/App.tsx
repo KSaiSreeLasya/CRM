@@ -254,9 +254,11 @@ const App: React.FC = () => {
                 path="/service-tickets"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <ServiceTickets />
-                    </Layout>
+                    <ModuleGuard moduleKey="serviceTickets">
+                      <Layout>
+                        <ServiceTickets />
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
