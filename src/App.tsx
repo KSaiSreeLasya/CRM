@@ -26,6 +26,9 @@ import ResetPassword from './pages/ResetPassword';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
 import ModuleGuard from './components/ModuleGuard';
+import RegionGuard from './components/RegionGuard';
+import ModulesPage from './components/ModulesPage';
+import ChitoorProjectDetails from './components/ChitoorProjectDetails';
 import { AuthProvider } from './context/AuthContext';
 
 // Finance route is handled by PrivateRoute, so this is no longer needed
@@ -110,7 +113,7 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <ModuleGuard moduleKey="dashboard">
                       <Layout>
-                        {React.createElement(require('./components/RegionGuard').default, { allowed: ['Telangana'] }, React.createElement(DashboardTG))}
+                        <RegionGuard allowed={['Telangana']}><DashboardTG /></RegionGuard>
                       </Layout>
                     </ModuleGuard>
                   </PrivateRoute>
@@ -122,7 +125,7 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <ModuleGuard moduleKey="dashboard">
                       <Layout>
-                        {React.createElement(require('./components/RegionGuard').default, { allowed: ['Andhra Pradesh'] }, React.createElement(DashboardAP))}
+                        <RegionGuard allowed={['Andhra Pradesh']}><DashboardAP /></RegionGuard>
                       </Layout>
                     </ModuleGuard>
                   </PrivateRoute>
@@ -134,7 +137,7 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <ModuleGuard moduleKey="dashboard">
                       <Layout>
-                        {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(DashboardChitoor))}
+                        <RegionGuard allowed={['Chitoor']}><DashboardChitoor /></RegionGuard>
                       </Layout>
                     </ModuleGuard>
                   </PrivateRoute>
@@ -179,7 +182,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {React.createElement(require('./components/ModulesPage').default)}
+                      <ModulesPage />
                     </Layout>
                   </PrivateRoute>
                 }
@@ -190,7 +193,7 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <ModuleGuard moduleKey="operations">
                       <Layout>
-                        {React.createElement(require('./components/ModulesPage').default)}
+                        <ModulesPage />
                       </Layout>
                     </ModuleGuard>
                   </PrivateRoute>
@@ -225,7 +228,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Telangana'] }, React.createElement(require('./components/Reports').default, { stateFilter: 'Telangana' }))}
+                      <RegionGuard allowed={['Telangana']}><Reports stateFilter="Telangana" /></RegionGuard>
                     </Layout>
                   </PrivateRoute>
                 }
@@ -235,7 +238,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Andhra Pradesh'] }, React.createElement(require('./components/Reports').default, { stateFilter: 'Andhra Pradesh' }))}
+                      <RegionGuard allowed={['Andhra Pradesh']}><Reports stateFilter="Andhra Pradesh" /></RegionGuard>
                     </Layout>
                   </PrivateRoute>
                 }
@@ -245,7 +248,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(require('./components/Reports').default, { stateFilter: 'Chitoor' }))}
+                      <RegionGuard allowed={['Chitoor']}><Reports stateFilter="Chitoor" /></RegionGuard>
                     </Layout>
                   </PrivateRoute>
                 }
@@ -267,7 +270,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Telangana'] }, React.createElement(TelanganaProjects))}
+                      <RegionGuard allowed={['Telangana']}><TelanganaProjects /></RegionGuard>
                     </Layout>
                   </PrivateRoute>
                 }
@@ -277,7 +280,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Andhra Pradesh'] }, React.createElement(APProjects))}
+                      <RegionGuard allowed={['Andhra Pradesh']}><APProjects /></RegionGuard>
                     </Layout>
                   </PrivateRoute>
                 }
@@ -287,7 +290,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(ChitoorProjects))}
+                      <RegionGuard allowed={['Chitoor']}><ChitoorProjects /></RegionGuard>
                     </Layout>
                   </PrivateRoute>
                 }
@@ -297,7 +300,7 @@ const App: React.FC = () => {
                 element={
                   <PrivateRoute>
                     <Layout>
-                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(require('./components/ChitoorProjectDetails').default))}
+                      <RegionGuard allowed={['Chitoor']}><ChitoorProjectDetails /></RegionGuard>
                     </Layout>
                   </PrivateRoute>
                 }
