@@ -120,7 +120,7 @@ const AdminDashboard = () => {
     assigned_states: [] as string[],
   });
   const [loading, setLoading] = useState(false);
-  const [newUser, setNewUser] = useState({ email: '', password: '' });
+  const [newUser, setNewUser] = useState({ email: '', password: '', role: 'user' });
 
   const handleCreateUser = async () => {
     try {
@@ -129,11 +129,11 @@ const AdminDashboard = () => {
         return;
       }
       setLoading(true);
-      const { data, error } = await supabase.auth.signUp({ email: newUser.email, password: newUser.password });
+      const { data, error } = await supabase.auth.signUp({ email: newUser.email, password: newUser.password, options: { emailRedirectTo: `${window.location.origin}/reset-password` } });
       if (error) throw error;
 
       if (data?.user?.id) {
-        await supabase.from('users').upsert({ id: data.user.id, role: 'user' });
+        await supabase.from('users').upsert({ id: data.user.id, role: newUser.role || 'user' });
       }
 
       toast({ title: 'Invitation sent', description: 'If email confirmations are enabled, the user must verify their email.', status: 'success', duration: 6000, isClosable: true });
@@ -690,9 +690,17 @@ const AdminDashboard = () => {
                 <FormLabel fontSize="sm" fontWeight="medium">Password</FormLabel>
                 <Input type="password" value={newUser.password} onChange={(e)=>setNewUser({ ...newUser, password: e.target.value })} placeholder="Min 6 characters" />
               </FormControl>
+              <FormControl isRequired>
+                <FormLabel fontSize="sm" fontWeight="medium">Role</FormLabel>
+                <Select value={(newUser as any).role} onChange={(e)=>setNewUser({ ...newUser, role: e.target.value as any })}>
+                  <option value="user">Standard</option>
+                  <option value="finance">Finance</option>
+                  <option value="admin">Admin</option>
+                </Select>
+              </FormControl>
               <Alert status="info" borderRadius="md">
                 <AlertIcon />
-                This will create an auth user via sign-up. If email confirmation is enabled, the user must verify their email to activate.
+                This will create an auth user via sign-up and email a link to set their password on first login.
               </Alert>
               <Button colorScheme="blue" onClick={handleCreateUser} isLoading={loading}>
                 Create User
