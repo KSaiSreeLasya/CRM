@@ -22,7 +22,14 @@ const ModuleGuard: React.FC<{ moduleKey: string; children: React.ReactNode }> = 
 
   const allowed = Array.isArray(allowedModules) && allowedModules.includes(moduleKey);
   if (!allowed) {
-    return <Navigate to="/welcome" replace />;
+    return (
+      <Center h="100vh">
+        <Box textAlign="center">
+          <Text fontSize="xl" color="red.500" mb={2}>No access</Text>
+          <Text color="gray.600">You don't have permission to view this module.</Text>
+        </Box>
+      </Center>
+    );
   }
 
   return <>{children}</>;
