@@ -69,6 +69,8 @@ const Welcome: React.FC = () => {
     }
   };
 
+  const canAccess = (key: string) => isAdmin || (Array.isArray(allowedModules) && allowedModules.includes(key));
+
   const handleAdminAccess = () => {
     if (isAdmin) {
       navigate('/admin');
