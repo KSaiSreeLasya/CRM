@@ -79,6 +79,34 @@ const Welcome: React.FC = () => {
     }
   };
 
+  const getKeyFromPath = (path: string) => {
+    if (path.startsWith('/dashboard')) return 'dashboard';
+    if (path.startsWith('/projects')) return 'projects';
+    if (path.startsWith('/reports')) return 'sales';
+    if (path.startsWith('/service-tickets')) return 'serviceTickets';
+    if (path.startsWith('/finance') || path.startsWith('/payments')) return 'finance';
+    if (path.startsWith('/hr')) return 'hr';
+    if (path.startsWith('/stock') || path.startsWith('/procurement') || path.startsWith('/logistics')) return 'operations';
+    return 'other';
+  };
+
+  const handleOpenPath = (path: string) => {
+    const key = getKeyFromPath(path);
+    if (key === 'admin') {
+      handleAdminAccess();
+      return;
+    }
+    if (key === 'hr') {
+      handleHRAccess();
+      return;
+    }
+    if (canAccess(key)) {
+      navigate(path);
+    } else {
+      onOpen();
+    }
+  };
+
   const handleHRAccess = async () => {
     if (user?.email?.toLowerCase() === 'yellesh@axisogreen.in') {
       navigate('/hr');
