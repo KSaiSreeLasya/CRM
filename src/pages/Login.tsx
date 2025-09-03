@@ -63,6 +63,13 @@ const Login = () => {
     }
   }, [isAuthenticated, user, location.state, navigate]);
 
+  useEffect(() => {
+    const fromHR = (location.state as any)?.fromHR;
+    if (fromHR) {
+      setEmail('yellesh@axisogreen.in');
+    }
+  }, [location.state]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
@@ -246,6 +253,26 @@ const Login = () => {
                 >
                   Sign In
                 </Button>
+                {(location.state as any)?.fromHR && (
+                  <Button
+                    variant="outline"
+                    colorScheme="green"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        setLoading(true);
+                        await login('yellesh@axisogreen.in','yellesh@2024');
+                        navigate('/hr', { replace: true });
+                      } catch (e: any) {
+                        toast({ title: 'HR login failed', description: e?.message || String(e), status: 'error', duration: 5000, isClosable: true });
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                  >
+                    Quick HR Login
+                  </Button>
+                )}
                 <HStack justify="center">
                   <Text fontSize="sm" color="gray.600">
                     Powered by renewable energy solutions
