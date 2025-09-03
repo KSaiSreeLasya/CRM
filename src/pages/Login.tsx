@@ -132,6 +132,17 @@ const Login = () => {
               </Text>
             </Stack>
           </Stack>
+          <HStack justify="flex-start">
+            <Button leftIcon={<ArrowBackIcon />} variant="outline" colorScheme="green" size="sm" onClick={() => {
+              if (isAuthenticated) {
+                navigate('/welcome');
+              } else {
+                navigate(-1);
+              }
+            }}>
+              Back
+            </Button>
+          </HStack>
           <Box
             py={{ base: '8', sm: '12' }}
             px={{ base: '4', sm: '10' }}
