@@ -98,7 +98,12 @@ const NavigationHeader = () => {
     if (activeModule === 'admin') return itemLabel === 'Admin';
     if (activeModule === 'hr') return false;
     if (activeModule === 'finance') return itemLabel === 'Finance' || itemLabel === 'Payments';
-    if (activeModule === 'operations') return itemLabel === 'Stock Warehouse' || itemLabel === 'Logistics & Supply Chain';
+    if (activeModule === 'operations') {
+      const p = location.pathname;
+      const isLogistics = p === '/logistics' || p.startsWith('/logistics/');
+      if (isLogistics) return itemLabel === 'Logistics & Supply Chain';
+      return itemLabel === 'Stock Warehouse';
+    }
     return false;
   };
 
