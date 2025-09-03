@@ -138,6 +138,27 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const stateProjects = allStateProjects.filter(i => i.region === 'all' || allowedStates.includes(i.region));
   const filteredDashboards = stateDashboards.filter(i => allowedStates.includes(i.region));
 
+  const path = location.pathname;
+  const isOps = path === '/stock' || path.startsWith('/procurement') || path === '/logistics' || path.startsWith('/logistics/');
+  const isReports = path === '/reports' || path.startsWith('/reports/');
+  const activeModule = isOps
+    ? 'operations'
+    : isReports
+      ? 'reports'
+      : path.startsWith('/dashboard')
+        ? 'dashboard'
+        : path.startsWith('/projects')
+          ? 'projects'
+          : path.startsWith('/service-tickets')
+            ? 'serviceTickets'
+            : path.startsWith('/finance') || path.startsWith('/payments')
+              ? 'finance'
+              : path.startsWith('/admin')
+                ? 'admin'
+                : path.startsWith('/hr')
+                  ? 'hr'
+                  : 'other';
+
   const financeItems = [
     { icon: '💰', label: 'Finance', to: '/finance' },
     { icon: '💳', label: 'Payments', to: '/payments' },
@@ -182,98 +203,96 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </Box>
 
         <VStack spacing={2} px={4} flex="1">
-          {!isCollapsed && (
-            <Box w="full" my={4}>
-              <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
-                STATE DASHBOARDS
-              </Text>
-            </Box>
+          {['dashboard','projects','reports'].includes(activeModule) && (
+            <>
+              {!isCollapsed && (
+                <Box w="full" my={4}>
+                  <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
+                    {activeModule === 'dashboard' ? 'STATE DASHBOARDS' : activeModule === 'projects' ? 'STATE PROJECTS' : 'STATE REPORTS'}
+                  </Text>
+                </Box>
+              )}
+              {activeModule === 'dashboard' && filteredDashboards.map((item) => (
+                <NavItem
+                  key={item.to}
+                  icon={item.icon}
+                  label={item.label}
+                  to={item.to}
+                  isActive={location.pathname === item.to || location.pathname.startsWith(item.to)}
+                  onClick={onClose}
+                  collapsed={isCollapsed}
+                />
+              ))}
+              {activeModule === 'projects' && stateProjects.map((item) => {
+                const active = item.to === '/projects' ? location.pathname === item.to : location.pathname.startsWith(item.to);
+                return (
+                  <NavItem
+                    key={item.to}
+                    icon={item.icon}
+                    label={item.label}
+                    to={item.to}
+                    isActive={active}
+                    onClick={onClose}
+                    collapsed={isCollapsed}
+                  />
+                );
+              })}
+              {activeModule === 'reports' && (
+                <>
+                  <NavItem icon="📑" label="All Reports" to="/reports" isActive={location.pathname === '/reports'} collapsed={isCollapsed} />
+                  <NavItem icon="📑" label="TG Reports" to="/reports/tg" isActive={location.pathname.startsWith('/reports/tg')} collapsed={isCollapsed} />
+                  <NavItem icon="📑" label="AP Reports" to="/reports/ap" isActive={location.pathname.startsWith('/reports/ap')} collapsed={isCollapsed} />
+                  <NavItem icon="📑" label="Chitoor Reports" to="/reports/chitoor" isActive={location.pathname.startsWith('/reports/chitoor')} collapsed={isCollapsed} />
+                </>
+              )}
+            </>
           )}
-          {filteredDashboards.map((item) => (
-            <NavItem
-              key={item.to}
-              icon={item.icon}
-              label={item.label}
-              to={item.to}
-              isActive={location.pathname === item.to || location.pathname.startsWith(item.to)}
-              onClick={onClose}
-              collapsed={isCollapsed}
-            />
-          ))}
 
-          {!isCollapsed && (
-            <Box w="full" my={4}>
-              <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
-                OPERATIONS
-              </Text>
-            </Box>
-          )}
-          <NavItem
-            icon="🏭"
-            label={isCollapsed ? '' : 'Stock Warehouse'}
-            to="/stock"
-            isActive={location.pathname === '/stock'}
-            onClick={onClose}
-            collapsed={isCollapsed}
-          />
-          <NavItem
-            icon="🚚"
-            label={isCollapsed ? '' : 'Logistics & Supply Chain'}
-            to="/logistics"
-            isActive={location.pathname === '/logistics'}
-            onClick={onClose}
-            collapsed={isCollapsed}
-          />
-
-          {!isCollapsed && (
-            <Box w="full" my={4}>
-              <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
-                STATE PROJECTS
-              </Text>
-            </Box>
-          )}
-          {stateProjects.map((item) => {
-            const active = item.to === '/projects'
-              ? location.pathname === item.to
-              : location.pathname.startsWith(item.to);
-            return (
+          {activeModule === 'operations' && (
+            <>
+              {!isCollapsed && (
+                <Box w="full" my={4}>
+                  <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
+                    OPERATIONS
+                  </Text>
+                </Box>
+              )}
               <NavItem
-                key={item.to}
-                icon={item.icon}
-                label={item.label}
-                to={item.to}
-                isActive={active}
+                icon="🏭"
+                label={isCollapsed ? '' : 'Stock Warehouse'}
+                to="/stock"
+                isActive={location.pathname === '/stock'}
                 onClick={onClose}
                 collapsed={isCollapsed}
               />
-            );
-          })}
-
-          {isAdmin && (
-            <>
-              <Box w="full" my={4}>
-                <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
-                  ADMINISTRATION
-                </Text>
-              </Box>
               <NavItem
-                icon="⚙️"
-                label="Admin Dashboard"
-                to="/admin"
-                isActive={location.pathname === '/admin'}
+                icon="🚚"
+                label={isCollapsed ? '' : 'Logistics & Supply Chain'}
+                to="/logistics"
+                isActive={location.pathname === '/logistics' || location.pathname.startsWith('/logistics/')}
+                onClick={onClose}
+                collapsed={isCollapsed}
+              />
+              <NavItem
+                icon="🧾"
+                label={isCollapsed ? '' : 'Procurement'}
+                to="/procurement"
+                isActive={location.pathname === '/procurement'}
                 onClick={onClose}
                 collapsed={isCollapsed}
               />
             </>
           )}
 
-          {isFinance && (
+          {activeModule === 'finance' && (
             <>
-              <Box w="full" my={4}>
-                <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
-                  FINANCE
-                </Text>
-              </Box>
+              {!isCollapsed && (
+                <Box w="full" my={4}>
+                  <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
+                    FINANCE
+                  </Text>
+                </Box>
+              )}
               {financeItems.map((item) => (
                 <NavItem
                   key={item.to}
@@ -285,6 +304,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   collapsed={isCollapsed}
                 />
               ))}
+            </>
+          )}
+
+          {activeModule === 'admin' && (
+            <>
+              {!isCollapsed && (
+                <Box w="full" my={4}>
+                  <Text fontSize="xs" fontWeight="semibold" color="gray.400" px={4} mb={2}>
+                    ADMINISTRATION
+                  </Text>
+                </Box>
+              )}
+              <NavItem
+                icon="⚙️"
+                label="Admin Dashboard"
+                to="/admin"
+                isActive={location.pathname === '/admin'}
+                onClick={onClose}
+                collapsed={isCollapsed}
+              />
             </>
           )}
         </VStack>
