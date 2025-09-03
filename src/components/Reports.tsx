@@ -236,8 +236,6 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
   // Calculate the maximum KWH for any month to set the bar scale
   const maxMonthlyKWH = monthlyKWH ? Math.max(...Object.values(monthlyKWH), 1) : 1;
 
-  // Calculate maximum projects in any stage for scaling
-  const maxProjectsInStage = Math.max(...Object.values(stageStats), 1);
 
   if (isLoading) {
     return (
