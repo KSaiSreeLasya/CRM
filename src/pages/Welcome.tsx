@@ -47,7 +47,7 @@ const Welcome: React.FC = () => {
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const titleColor = useColorModeValue('gray.700', 'gray.200');
-  const { logout, user, isFinance, isAdmin } = useAuth();
+  const { logout, user, isFinance, isAdmin, login } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -74,6 +74,17 @@ const Welcome: React.FC = () => {
       navigate('/admin');
     } else {
       onOpen();
+    }
+  };
+
+  const handleHRAccess = async () => {
+    try {
+      await login('yeelesh@axisogreen.in', 'yellesh@2024');
+      toast({ title: 'Logged in as HR', status: 'success', duration: 3000, isClosable: true });
+      navigate('/hr');
+    } catch (e: any) {
+      toast({ title: 'HR login failed', description: e?.message || String(e), status: 'error', duration: 5000, isClosable: true });
+      navigate('/login');
     }
   };
 
@@ -122,6 +133,8 @@ const Welcome: React.FC = () => {
               <Box mt={3}>
                 {t.label === 'Admin Settings' ? (
                   <LinkOverlay as="button" onClick={handleAdminAccess} color="green.600">Open</LinkOverlay>
+                ) : t.label === 'HR' ? (
+                  <LinkOverlay as="button" onClick={handleHRAccess} color="green.600">Open</LinkOverlay>
                 ) : (
                   <LinkOverlay as={RouterLink} to={t.to} color="green.600">Open</LinkOverlay>
                 )}
@@ -153,6 +166,8 @@ const Welcome: React.FC = () => {
             <Box mt={3}>
               {t.label === 'Admin Settings' ? (
                 <LinkOverlay as="button" onClick={handleAdminAccess} color="green.600">Open</LinkOverlay>
+              ) : t.label === 'HR' ? (
+                <LinkOverlay as="button" onClick={handleHRAccess} color="green.600">Open</LinkOverlay>
               ) : (
                 <LinkOverlay as={RouterLink} to={t.to} color="green.600">Open</LinkOverlay>
               )}
