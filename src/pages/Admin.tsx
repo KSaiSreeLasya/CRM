@@ -164,6 +164,14 @@ const AdminDashboard = () => {
   ];
 
   const availableStates = ['Telangana', 'Andhra Pradesh', 'Chitoor'];
+  const availableModules = [
+    { key: 'dashboard', label: 'Dashboard' },
+    { key: 'projects', label: 'Projects' },
+    { key: 'finance', label: 'Finance' },
+    { key: 'sales', label: 'Sales/Reports' },
+    { key: 'operations', label: 'Operations (Stock, Procurement, Logistics, Modules)' },
+    { key: 'hr', label: 'HR' },
+  ];
 
   const fetchAssignments = useCallback(async () => {
     try {
