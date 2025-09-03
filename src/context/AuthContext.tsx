@@ -210,8 +210,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           isClosable: true,
         });
 
-        // Redirect all users to dashboard
-        navigate('/dashboard');
       }
     } catch (error: any) {
       const message = (error && (error as any).message) || String(error);
