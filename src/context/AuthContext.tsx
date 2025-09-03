@@ -80,6 +80,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsEditor(false);
         setUser(null);
         setAssignedRegions([]);
+        setAllowedModules([]);
+        setRegionAccess({});
         return;
       }
 
