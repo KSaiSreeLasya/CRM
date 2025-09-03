@@ -62,13 +62,45 @@ const NavigationHeader = () => {
   const navigationItems = [
     { icon: '📊', label: 'Dashboard', to: '/dashboard' },
     { icon: '📈', label: 'Projects', to: '/projects' },
-    { icon: '🏭', label: 'Stock Warehouse', to: '/stock' },
-    { icon: '🚚', label: 'Logistics & Supply Chain', to: '/logistics' },
-    // Reports has submenu; keep parent link to /reports
     { icon: '📑', label: 'Reports', to: '/reports' },
     { icon: '🎫', label: 'Service Tickets', to: '/service-tickets' },
+    { icon: '🏭', label: 'Stock Warehouse', to: '/stock' },
+    { icon: '🚚', label: 'Logistics & Supply Chain', to: '/logistics' },
     ...(isAdmin ? [{ icon: '⚙️', label: 'Admin', to: '/admin' }] : []),
   ];
+
+  const path = location.pathname;
+  const isOps = path === '/stock' || path.startsWith('/procurement') || path === '/logistics' || path.startsWith('/logistics/');
+  const isReports = path === '/reports' || path.startsWith('/reports/');
+  const activeModule = isOps
+    ? 'operations'
+    : isReports
+      ? 'reports'
+      : path.startsWith('/dashboard')
+        ? 'dashboard'
+        : path.startsWith('/projects')
+          ? 'projects'
+          : path.startsWith('/service-tickets')
+            ? 'serviceTickets'
+            : path.startsWith('/finance') || path.startsWith('/payments')
+              ? 'finance'
+              : path.startsWith('/admin')
+                ? 'admin'
+                : path.startsWith('/hr')
+                  ? 'hr'
+                  : 'other';
+
+  const showItem = (itemLabel: string) => {
+    if (activeModule === 'dashboard') return itemLabel === 'Dashboard';
+    if (activeModule === 'projects') return itemLabel === 'Projects';
+    if (activeModule === 'reports') return itemLabel === 'Reports';
+    if (activeModule === 'serviceTickets') return itemLabel === 'Service Tickets';
+    if (activeModule === 'admin') return itemLabel === 'Admin';
+    if (activeModule === 'hr') return false;
+    if (activeModule === 'finance') return itemLabel === 'Finance' || itemLabel === 'Payments';
+    if (activeModule === 'operations') return itemLabel === 'Stock Warehouse' || itemLabel === 'Logistics & Supply Chain';
+    return false;
+  };
 
   return (
     <Box 
@@ -82,7 +114,7 @@ const NavigationHeader = () => {
       <Flex justify="space-between" align="center">
         <HStack spacing={3}>
           <Button as={RouterLink} to="/welcome" variant="outline" size="sm">← Back</Button>
-          {navigationItems.map((item) => {
+          {navigationItems.filter((it) => showItem(it.label)).map((item) => {
             if (item.label === 'Reports') {
               const active = location.pathname.startsWith('/reports');
               const activeBg = reportActiveBg;
