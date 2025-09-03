@@ -21,7 +21,7 @@ import {
   Icon,
   Image,
 } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { EmailIcon, LockIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 // No react-icons imports needed
@@ -33,8 +33,9 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
-  const { login, isAuthenticated, isLoading } = useAuth();
+  const { login, isAuthenticated, isLoading, user } = useAuth();
   const handleForgot = async () => {
     if (!email) {
       toast({ title: 'Enter your email first', status: 'warning', duration: 3000, isClosable: true });
@@ -53,10 +54,14 @@ const Login = () => {
   const borderColor = useColorModeValue('gray.200', 'gray.600');
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!isAuthenticated) return;
+    const fromHR = (location.state as any)?.fromHR;
+    if (user?.email?.toLowerCase() === 'yellesh@axisogreen.in') {
+      navigate('/hr', { replace: true });
+    } else if (!fromHR) {
       navigate('/welcome', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, location.state, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +71,12 @@ const Login = () => {
 
     try {
       await login(email, password);
+      const normalizedEmail = email.trim().toLowerCase();
+      if (normalizedEmail === 'yellesh@axisogreen.in') {
+        navigate('/hr', { replace: true });
+      } else {
+        navigate('/welcome', { replace: true });
+      }
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
