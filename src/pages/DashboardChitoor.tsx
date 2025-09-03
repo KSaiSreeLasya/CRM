@@ -191,6 +191,12 @@ const DashboardChitoor = () => {
 
         const filteredActiveProjects = sortedProjects.filter((p: ChitoorProject) => !(p.project_status || '').toLowerCase().includes('completed'));
         setActiveProjects(filteredActiveProjects);
+
+        const counts: Record<string, number> = {};
+        CHITOOR_PROJECT_STAGES.forEach((s) => {
+          counts[s] = (projects as any[]).filter((p: any) => (p.project_status || 'pending').toLowerCase() === s.toLowerCase()).length;
+        });
+        setStatusCounts(counts);
       }
     } catch (e) {
       console.error('Error fetching Chitoor stats:', e);
