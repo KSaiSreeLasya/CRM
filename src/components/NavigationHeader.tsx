@@ -157,6 +157,8 @@ const NavigationHeader = () => {
               const activeBg = reportActiveBg;
               const activeColor = reportActiveColor;
               const hoverBg = reportHoverBg;
+              const isModules = location.pathname.startsWith('/logistics/modules');
+              const headerLabel = isModules ? 'Module & Inverter Management' : item.label;
               return (
                 <Menu key={item.to} isLazy>
                   <MenuButton
@@ -173,11 +175,11 @@ const NavigationHeader = () => {
                     py={3}
                     leftIcon={<Text fontSize="lg">{item.icon}</Text>}
                   >
-                    {item.label}
+                    {headerLabel}
                   </MenuButton>
                   <MenuList>
                     <MenuItem as={RouterLink} to="/logistics">Logistics (Default)</MenuItem>
-                    <MenuItem as={RouterLink} to="/logistics/modules">Modules & Inventory</MenuItem>
+                    <MenuItem as={RouterLink} to="/logistics/modules">Module & Inverter Management</MenuItem>
                   </MenuList>
                 </Menu>
               );
@@ -187,6 +189,8 @@ const NavigationHeader = () => {
               const activeBg = reportActiveBg;
               const activeColor = reportActiveColor;
               const hoverBg = reportHoverBg;
+              const isProcurement = location.pathname.startsWith('/procurement');
+              const headerLabel = isProcurement ? 'Procurement' : item.label;
               return (
                 <Menu key={item.to} isLazy>
                   <MenuButton
@@ -203,7 +207,7 @@ const NavigationHeader = () => {
                     py={3}
                     leftIcon={<Text fontSize="lg">{item.icon}</Text>}
                   >
-                    {item.label}
+                    {headerLabel}
                   </MenuButton>
                   <MenuList>
                     <MenuItem as={RouterLink} to="/stock">Stock (Default)</MenuItem>
