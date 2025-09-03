@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Heading, Text, Tabs, TabList, TabPanels, Tab, TabPanel, FormControl, FormLabel, Input, Select, Button, Table, Thead, Tr, Th, Tbody, Td, useToast, SimpleGrid, Card, CardHeader, CardBody } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
+import UsersManagement from './UsersManagement';
 
 const HR: React.FC = () => {
   const [inviteEmail, setInviteEmail] = useState('');
@@ -78,22 +79,7 @@ const HR: React.FC = () => {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <Table size="sm">
-              <Thead>
-                <Tr>
-                  <Th>Email</Th>
-                  <Th>Role</Th>
-                  <Th>Actions</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                <Tr>
-                  <Td>demo@company.com</Td>
-                  <Td>Standard</Td>
-                  <Td><Button size="xs" onClick={() => window.location.assign('/hr/users')}>Manage Users</Button></Td>
-                </Tr>
-              </Tbody>
-            </Table>
+            <UsersManagement />
           </TabPanel>
           <TabPanel>
             <Text fontSize="sm" color="gray.600">Roles define permissions for each module. Admin manages global settings, Finance manages payments, Standard accesses projects.</Text>
