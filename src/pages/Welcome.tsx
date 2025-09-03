@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Heading, Text, SimpleGrid, Flex, LinkBox, LinkOverlay, useColorModeValue, Button, useToast, Image, Avatar, HStack, Spacer } from '@chakra-ui/react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 interface Tile {
   label: string;
@@ -19,8 +20,6 @@ const tiles: Tile[] = [
   { label: 'HR', description: 'User access and team management', icon: '👥', to: '/admin' },
   { label: 'Admin Settings', description: 'System configuration and controls', icon: '⚙️', to: '/admin' },
 ];
-
-import { useAuth } from '../context/AuthContext';
 
 const Welcome: React.FC = () => {
   const cardBg = useColorModeValue('white', 'gray.800');
