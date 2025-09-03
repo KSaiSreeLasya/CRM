@@ -24,9 +24,15 @@ import {
   SimpleGrid,
   useColorModeValue,
   Circle,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Tag,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
-import { PROJECT_STAGES } from '../lib/constants';
+import { PROJECT_STAGES, CHITOOR_PROJECT_STAGES } from '../lib/constants';
 import {
   CalendarIcon,
 } from '@chakra-ui/icons';
@@ -386,95 +392,75 @@ const Reports: React.FC<{ stateFilter?: string }> = ({ stateFilter }) => {
           </CardBody>
         </Card>
 
-        {/* Project Stages Distribution */}
+        {/* Project Stages Distribution (replaced with pipeline-style accordions) */}
         <Card bg={cardBg} shadow="sm" border="1px solid" borderColor="gray.100">
           <CardHeader>
             <Flex justify="space-between" align="center">
               <Box>
-                <Heading size="md" color="gray.800">Project Stages Distribution</Heading>
+                <Heading size="md" color="gray.800">Project Status Pipeline</Heading>
                 <Text fontSize="sm" color="gray.600" mt={1}>
-                  Current progress across {stateFilter ? stateFilter : 'all states'}
+                  Grouped view {stateFilter ? `for ${stateFilter}` : 'across all states'}
                 </Text>
               </Box>
               <Text fontSize="xl" color="green.500">📋</Text>
             </Flex>
           </CardHeader>
-          <CardBody>
+          <CardBody pt={0}>
             {stateFilter && stateFilter.toLowerCase() === 'chitoor' ? (
-              <VStack spacing={3} align="stretch">
-                <Text fontSize="sm" color="gray.600">Chitoor uses custom project_status values. Distribution below reflects those statuses.</Text>
-                {Object.keys(stageStats).length === 0 ? (
-                  <Text fontSize="sm" color="gray.500">No status distribution available.</Text>
-                ) : (
-                  <VStack spacing={3} align="stretch">
-                    {Object.entries(stageStats).map(([status, count]) => (
-                      <Flex key={status} justify="space-between" align="center" p={2} bg="gray.50" borderRadius="md" border="1px solid" borderColor="gray.100">
-                        <Text fontSize="sm" color="gray.700">{status}</Text>
-                        <Badge colorScheme={count > 0 ? 'green' : 'gray'} borderRadius="full">{count}</Badge>
-                      </Flex>
-                    ))}
-                  </VStack>
-                )}
-              </VStack>
-            ) : (
-            <VStack spacing={6} align="stretch">
-              {STAGE_GROUPS.map((group) => (
-                <Box key={group.name}>
-                  <Flex align="center" mb={4}>
-                    <Badge
-                      colorScheme={group.color}
-                      px={3}
-                      py={1}
-                      borderRadius="full"
-                      fontSize="xs"
-                      fontWeight="medium"
-                    >
-                      {group.name}
-                    </Badge>
-                    <Text ml={3} fontSize="sm" fontWeight="medium" color="gray.600">
-                      {group.stages.reduce((count, stage) => count + (stageStats[stage] || 0), 0)} projects
-                    </Text>
-                  </Flex>
-
-                  <VStack spacing={3} align="stretch">
-                    {group.stages.map(stage => {
-                      const count = stageStats[stage] || 0;
-                      const percentage = maxProjectsInStage > 0 ? Math.round((count / maxProjectsInStage) * 100) : 0;
-
-                      return (
-                        <Tooltip
-                          key={stage}
-                          label={`${count} project${count !== 1 ? 's' : ''} in "${stage}" stage`}
-                          hasArrow
-                        >
-                          <Box>
-                            <HStack justify="space-between" mb={1}>
-                              <Text fontSize="sm" color="gray.700" fontWeight="medium" noOfLines={1}>
-                                {stage}
-                              </Text>
-                              <Badge
-                                colorScheme={count > 0 ? group.color : 'gray'}
-                                variant={count > 0 ? 'solid' : 'outline'}
-                                fontSize="xs"
-                              >
-                                {count}
-                              </Badge>
+              <Accordion allowToggle>
+                {CHITOOR_PROJECT_STAGES.map((status) => {
+                  const total = stageStats[status] || 0;
+                  return (
+                    <AccordionItem key={status} border="none">
+                      <h2>
+                        <AccordionButton px={2} py={3} _expanded={{ bg: 'gray.50' }}>
+                          <Flex flex="1" justify="space-between" align="center">
+                            <HStack>
+                              <Tag size="sm">{status.toUpperCase()}</Tag>
+                              <Text fontSize="sm" color="gray.600">{total} projects</Text>
                             </HStack>
-                            <Progress
-                              value={count > 0 ? Math.max(percentage, 8) : 0}
-                              height="8px"
-                              borderRadius="full"
-                              colorScheme={group.color}
-                              bg="gray.100"
-                            />
-                          </Box>
-                        </Tooltip>
-                      );
-                    })}
-                  </VStack>
-                </Box>
-              ))}
-            </VStack>
+                            <AccordionIcon />
+                          </Flex>
+                        </AccordionButton>
+                      </h2>
+                      <AccordionPanel pb={4}>
+                        <Text fontSize="sm" color="gray.600">{status}</Text>
+                      </AccordionPanel>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
+            ) : (
+              <Accordion allowToggle>
+                {STAGE_GROUPS.map((group) => {
+                  const total = group.stages.reduce((sum, s) => sum + (stageStats[s] || 0), 0);
+                  return (
+                    <AccordionItem key={group.name} border="none">
+                      <h2>
+                        <AccordionButton px={2} py={3} _expanded={{ bg: 'gray.50' }}>
+                          <Flex flex="1" justify="space-between" align="center">
+                            <HStack>
+                              <Tag colorScheme={group.color as any} size="sm">{group.name.toUpperCase()}</Tag>
+                              <Text fontSize="sm" color="gray.600">{total} projects</Text>
+                            </HStack>
+                            <AccordionIcon />
+                          </Flex>
+                        </AccordionButton>
+                      </h2>
+                      <AccordionPanel pb={4}>
+                        <VStack align="stretch" spacing={2}>
+                          {group.stages.map((stage) => (
+                            <Flex key={stage} justify="space-between" align="center" p={2} border="1px solid" borderColor="gray.100" borderRadius="md" bg="white">
+                              <Text fontSize="sm" color="gray.700">{stage}</Text>
+                              <Badge colorScheme={(stageStats[stage] || 0) > 0 ? group.color : 'gray'} borderRadius="full" px={2}>{stageStats[stage] || 0}</Badge>
+                            </Flex>
+                          ))}
+                        </VStack>
+                      </AccordionPanel>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
             )}
           </CardBody>
         </Card>
