@@ -97,11 +97,7 @@ const Welcome: React.FC = () => {
       handleHRAccess();
       return;
     }
-    if (canAccess(key)) {
-      navigate(path);
-    } else {
-      onDeniedOpen();
-    }
+    navigate(path);
   };
 
   const handleHRAccess = async () => {
