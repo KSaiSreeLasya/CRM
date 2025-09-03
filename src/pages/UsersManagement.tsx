@@ -93,13 +93,8 @@ const UsersManagement: React.FC = () => {
         options: { emailRedirectTo: `${window.location.origin}/reset-password` },
       });
       if (error) throw error;
-      if (data?.user?.id) {
-        const { error: upsertErr } = await supabase
-          .from('users')
-          .upsert({ id: data.user.id, email: newUser.email, role: newUser.role });
-        if (upsertErr) throw upsertErr;
-      }
-      toast({ title: 'User invited', description: 'A verification email has been sent.', status: 'success', duration: 5000, isClosable: true });
+      // Row in public.users will be created by DB trigger after signup/verification
+      toast({ title: 'User invited', description: 'A verification email has been sent. User appears after signup/verification.', status: 'success', duration: 5000, isClosable: true });
       onClose();
       setNewUser({ email: '', password: '', role: 'user' });
       fetchUsers();
