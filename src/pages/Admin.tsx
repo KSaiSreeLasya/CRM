@@ -351,10 +351,23 @@ const AdminDashboard = () => {
       if (Array.isArray(selectedModules)) updatePayload.module_access = selectedModules;
       if (regionAccess && Object.keys(regionAccess).length > 0) updatePayload.region_access = regionAccess;
 
-      const { error } = await supabase
+      let { error } = await supabase
         .from('project_assignments')
         .update(updatePayload)
         .eq('id', editingAssignment.id);
+
+      if (error && String((error as any).message || error).toLowerCase().includes('column')) {
+        const fallback = {
+          assignee_email: newAssignment.assignee_email,
+          assignee_name: newAssignment.assignee_name,
+          assigned_states: newAssignment.assigned_states,
+        };
+        const retry = await supabase
+          .from('project_assignments')
+          .update(fallback)
+          .eq('id', editingAssignment.id);
+        error = retry.error as any;
+      }
 
       if (error) {
         console.error('Supabase error:', (error as any)?.message || error, error);
