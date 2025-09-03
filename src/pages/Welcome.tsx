@@ -60,7 +60,7 @@ const Welcome: React.FC = () => {
       </Flex>
 
       {/* Mobile: horizontal scroll tiles */}
-      <Box display={{ base: 'block', lg: 'none' }} overflowX="auto" pb={2} className="mobile-tiles-scroll">
+      <Box display={{ base: 'block', lg: 'none' }} overflowX="auto" pb={2} className="mobile-tiles-scroll" sx={{ scrollbarWidth: 'thin' }}>
         <Flex gap={4} minW="max-content" pr={2}>
           {tiles.map((t) => (
             <LinkBox
