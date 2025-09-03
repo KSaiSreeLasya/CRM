@@ -4,6 +4,8 @@ import { Session } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
 import { useToast, Center, Spinner } from '@chakra-ui/react';
 
+interface RegionAccessMap { [state: string]: 'view' | 'edit' | 'admin'; }
+
 interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
@@ -12,6 +14,8 @@ interface AuthContextType {
   user: any | null;
   isLoading: boolean;
   assignedRegions: string[];
+  allowedModules: string[];
+  regionAccess: RegionAccessMap;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
