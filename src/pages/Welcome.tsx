@@ -51,6 +51,7 @@ const Welcome: React.FC = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isDeniedOpen, onOpen: onDeniedOpen, onClose: onDeniedClose } = useDisclosure();
 
   const operationsModules: Tile[] = [
     { label: 'Stock Warehouse', description: 'Inventory and stock management', icon: '🏭', to: '/stock' },
