@@ -300,6 +300,8 @@ const AdminDashboard = () => {
         assignee_name: '',
         assigned_states: [],
       });
+      setSelectedModules([]);
+      setRegionAccess({});
       fetchAssignments();
     } catch (error) {
       console.error('Error creating assignment:', error);
