@@ -20,7 +20,9 @@ const ModuleGuard: React.FC<{ moduleKey: string; children: React.ReactNode }> = 
 
   if (isAdmin) return <>{children}</>;
 
-  const allowed = Array.isArray(allowedModules) && allowedModules.includes(moduleKey);
+  const allowedList = Array.isArray(allowedModules) ? allowedModules : [];
+  const isOpenAccess = allowedList.length === 0; // no explicit restrictions configured
+  const allowed = isOpenAccess || allowedList.includes(moduleKey);
   if (!allowed) {
     return (
       <Center h="100vh">
