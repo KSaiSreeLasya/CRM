@@ -98,7 +98,12 @@ const NavigationHeader = () => {
     if (activeModule === 'admin') return itemLabel === 'Admin';
     if (activeModule === 'hr') return false;
     if (activeModule === 'finance') return itemLabel === 'Finance' || itemLabel === 'Payments';
-    if (activeModule === 'operations') return itemLabel === 'Stock Warehouse' || itemLabel === 'Logistics & Supply Chain';
+    if (activeModule === 'operations') {
+      const p = location.pathname;
+      const isLogistics = p === '/logistics' || p.startsWith('/logistics/');
+      if (isLogistics) return itemLabel === 'Logistics & Supply Chain';
+      return itemLabel === 'Stock Warehouse';
+    }
     return false;
   };
 
@@ -152,6 +157,8 @@ const NavigationHeader = () => {
               const activeBg = reportActiveBg;
               const activeColor = reportActiveColor;
               const hoverBg = reportHoverBg;
+              const isModules = location.pathname.startsWith('/logistics/modules');
+              const headerLabel = isModules ? 'Module & Inverter Management' : item.label;
               return (
                 <Menu key={item.to} isLazy>
                   <MenuButton
@@ -168,11 +175,11 @@ const NavigationHeader = () => {
                     py={3}
                     leftIcon={<Text fontSize="lg">{item.icon}</Text>}
                   >
-                    {item.label}
+                    {headerLabel}
                   </MenuButton>
                   <MenuList>
                     <MenuItem as={RouterLink} to="/logistics">Logistics (Default)</MenuItem>
-                    <MenuItem as={RouterLink} to="/logistics/modules">Modules & Inventory</MenuItem>
+                    <MenuItem as={RouterLink} to="/logistics/modules">Module & Inverter Management</MenuItem>
                   </MenuList>
                 </Menu>
               );
@@ -182,6 +189,8 @@ const NavigationHeader = () => {
               const activeBg = reportActiveBg;
               const activeColor = reportActiveColor;
               const hoverBg = reportHoverBg;
+              const isProcurement = location.pathname.startsWith('/procurement');
+              const headerLabel = isProcurement ? 'Procurement' : item.label;
               return (
                 <Menu key={item.to} isLazy>
                   <MenuButton
@@ -198,7 +207,7 @@ const NavigationHeader = () => {
                     py={3}
                     leftIcon={<Text fontSize="lg">{item.icon}</Text>}
                   >
-                    {item.label}
+                    {headerLabel}
                   </MenuButton>
                   <MenuList>
                     <MenuItem as={RouterLink} to="/stock">Stock (Default)</MenuItem>
