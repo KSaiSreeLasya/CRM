@@ -47,24 +47,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
   const toast = useToast();
 
-  // Function to fetch user's assigned regions
-  const fetchUserAssignedRegions = async (userEmail: string): Promise<string[]> => {
+  // Fetch user's assigned regions and optional permissions
+  const fetchUserAccess = async (userEmail: string): Promise<{ regions: string[]; modules: string[]; regionMap: RegionAccessMap }> => {
     try {
       const { data, error } = await supabase
         .from('project_assignments')
-        .select('assigned_states')
+        .select('assigned_states, module_access, region_access')
         .eq('assignee_email', userEmail)
         .single();
 
       if (error) {
-        console.warn('No region assignments found for user:', userEmail);
-        return [];
+        console.warn('No assignments found for user:', userEmail);
+        return { regions: [], modules: [], regionMap: {} };
       }
 
-      return data?.assigned_states || [];
+      const regions = (data as any)?.assigned_states || [];
+      const modules = (data as any)?.module_access || [];
+      const regionMap = (data as any)?.region_access || {};
+      return { regions, modules, regionMap };
     } catch (error) {
-      console.error('Error fetching assigned regions:', error);
-      return [];
+      console.error('Error fetching user access:', error);
+      return { regions: [], modules: [], regionMap: {} };
     }
   };
 
