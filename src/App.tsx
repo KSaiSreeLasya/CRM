@@ -132,9 +132,11 @@ const App: React.FC = () => {
                 path="/dashboard/chitoor"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(DashboardChitoor))}
-                    </Layout>
+                    <ModuleGuard moduleKey="dashboard">
+                      <Layout>
+                        {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(DashboardChitoor))}
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
