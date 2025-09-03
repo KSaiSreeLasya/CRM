@@ -159,9 +159,11 @@ const App: React.FC = () => {
                 path="/payments"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <Payments />
-                    </Layout>
+                    <ModuleGuard moduleKey="finance">
+                      <Layout>
+                        <Payments />
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -181,9 +183,11 @@ const App: React.FC = () => {
                 path="/modules"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <ModulesPage />
-                    </Layout>
+                    <ModuleGuard moduleKey="operations">
+                      <Layout>
+                        <ModulesPage />
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -227,9 +231,11 @@ const App: React.FC = () => {
                 path="/reports/tg"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <RegionGuard allowed={['Telangana']}><Reports stateFilter="Telangana" /></RegionGuard>
-                    </Layout>
+                    <ModuleGuard moduleKey="sales">
+                      <Layout>
+                        <RegionGuard allowed={['Telangana']}><Reports stateFilter="Telangana" /></RegionGuard>
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -237,9 +243,11 @@ const App: React.FC = () => {
                 path="/reports/ap"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <RegionGuard allowed={['Andhra Pradesh']}><Reports stateFilter="Andhra Pradesh" /></RegionGuard>
-                    </Layout>
+                    <ModuleGuard moduleKey="sales">
+                      <Layout>
+                        <RegionGuard allowed={['Andhra Pradesh']}><Reports stateFilter="Andhra Pradesh" /></RegionGuard>
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -247,9 +255,11 @@ const App: React.FC = () => {
                 path="/reports/chitoor"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <RegionGuard allowed={['Chitoor']}><Reports stateFilter="Chitoor" /></RegionGuard>
-                    </Layout>
+                    <ModuleGuard moduleKey="sales">
+                      <Layout>
+                        <RegionGuard allowed={['Chitoor']}><Reports stateFilter="Chitoor" /></RegionGuard>
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -269,9 +279,11 @@ const App: React.FC = () => {
                 path="/projects/telangana"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <RegionGuard allowed={['Telangana']}><TelanganaProjects /></RegionGuard>
-                    </Layout>
+                    <ModuleGuard moduleKey="projects">
+                      <Layout>
+                        <RegionGuard allowed={['Telangana']}><TelanganaProjects /></RegionGuard>
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -279,9 +291,11 @@ const App: React.FC = () => {
                 path="/projects/ap"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <RegionGuard allowed={['Andhra Pradesh']}><APProjects /></RegionGuard>
-                    </Layout>
+                    <ModuleGuard moduleKey="projects">
+                      <Layout>
+                        <RegionGuard allowed={['Andhra Pradesh']}><APProjects /></RegionGuard>
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -289,9 +303,11 @@ const App: React.FC = () => {
                 path="/projects/chitoor"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <RegionGuard allowed={['Chitoor']}><ChitoorProjects /></RegionGuard>
-                    </Layout>
+                    <ModuleGuard moduleKey="projects">
+                      <Layout>
+                        <RegionGuard allowed={['Chitoor']}><ChitoorProjects /></RegionGuard>
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -299,9 +315,11 @@ const App: React.FC = () => {
                 path="/projects/chitoor/:id"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <RegionGuard allowed={['Chitoor']}><ChitoorProjectDetails /></RegionGuard>
-                    </Layout>
+                    <ModuleGuard moduleKey="projects">
+                      <Layout>
+                        <RegionGuard allowed={['Chitoor']}><ChitoorProjectDetails /></RegionGuard>
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
