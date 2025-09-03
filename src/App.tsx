@@ -21,6 +21,7 @@ import StockWarehouse from './pages/StockWarehouse';
 import Logistics from './pages/Logistics';
 import Procurement from './pages/Procurement';
 import HR from './pages/HR';
+import UsersManagement from './pages/UsersManagement';
 import ResetPassword from './pages/ResetPassword';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
@@ -291,6 +292,16 @@ const App: React.FC = () => {
                 }
               />
               <Route
+                path="/admin/users"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <UsersManagement />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/stock"
                 element={
                   <PrivateRoute>
@@ -326,6 +337,16 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <Layout>
                       <HR />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/hr/users"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <UsersManagement />
                     </Layout>
                   </PrivateRoute>
                 }
