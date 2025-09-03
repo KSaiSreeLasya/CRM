@@ -601,15 +601,16 @@ return (
         <CardHeader display="flex" alignItems="center" justifyContent="space-between">
           <Text fontSize="2xl" fontWeight="bold">Customer Details</Text>
           {isEditor && (
-            <Button
-              leftIcon={<EditIcon />}
-              colorScheme="blue"
-              variant="outline"
-              size="sm"
-              onClick={handleEditOpen}
-            >
-              Edit
-            </Button>
+            <Tooltip label="Edit customer" hasArrow>
+              <IconButton
+                aria-label="Edit customer"
+                icon={<EditIcon />}
+                colorScheme="blue"
+                variant="ghost"
+                size="sm"
+                onClick={handleEditOpen}
+              />
+            </Tooltip>
           )}
         </CardHeader>
         <CardBody>
@@ -657,15 +658,16 @@ return (
         <CardHeader display="flex" alignItems="center" justifyContent="space-between">
           <Text fontSize="2xl" fontWeight="bold">Project Details</Text>
           {isEditor && (
-            <Button
-              leftIcon={<EditIcon />}
-              colorScheme="green"
-              variant="outline"
-              size="sm"
-              onClick={handleProjectEditOpen}
-            >
-              Edit
-            </Button>
+            <Tooltip label="Edit project" hasArrow>
+              <IconButton
+                aria-label="Edit project"
+                icon={<EditIcon />}
+                colorScheme="green"
+                variant="ghost"
+                size="sm"
+                onClick={handleProjectEditOpen}
+              />
+            </Tooltip>
           )}
         </CardHeader>
         <CardBody>
@@ -674,7 +676,7 @@ return (
             <Text><b>Status:</b> {project ? project.status : ''}</Text>
             <Text><b>Type:</b> {project ? project.project_type : ''}</Text>
             <Text><b>State:</b> {project ? project.state : ''}</Text>
-            <Text><b>Proposal Amount:</b> ���{project && project.proposal_amount != null ? project.proposal_amount.toLocaleString() : ''}</Text>
+            <Text><b>Proposal Amount:</b> ����{project && project.proposal_amount != null ? project.proposal_amount.toLocaleString() : ''}</Text>
             <Text><b>Advance Payment:</b> ₹{project && project.advance_payment != null ? project.advance_payment.toLocaleString() : ''}</Text>
             <Text><b>Paid Amount:</b> ₹{project && project.paid_amount != null ? project.paid_amount.toLocaleString() : ''}</Text>
             <Text><b>Balance Amount:</b> ₹{project && project.balance_amount != null ? project.balance_amount.toLocaleString() : ''}</Text>
