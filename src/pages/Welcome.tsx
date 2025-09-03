@@ -79,7 +79,7 @@ const Welcome: React.FC = () => {
 
   const handleHRAccess = async () => {
     try {
-      await login('yeelesh@axisogreen.in', 'yellesh@2024');
+      await login('yellesh@axisogreen.in', 'yellesh@2024');
       toast({ title: 'Logged in as HR', status: 'success', duration: 3000, isClosable: true });
       navigate('/hr');
     } catch (e: any) {
