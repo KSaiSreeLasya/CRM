@@ -93,10 +93,6 @@ const Welcome: React.FC = () => {
 
   const handleOpenPath = (path: string) => {
     const key = getKeyFromPath(path);
-    if (key === 'admin') {
-      handleAdminAccess();
-      return;
-    }
     if (key === 'hr') {
       handleHRAccess();
       return;
