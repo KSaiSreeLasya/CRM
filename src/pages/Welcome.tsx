@@ -215,7 +215,7 @@ const Welcome: React.FC = () => {
               <Heading size="sm" mb={1} color="green.600">{m.label}</Heading>
               <Text fontSize="sm" color={titleColor} noOfLines={2}>{m.description}</Text>
               <Box mt={3}>
-                <LinkOverlay as={RouterLink} to={m.to} color="green.600">Open</LinkOverlay>
+                <LinkOverlay as="button" onClick={() => handleOpenPath(m.to)} color="green.600">Open</LinkOverlay>
               </Box>
             </LinkBox>
           ))}
@@ -229,7 +229,7 @@ const Welcome: React.FC = () => {
             <Heading size="sm" mb={1} color="green.600">{m.label}</Heading>
             <Text fontSize="sm" color={titleColor}>{m.description}</Text>
             <Box mt={3}>
-              <LinkOverlay as={RouterLink} to={m.to} color="green.600">Open</LinkOverlay>
+              <LinkOverlay as="button" onClick={() => handleOpenPath(m.to)} color="green.600">Open</LinkOverlay>
             </Box>
           </LinkBox>
         ))}
