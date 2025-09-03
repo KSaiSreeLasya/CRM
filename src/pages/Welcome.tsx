@@ -1,6 +1,6 @@
 import React from 'react';
-import { Box, Heading, Text, SimpleGrid, Flex, LinkBox, LinkOverlay, useColorModeValue } from '@chakra-ui/react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Box, Heading, Text, SimpleGrid, Flex, LinkBox, LinkOverlay, useColorModeValue, Button, useToast } from '@chakra-ui/react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 interface Tile {
   label: string;
@@ -20,17 +20,35 @@ const tiles: Tile[] = [
   { label: 'Admin Settings', description: 'System configuration and controls', icon: '⚙️', to: '/admin' },
 ];
 
+import { useAuth } from '../context/AuthContext';
+
 const Welcome: React.FC = () => {
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const titleColor = useColorModeValue('gray.700', 'gray.200');
+  const { logout } = useAuth();
+  const toast = useToast();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({ title: 'Logged out', status: 'success', duration: 3000, isClosable: true });
+      navigate('/login');
+    } catch (e: any) {
+      toast({ title: 'Logout failed', description: e?.message || String(e), status: 'error', duration: 4000, isClosable: true });
+    }
+  };
 
   return (
     <Box>
-      <Box mb={6}>
-        <Heading size={{ base: 'md', md: 'lg' }} color="green.600">Welcome</Heading>
-        <Text color={titleColor} mt={2}>Choose a module to continue</Text>
-      </Box>
+      <Flex mb={6} justify="space-between" align="center">
+        <Box>
+          <Heading size={{ base: 'md', md: 'lg' }} color="green.600">Welcome</Heading>
+          <Text color={titleColor} mt={2}>Choose a module to continue</Text>
+        </Box>
+        <Button onClick={handleLogout} colorScheme="red" variant="outline" size="sm">Logout</Button>
+      </Flex>
 
       {/* Mobile: horizontal scroll tiles */}
       <Box display={{ base: 'block', lg: 'none' }} overflowX="auto" pb={2} className="mobile-tiles-scroll">
