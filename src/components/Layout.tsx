@@ -283,6 +283,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     />
                   );
                 }
+                if (p.startsWith('/logistics/modules')) {
+                  return (
+                    <NavItem
+                      icon="🧰"
+                      label={isCollapsed ? '' : 'Module & Inverter Management'}
+                      to="/logistics/modules"
+                      isActive
+                      onClick={onClose}
+                      collapsed={isCollapsed}
+                    />
+                  );
+                }
                 if (p === '/logistics' || p.startsWith('/logistics/')) {
                   return (
                     <NavItem
