@@ -20,6 +20,7 @@ import Admin from './pages/Admin';
 import StockWarehouse from './pages/StockWarehouse';
 import Logistics from './pages/Logistics';
 import Procurement from './pages/Procurement';
+import HR from './pages/HR';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
 import { AuthProvider } from './context/AuthContext';
@@ -313,6 +314,16 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <Layout>
                       <Logistics />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/hr"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <HR />
                     </Layout>
                   </PrivateRoute>
                 }
