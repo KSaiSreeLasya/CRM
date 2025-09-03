@@ -155,7 +155,17 @@ const Welcome: React.FC = () => {
 
       {/* Desktop/Tablet: grid tiles */}
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={5} display={{ base: 'none', lg: 'grid' }}>
-        {tiles.map((t) => (
+        {tiles.filter((t)=>{
+          const key = t.label === 'Overall Dashboard' ? 'dashboard'
+            : t.label === 'Projects' ? 'projects'
+            : t.label === 'Reports' ? 'sales'
+            : t.label === 'Service Tickets' ? 'serviceTickets'
+            : t.label === 'Finance' ? 'finance'
+            : t.label === 'HR' ? 'hr'
+            : t.label === 'Admin Settings' ? 'admin' : 'other';
+          if (key === 'admin') return true;
+          return canAccess(key);
+        }).map((t) => (
           <LinkBox
             key={t.label}
             as="article"
