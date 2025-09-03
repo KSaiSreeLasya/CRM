@@ -19,7 +19,7 @@ const HR: React.FC = () => {
       const { data, error } = await supabase.auth.signUp({
         email: inviteEmail,
         password: invitePassword,
-        options: { emailRedirectTo: `${window.location.origin}/login` }
+        options: { emailRedirectTo: `${window.location.origin}/reset-password` }
       });
       if (error) throw error;
       if (data?.user?.id) {
