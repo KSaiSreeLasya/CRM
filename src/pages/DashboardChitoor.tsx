@@ -31,8 +31,15 @@ import {
   SimpleGrid,
   useColorModeValue,
   Circle,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Tag,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
+import { CHITOOR_PROJECT_STAGES } from '../lib/constants';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDownIcon, TimeIcon } from '@chakra-ui/icons';
@@ -128,6 +135,7 @@ const DashboardChitoor = () => {
     totalKWH: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [statusCounts, setStatusCounts] = useState<Record<string, number>>({});
   const [sortBy, setSortBy] = useState<'date' | 'amount' | 'stage'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [activeProjects, setActiveProjects] = useState<ChitoorProject[]>([]);
@@ -183,6 +191,12 @@ const DashboardChitoor = () => {
 
         const filteredActiveProjects = sortedProjects.filter((p: ChitoorProject) => !(p.project_status || '').toLowerCase().includes('completed'));
         setActiveProjects(filteredActiveProjects);
+
+        const counts: Record<string, number> = {};
+        CHITOOR_PROJECT_STAGES.forEach((s) => {
+          counts[s] = (projects as any[]).filter((p: any) => (p.project_status || 'pending').toLowerCase() === s.toLowerCase()).length;
+        });
+        setStatusCounts(counts);
       }
     } catch (e) {
       console.error('Error fetching Chitoor stats:', e);
@@ -269,6 +283,38 @@ const DashboardChitoor = () => {
           )}
           <StatsCard title="Total Capacity" value={`${stats.totalKWH.toLocaleString()} kW`} icon="⚡" color="yellow" helpText="Energy capacity" />
         </SimpleGrid>
+
+        <Card bg={cardBg} shadow="sm" border="1px solid" borderColor="gray.100">
+          <CardHeader>
+            <Heading size="md" color="gray.800">Project Status Pipeline (Chitoor)</Heading>
+            <Text fontSize="sm" color="gray.600" mt={1}>Grouped by Chitoor statuses</Text>
+          </CardHeader>
+          <CardBody pt={0}>
+            <Accordion allowToggle>
+              {CHITOOR_PROJECT_STAGES.map((status) => {
+                const total = statusCounts[status] || 0;
+                return (
+                  <AccordionItem key={status} border="none">
+                    <h2>
+                      <AccordionButton px={2} py={3} _expanded={{ bg: 'gray.50' }}>
+                        <Flex flex="1" justify="space-between" align="center">
+                          <HStack>
+                            <Tag size="sm">{status.toUpperCase()}</Tag>
+                            <Text fontSize="sm" color="gray.600">{total} projects</Text>
+                          </HStack>
+                          <AccordionIcon />
+                        </Flex>
+                      </AccordionButton>
+                    </h2>
+                    <AccordionPanel pb={4}>
+                      <Text fontSize="sm" color="gray.600">{status}</Text>
+                    </AccordionPanel>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
+          </CardBody>
+        </Card>
 
         <Card bg={cardBg} shadow="sm" border="1px solid" borderColor="gray.100">
           <CardHeader>

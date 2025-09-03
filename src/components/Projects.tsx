@@ -45,6 +45,7 @@ import {
   Menu,
   MenuList,
   MenuItem,
+  Portal,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -62,6 +63,7 @@ import {
   ChevronDownIcon,
   EmailIcon,
   PhoneIcon,
+  EditIcon,
 } from '@chakra-ui/icons';
 
 interface Project {
@@ -733,31 +735,45 @@ const Projects: React.FC<ProjectsProps> = ({ stateFilter }) => {
                               variant="ghost"
                               size="sm"
                             />
-                            <MenuList>
-                              <MenuItem 
-                                icon={<ViewIcon />}
-                                onClick={() => navigate(`/projects/${project.id}`)}
-                              >
-                                View Details
-                              </MenuItem>
-                              <MenuItem 
-                                icon={project.status === 'active' ? <CheckCircleIcon /> : <CloseIcon />}
-                                onClick={() => toggleProjectStatus(project.id, project.status)}
-                              >
-                                Mark {project.status === 'active' ? 'Complete' : 'Active'}
-                              </MenuItem>
-                              <MenuItem 
-                                icon={<DeleteIcon />}
-                                color="red.500"
-                                onClick={() => {
-                                  if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
-                                    deleteProject(project.id);
-                                  }
-                                }}
-                              >
-                                Delete Project
-                              </MenuItem>
-                            </MenuList>
+                            <Portal>
+                              <MenuList>
+                                <MenuItem
+                                  icon={<EditIcon />}
+                                  onClick={() => navigate(`/projects/${project.id}?edit=customer`)}
+                                >
+                                  Edit Customer
+                                </MenuItem>
+                                <MenuItem
+                                  icon={<EditIcon />}
+                                  onClick={() => navigate(`/projects/${project.id}?edit=project`)}
+                                >
+                                  Edit Project
+                                </MenuItem>
+                                <MenuItem
+                                  icon={<ViewIcon />}
+                                  onClick={() => navigate(`/projects/${project.id}`)}
+                                >
+                                  View Details
+                                </MenuItem>
+                                <MenuItem
+                                  icon={project.status === 'active' ? <CheckCircleIcon /> : <CloseIcon />}
+                                  onClick={() => toggleProjectStatus(project.id, project.status)}
+                                >
+                                  Mark {project.status === 'active' ? 'Complete' : 'Active'}
+                                </MenuItem>
+                                <MenuItem
+                                  icon={<DeleteIcon />}
+                                  color="red.500"
+                                  onClick={() => {
+                                    if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+                                      deleteProject(project.id);
+                                    }
+                                  }}
+                                >
+                                  Delete Project
+                                </MenuItem>
+                              </MenuList>
+                            </Portal>
                           </Menu>
                         </Td>
                       </Tr>

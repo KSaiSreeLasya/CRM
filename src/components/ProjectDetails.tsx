@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { generatePaymentReceiptPDF } from './PaymentReceipt';
 
@@ -334,6 +334,17 @@ const ProjectDetails = () => {
   }
 }, [project, isEditOpen]);
 
+const location = useLocation();
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const edit = params.get('edit');
+  if (edit === 'customer') {
+    handleEditOpen();
+  } else if (edit === 'project') {
+    handleProjectEditOpen();
+  }
+}, [location.search]);
+
 // Reset form data when opening the modal
 const handleEditOpen = () => {
   if (project) {
@@ -663,7 +674,7 @@ return (
             <Text><b>Status:</b> {project ? project.status : ''}</Text>
             <Text><b>Type:</b> {project ? project.project_type : ''}</Text>
             <Text><b>State:</b> {project ? project.state : ''}</Text>
-            <Text><b>Proposal Amount:</b> ₹{project && project.proposal_amount != null ? project.proposal_amount.toLocaleString() : ''}</Text>
+            <Text><b>Proposal Amount:</b> ���{project && project.proposal_amount != null ? project.proposal_amount.toLocaleString() : ''}</Text>
             <Text><b>Advance Payment:</b> ₹{project && project.advance_payment != null ? project.advance_payment.toLocaleString() : ''}</Text>
             <Text><b>Paid Amount:</b> ₹{project && project.paid_amount != null ? project.paid_amount.toLocaleString() : ''}</Text>
             <Text><b>Balance Amount:</b> ₹{project && project.balance_amount != null ? project.balance_amount.toLocaleString() : ''}</Text>

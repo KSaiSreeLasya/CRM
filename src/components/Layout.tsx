@@ -356,7 +356,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <Box minH="100vh" bg="gray.50">
+    <Box minH="100vh" bg="gray.50" overflowX="auto">
       {/* Mobile Navigation */}
       <Flex
         display={{ base: 'flex', lg: 'none' }}
@@ -419,6 +419,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           flex="1"
           ml={{ base: 0, lg: isCollapsed ? '72px' : '240px' }}
           transition="margin-left 0.2s"
+          minH="100vh"
+          overflowX="hidden"
         >
           {/* Navigation Header */}
           <NavigationHeader />

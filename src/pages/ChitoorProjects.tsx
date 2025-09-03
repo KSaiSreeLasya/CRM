@@ -38,6 +38,7 @@ import {
   MenuItem,
   IconButton,
   Tooltip,
+  Portal,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 import { formatSupabaseError } from '../utils/error';
@@ -491,52 +492,68 @@ const ChitoorProjects = () => {
                               variant="ghost"
                               size="sm"
                             />
-                            <MenuList>
-                              <MenuItem
-                                icon={<ViewIcon />}
-                                onClick={() => navigate(`/projects/chitoor/${project.id}`)}
-                              >
-                                View Details
-                              </MenuItem>
-                              <MenuItem
-                                icon={<Text>✅</Text>}
-                                onClick={async () => {
-                                  try {
-                                    const { error } = await supabase
-                                      .from('chitoor_projects')
-                                      .update({ project_status: 'Completed' })
-                                      .eq('id', project.id);
-                                    if (error) throw error;
-                                    toast({ title: 'Marked complete', status: 'success', duration: 2000, isClosable: true });
-                                    fetchChitoorProjects();
-                                  } catch (e) {
-                                    toast({ title: 'Failed to mark complete', description: formatSupabaseError(e), status: 'error', duration: 3000, isClosable: true });
-                                  }
-                                }}
-                              >
-                                Mark Complete
-                              </MenuItem>
-                              <MenuItem
-                                icon={<DeleteIcon />}
-                                color="red.500"
-                                onClick={async () => {
-                                  if (!window.confirm('Delete this project permanently?')) return;
-                                  try {
-                                    const { error } = await supabase
-                                      .from('chitoor_projects')
-                                      .delete()
-                                      .eq('id', project.id);
-                                    if (error) throw error;
-                                    toast({ title: 'Project deleted', status: 'success', duration: 2000, isClosable: true });
-                                    fetchChitoorProjects();
-                                  } catch (e) {
-                                    toast({ title: 'Failed to delete', description: formatSupabaseError(e), status: 'error', duration: 3000, isClosable: true });
-                                  }
-                                }}
-                              >
-                                Delete Project
-                              </MenuItem>
-                            </MenuList>
+                            <Portal>
+                              <Portal>
+                              <MenuList>
+                                <MenuItem
+                                  icon={<EditIcon />}
+                                  onClick={() => navigate(`/projects/chitoor/${project.id}?edit=customer`)}
+                                >
+                                  Edit Customer
+                                </MenuItem>
+                                <MenuItem
+                                  icon={<EditIcon />}
+                                  onClick={() => navigate(`/projects/chitoor/${project.id}?edit=project`)}
+                                >
+                                  Edit Project
+                                </MenuItem>
+                                <MenuItem
+                                  icon={<ViewIcon />}
+                                  onClick={() => navigate(`/projects/chitoor/${project.id}`)}
+                                >
+                                  View Details
+                                </MenuItem>
+                                <MenuItem
+                                  icon={<Text>✅</Text>}
+                                  onClick={async () => {
+                                    try {
+                                      const { error } = await supabase
+                                        .from('chitoor_projects')
+                                        .update({ project_status: 'Completed' })
+                                        .eq('id', project.id);
+                                      if (error) throw error;
+                                      toast({ title: 'Marked complete', status: 'success', duration: 2000, isClosable: true });
+                                      fetchChitoorProjects();
+                                    } catch (e) {
+                                      toast({ title: 'Failed to mark complete', description: formatSupabaseError(e), status: 'error', duration: 3000, isClosable: true });
+                                    }
+                                  }}
+                                >
+                                  Mark Complete
+                                </MenuItem>
+                                <MenuItem
+                                  icon={<DeleteIcon />}
+                                  color="red.500"
+                                  onClick={async () => {
+                                    if (!window.confirm('Delete this project permanently?')) return;
+                                    try {
+                                      const { error } = await supabase
+                                        .from('chitoor_projects')
+                                        .delete()
+                                        .eq('id', project.id);
+                                      if (error) throw error;
+                                      toast({ title: 'Project deleted', status: 'success', duration: 2000, isClosable: true });
+                                      fetchChitoorProjects();
+                                    } catch (e) {
+                                      toast({ title: 'Failed to delete', description: formatSupabaseError(e), status: 'error', duration: 3000, isClosable: true });
+                                    }
+                                  }}
+                                >
+                                  Delete Project
+                                </MenuItem>
+                              </MenuList>
+                            </Portal>
+                            </Portal>
                           </Menu>
                         </Td>
                       </Tr>

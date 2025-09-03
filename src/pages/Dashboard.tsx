@@ -31,6 +31,12 @@ import {
   SimpleGrid,
   useColorModeValue,
   Circle,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Tag,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
@@ -403,6 +409,60 @@ const Dashboard = () => {
             helpText="Energy capacity"
           />
         </SimpleGrid>
+
+        {/* Project Status by Stages (Accordion) */}
+        <Card bg={cardBg} shadow="sm" border="1px solid" borderColor="gray.100">
+          <CardHeader>
+            <Heading size="md" color="gray.800">Project Status Pipeline</Heading>
+            <Text fontSize="sm" color="gray.600" mt={1}>Grouped by major phases, like the reference image.</Text>
+          </CardHeader>
+          <CardBody pt={0}>
+            <Accordion allowToggle>
+              {(() => {
+                // stage counts derived from current projects list
+                const groups = [
+                  { name: 'Advance Payment', stages: ['Advance Payment Done', 'Advance Payment -- Approvals / First Payment'], color: 'blue' },
+                  { name: 'Approvals & Loan', stages: ['Approvals -- Loan Applications', 'Loan Started -- Loan Process', 'Loan Approved / First Payment Collected -- Material Order'], color: 'purple' },
+                  { name: 'Materials', stages: ['Materials Ordered -- Materials Deliver', 'Materials Delivered -- Installation'], color: 'orange' },
+                  { name: 'Installation', stages: ['Installation Done / Second Payment Done -- Net meter Application'], color: 'teal' },
+                  { name: 'Net Metering', stages: ['Net Meter Application -- Net Meter Installation', 'Net Meter Installed -- Inspection / Final Payment'], color: 'green' },
+                  { name: 'Finalization', stages: ['Approved Inspection -- Subsidy in Progress', 'Subsidy Disbursed -- Final payment', 'Final Payment Done'], color: 'red' }
+                ];
+                return groups.map((group) => {
+                  const total = group.stages.reduce((sum, s) => sum + projects.filter((p: any) => p.current_stage === s).length, 0);
+                  return (
+                    <AccordionItem key={group.name} border="none">
+                      <h2>
+                        <AccordionButton px={2} py={3} _expanded={{ bg: 'gray.50' }}>
+                          <Flex flex="1" justify="space-between" align="center">
+                            <HStack>
+                              <Tag colorScheme={group.color as any} size="sm">{group.name.toUpperCase()}</Tag>
+                              <Text fontSize="sm" color="gray.600">{total} projects</Text>
+                            </HStack>
+                            <AccordionIcon />
+                          </Flex>
+                        </AccordionButton>
+                      </h2>
+                      <AccordionPanel pb={4}>
+                        <VStack align="stretch" spacing={2}>
+                          {group.stages.map((stage) => {
+                            const count = projects.filter((p: any) => p.current_stage === stage).length;
+                            return (
+                              <Flex key={stage} justify="space-between" align="center" p={2} border="1px solid" borderColor="gray.100" borderRadius="md" bg="white">
+                                <Text fontSize="sm" color="gray.700">{stage}</Text>
+                                <Badge colorScheme="green" borderRadius="full" px={2}>{count}</Badge>
+                              </Flex>
+                            );
+                          })}
+                        </VStack>
+                      </AccordionPanel>
+                    </AccordionItem>
+                  );
+                });
+              })()}
+            </Accordion>
+          </CardBody>
+        </Card>
 
         {/* Active Projects Table */}
         <Card bg={cardBg} shadow="sm" border="1px solid" borderColor="gray.100">

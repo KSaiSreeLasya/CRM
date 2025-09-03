@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ChakraProvider, Box, Center, Text } from '@chakra-ui/react';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Welcome from './pages/Welcome';
 import DashboardTG from './pages/DashboardTG';
 import DashboardAP from './pages/DashboardAP';
 import DashboardChitoor from './pages/DashboardChitoor';
@@ -19,6 +20,8 @@ import Admin from './pages/Admin';
 import StockWarehouse from './pages/StockWarehouse';
 import Logistics from './pages/Logistics';
 import Procurement from './pages/Procurement';
+import HR from './pages/HR';
+import ResetPassword from './pages/ResetPassword';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
 import { AuthProvider } from './context/AuthContext';
@@ -70,11 +73,12 @@ const App: React.FC = () => {
           <AuthProvider>
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route
                 path="/"
                 element={
                   <PrivateRoute>
-                    <Navigate to="/dashboard" replace />
+                    <Navigate to="/welcome" replace />
                   </PrivateRoute>
                 }
               />
@@ -85,6 +89,14 @@ const App: React.FC = () => {
                     <Layout>
                       <Dashboard />
                     </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/welcome"
+                element={
+                  <PrivateRoute>
+                    <Welcome />
                   </PrivateRoute>
                 }
               />
@@ -304,6 +316,16 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <Layout>
                       <Logistics />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/hr"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <HR />
                     </Layout>
                   </PrivateRoute>
                 }
