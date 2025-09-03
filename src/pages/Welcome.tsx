@@ -103,7 +103,7 @@ const Welcome: React.FC = () => {
     if (canAccess(key)) {
       navigate(path);
     } else {
-      onOpen();
+      onDeniedOpen();
     }
   };
 
