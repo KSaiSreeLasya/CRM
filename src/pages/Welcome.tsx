@@ -82,7 +82,11 @@ const Welcome: React.FC = () => {
               <Heading size="sm" mb={1} color="green.600">{t.label}</Heading>
               <Text fontSize="sm" color={titleColor} noOfLines={2}>{t.description}</Text>
               <Box mt={3}>
-                <LinkOverlay as={RouterLink} to={t.to} color="green.600">Open</LinkOverlay>
+                {t.label === 'Admin Settings' ? (
+                  <LinkOverlay as="button" onClick={handleAdminAccess} color="green.600">Open</LinkOverlay>
+                ) : (
+                  <LinkOverlay as={RouterLink} to={t.to} color="green.600">Open</LinkOverlay>
+                )}
               </Box>
             </LinkBox>
           ))}
