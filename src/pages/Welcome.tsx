@@ -41,7 +41,7 @@ const Welcome: React.FC = () => {
   };
 
   return (
-    <Box>
+    <Box px={{ base: 4, md: 6 }} py={{ base: 4, md: 6 }} maxW="1200px" mx="auto">
       <Flex mb={6} align="center" gap={4} wrap="wrap">
         <Image src="https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F5065c74f0a374ff4a36efc224f468f09?format=webp&width=800" alt="Axiso Green Energy Logo" h={{ base: '36px', md: '48px' }} w="auto" objectFit="contain" />
         <Box>
