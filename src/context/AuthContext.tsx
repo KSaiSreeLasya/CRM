@@ -42,6 +42,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [assignedRegions, setAssignedRegions] = useState<string[]>([]);
+  const [allowedModules, setAllowedModules] = useState<string[]>([]);
+  const [regionAccess, setRegionAccess] = useState<RegionAccessMap>({});
   const navigate = useNavigate();
   const toast = useToast();
 
