@@ -36,8 +36,7 @@ interface Tile {
 const tiles: Tile[] = [
   { label: 'Overall Dashboard', description: 'KPIs and performance overview', icon: '📊', to: '/dashboard' },
   { label: 'Projects', description: 'Track and manage all projects', icon: '📈', to: '/projects' },
-  { label: 'Operations', description: 'Stock, procurement and operations', icon: '🏭', to: '/stock' },
-  { label: 'Logistics', description: 'Logistics & supply chain flows', icon: '🚚', to: '/logistics' },
+ 
   { label: 'Finance', description: 'Billing, payments and receipts', icon: '💰', to: '/finance' },
   { label: 'Sales', description: 'Sales insights and reports', icon: '🧾', to: '/reports' },
   { label: 'HR', description: 'User access and team management', icon: '👥', to: '/hr' },
