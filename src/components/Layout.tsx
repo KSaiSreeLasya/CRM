@@ -257,30 +257,46 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </Text>
                 </Box>
               )}
-              <NavItem
-                icon="🏭"
-                label={isCollapsed ? '' : 'Stock Warehouse'}
-                to="/stock"
-                isActive={location.pathname === '/stock'}
-                onClick={onClose}
-                collapsed={isCollapsed}
-              />
-              <NavItem
-                icon="🚚"
-                label={isCollapsed ? '' : 'Logistics & Supply Chain'}
-                to="/logistics"
-                isActive={location.pathname === '/logistics' || location.pathname.startsWith('/logistics/')}
-                onClick={onClose}
-                collapsed={isCollapsed}
-              />
-              <NavItem
-                icon="🧾"
-                label={isCollapsed ? '' : 'Procurement'}
-                to="/procurement"
-                isActive={location.pathname === '/procurement'}
-                onClick={onClose}
-                collapsed={isCollapsed}
-              />
+              {(() => {
+                const p = location.pathname;
+                if (p === '/stock') {
+                  return (
+                    <NavItem
+                      icon="🏭"
+                      label={isCollapsed ? '' : 'Stock Warehouse'}
+                      to="/stock"
+                      isActive
+                      onClick={onClose}
+                      collapsed={isCollapsed}
+                    />
+                  );
+                }
+                if (p === '/procurement') {
+                  return (
+                    <NavItem
+                      icon="🧾"
+                      label={isCollapsed ? '' : 'Procurement'}
+                      to="/procurement"
+                      isActive
+                      onClick={onClose}
+                      collapsed={isCollapsed}
+                    />
+                  );
+                }
+                if (p === '/logistics' || p.startsWith('/logistics/')) {
+                  return (
+                    <NavItem
+                      icon="🚚"
+                      label={isCollapsed ? '' : 'Logistics & Supply Chain'}
+                      to="/logistics"
+                      isActive
+                      onClick={onClose}
+                      collapsed={isCollapsed}
+                    />
+                  );
+                }
+                return null;
+              })()}
             </>
           )}
 
