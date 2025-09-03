@@ -249,16 +249,30 @@ const AdminDashboard = () => {
         return;
       }
 
-      const assignmentData = {
+      const assignmentData: any = {
         assignee_email: newAssignment.assignee_email,
         assignee_name: newAssignment.assignee_name,
         assigned_states: newAssignment.assigned_states,
-        project_count: 0, // Initial count
+        project_count: 0,
       };
 
-      const { error } = await supabase
+      if (selectedModules.length > 0) assignmentData.module_access = selectedModules;
+      if (Object.keys(regionAccess).length > 0) assignmentData.region_access = regionAccess;
+
+      let { error } = await supabase
         .from('project_assignments')
         .insert([assignmentData]);
+
+      if (error && String((error as any).message || error).toLowerCase().includes('column')) {
+        const fallback = {
+          assignee_email: newAssignment.assignee_email,
+          assignee_name: newAssignment.assignee_name,
+          assigned_states: newAssignment.assigned_states,
+          project_count: 0,
+        };
+        const retry = await supabase.from('project_assignments').insert([fallback]);
+        error = retry.error as any;
+      }
 
       if (error) {
         console.error('Supabase error:', (error as any)?.message || error, error);
