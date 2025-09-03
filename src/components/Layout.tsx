@@ -22,10 +22,12 @@ import {
   useDisclosure,
   Tooltip,
   Input,
+  InputGroup,
+  InputRightElement,
 } from '@chakra-ui/react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ChevronDownIcon, DragHandleIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, DragHandleIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { supabase } from '../lib/supabase';
 import NavigationHeader from './NavigationHeader';
 
@@ -85,6 +87,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [newPassword, setNewPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const [changingPw, setChangingPw] = React.useState(false);
+  const [showPw1, setShowPw1] = React.useState(false);
+  const [showPw2, setShowPw2] = React.useState(false);
 
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
@@ -510,18 +514,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <VStack spacing={4} mt={10} align="stretch">
               <Text fontSize="lg" fontWeight="bold">Change Password</Text>
               <Text fontSize="sm" color="gray.600">Update your account password</Text>
-              <Input
-                type="password"
-                placeholder="New password"
-                value={newPassword}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value)}
-              />
-              <Input
-                type="password"
-                placeholder="Confirm new password"
-                value={confirmPassword}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
-              />
+              <InputGroup>
+                <Input
+                  type={showPw1 ? 'text' : 'password'}
+                  placeholder="New password"
+                  value={newPassword}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value)}
+                />
+                <InputRightElement width="3rem">
+                  <IconButton aria-label={showPw1 ? 'Hide password' : 'Show password'} icon={showPw1 ? <ViewOffIcon /> : <ViewIcon />} size="sm" variant="ghost" onClick={() => setShowPw1(v=>!v)} />
+                </InputRightElement>
+              </InputGroup>
+              <InputGroup>
+                <Input
+                  type={showPw2 ? 'text' : 'password'}
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
+                />
+                <InputRightElement width="3rem">
+                  <IconButton aria-label={showPw2 ? 'Hide password' : 'Show password'} icon={showPw2 ? <ViewOffIcon /> : <ViewIcon />} size="sm" variant="ghost" onClick={() => setShowPw2(v=>!v)} />
+                </InputRightElement>
+              </InputGroup>
               <Button colorScheme="green" onClick={handleChangePassword} isLoading={changingPw}>Save Password</Button>
             </VStack>
           </DrawerBody>

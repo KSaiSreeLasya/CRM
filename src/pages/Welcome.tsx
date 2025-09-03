@@ -47,10 +47,11 @@ const Welcome: React.FC = () => {
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const titleColor = useColorModeValue('gray.700', 'gray.200');
-  const { logout, user, isFinance, isAdmin } = useAuth();
+  const { logout, user, isFinance, isAdmin, allowedModules } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isDeniedOpen, onOpen: onDeniedOpen, onClose: onDeniedClose } = useDisclosure();
 
   const operationsModules: Tile[] = [
     { label: 'Stock Warehouse', description: 'Inventory and stock management', icon: '🏭', to: '/stock' },
@@ -69,12 +70,34 @@ const Welcome: React.FC = () => {
     }
   };
 
+  const canAccess = (key: string) => isAdmin || (Array.isArray(allowedModules) && allowedModules.includes(key));
+
   const handleAdminAccess = () => {
     if (isAdmin) {
       navigate('/admin');
     } else {
       onOpen();
     }
+  };
+
+  const getKeyFromPath = (path: string) => {
+    if (path.startsWith('/dashboard')) return 'dashboard';
+    if (path.startsWith('/projects')) return 'projects';
+    if (path.startsWith('/reports')) return 'sales';
+    if (path.startsWith('/service-tickets')) return 'serviceTickets';
+    if (path.startsWith('/finance') || path.startsWith('/payments')) return 'finance';
+    if (path.startsWith('/hr')) return 'hr';
+    if (path.startsWith('/stock') || path.startsWith('/procurement') || path.startsWith('/logistics')) return 'operations';
+    return 'other';
+  };
+
+  const handleOpenPath = (path: string) => {
+    const key = getKeyFromPath(path);
+    if (key === 'hr') {
+      handleHRAccess();
+      return;
+    }
+    navigate(path);
   };
 
   const handleHRAccess = async () => {
@@ -130,10 +153,8 @@ const Welcome: React.FC = () => {
               <Box mt={3}>
                 {t.label === 'Admin Settings' ? (
                   <LinkOverlay as="button" onClick={handleAdminAccess} color="green.600">Open</LinkOverlay>
-                ) : t.label === 'HR' ? (
-                  <LinkOverlay as="button" onClick={handleHRAccess} color="green.600">Open</LinkOverlay>
                 ) : (
-                  <LinkOverlay as={RouterLink} to={t.to} color="green.600">Open</LinkOverlay>
+                  <LinkOverlay as="button" onClick={() => handleOpenPath(t.to)} color="green.600">Open</LinkOverlay>
                 )}
               </Box>
             </LinkBox>
@@ -163,10 +184,8 @@ const Welcome: React.FC = () => {
             <Box mt={3}>
               {t.label === 'Admin Settings' ? (
                 <LinkOverlay as="button" onClick={handleAdminAccess} color="green.600">Open</LinkOverlay>
-              ) : t.label === 'HR' ? (
-                <LinkOverlay as="button" onClick={handleHRAccess} color="green.600">Open</LinkOverlay>
               ) : (
-                <LinkOverlay as={RouterLink} to={t.to} color="green.600">Open</LinkOverlay>
+                <LinkOverlay as="button" onClick={() => handleOpenPath(t.to)} color="green.600">Open</LinkOverlay>
               )}
             </Box>
           </LinkBox>
@@ -175,6 +194,8 @@ const Welcome: React.FC = () => {
 
       <Divider my={8} />
 
+      {true && (
+        <>
       <Heading size={{ base: 'sm', md: 'md' }} color="green.600" mb={3}>Operations Modules</Heading>
       <Text color={titleColor} mb={4}>Jump directly into operations workflows</Text>
 
@@ -186,7 +207,7 @@ const Welcome: React.FC = () => {
               <Heading size="sm" mb={1} color="green.600">{m.label}</Heading>
               <Text fontSize="sm" color={titleColor} noOfLines={2}>{m.description}</Text>
               <Box mt={3}>
-                <LinkOverlay as={RouterLink} to={m.to} color="green.600">Open</LinkOverlay>
+                <LinkOverlay as="button" onClick={() => handleOpenPath(m.to)} color="green.600">Open</LinkOverlay>
               </Box>
             </LinkBox>
           ))}
@@ -200,11 +221,27 @@ const Welcome: React.FC = () => {
             <Heading size="sm" mb={1} color="green.600">{m.label}</Heading>
             <Text fontSize="sm" color={titleColor}>{m.description}</Text>
             <Box mt={3}>
-              <LinkOverlay as={RouterLink} to={m.to} color="green.600">Open</LinkOverlay>
+              <LinkOverlay as="button" onClick={() => handleOpenPath(m.to)} color="green.600">Open</LinkOverlay>
             </Box>
           </LinkBox>
         ))}
       </SimpleGrid>
+        </>
+      )}
+
+      {/* No Access Modal */}
+      <Modal isOpen={isDeniedOpen} onClose={onDeniedClose} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>No access</ModalHeader>
+          <ModalBody>
+            <Text color={titleColor}>You don't have permission to view this module.</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="green" onClick={onDeniedClose}>Back</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
       {/* Admin Access Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
