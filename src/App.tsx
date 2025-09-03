@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ChakraProvider, Box, Center, Text } from '@chakra-ui/react';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Welcome from './pages/Welcome';
 import DashboardTG from './pages/DashboardTG';
 import DashboardAP from './pages/DashboardAP';
 import DashboardChitoor from './pages/DashboardChitoor';
@@ -74,7 +75,7 @@ const App: React.FC = () => {
                 path="/"
                 element={
                   <PrivateRoute>
-                    <Navigate to="/dashboard" replace />
+                    <Navigate to="/welcome" replace />
                   </PrivateRoute>
                 }
               />
@@ -84,6 +85,16 @@ const App: React.FC = () => {
                   <PrivateRoute>
                     <Layout>
                       <Dashboard />
+                    </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/welcome"
+                element={
+                  <PrivateRoute>
+                    <Layout>
+                      <Welcome />
                     </Layout>
                   </PrivateRoute>
                 }
