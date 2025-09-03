@@ -177,7 +177,7 @@ const Welcome: React.FC = () => {
 
       <Divider my={8} />
 
-      {canAccess('operations') && (
+      {true && (
         <>
       <Heading size={{ base: 'sm', md: 'md' }} color="green.600" mb={3}>Operations Modules</Heading>
       <Text color={titleColor} mb={4}>Jump directly into operations workflows</Text>
