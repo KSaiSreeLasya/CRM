@@ -119,6 +119,8 @@ const AdminDashboard = () => {
     assignee_name: '',
     assigned_states: [] as string[],
   });
+  const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [regionAccess, setRegionAccess] = useState<{ [state: string]: 'view' | 'edit' | 'admin' }>({});
   const [loading, setLoading] = useState(false);
   const [newUser, setNewUser] = useState({ email: '', password: '', role: 'user' });
 
