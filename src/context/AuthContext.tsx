@@ -150,7 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Fetch assigned regions and permissions (defaults allow all modules when not configured)
       const { regions, modules, regionMap } = await fetchUserAccess(sessionEmail);
       setAssignedRegions(regions);
-      setAllowedModules(Array.isArray(modules) ? modules : []);
+      setAllowedModules(Array.isArray(modules) && modules.length > 0 ? modules : ALL_MODULES);
       setRegionAccess(regionMap || {});
 
       setUser(session.user);
