@@ -53,18 +53,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await supabase
         .from('project_assignments')
         .select('assigned_states, module_access, region_access')
-        .eq('assignee_email', userEmail)
-        .single();
+        .eq('assignee_email', userEmail);
 
       if (error) {
-        console.warn('No assignments found for user:', userEmail);
+        console.warn('Assignments fetch error for user:', userEmail, error);
         return { regions: [], modules: [], regionMap: {} };
       }
 
-      const regions = (data as any)?.assigned_states || [];
-      const modules = (data as any)?.module_access || [];
-      const regionMap = (data as any)?.region_access || {};
-      return { regions, modules, regionMap };
+      const rows: any[] = Array.isArray(data) ? (data as any[]) : (data ? [data] : []);
+      if (rows.length === 0) {
+        return { regions: [], modules: [], regionMap: {} };
+      }
+
+      const regionSet = new Set<string>();
+      const moduleSet = new Set<string>();
+      const regionMap: RegionAccessMap = {};
+
+      const rank: Record<'view'|'edit'|'admin', number> = { view: 1, edit: 2, admin: 3 };
+
+      for (const row of rows) {
+        const rStates: string[] = Array.isArray(row?.assigned_states) ? row.assigned_states : [];
+        rStates.forEach((s) => s && regionSet.add(s));
+
+        const mAccess: string[] = Array.isArray(row?.module_access) ? row.module_access : [];
+        mAccess.forEach((m) => m && moduleSet.add(m));
+
+        const rAccess = row?.region_access && typeof row.region_access === 'object' ? row.region_access as RegionAccessMap : {};
+        for (const [state, level] of Object.entries(rAccess)) {
+          const existing = regionMap[state as keyof RegionAccessMap];
+          if (!existing || rank[level as 'view'|'edit'|'admin'] > rank[existing]) {
+            regionMap[state] = level as 'view'|'edit'|'admin';
+          }
+        }
+      }
+
+      return { regions: Array.from(regionSet), modules: Array.from(moduleSet), regionMap };
     } catch (error) {
       console.error('Error fetching user access:', error);
       return { regions: [], modules: [], regionMap: {} };
