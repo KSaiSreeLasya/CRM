@@ -197,6 +197,8 @@ const Welcome: React.FC = () => {
 
       <Divider my={8} />
 
+      {canAccess('operations') && (
+        <>
       <Heading size={{ base: 'sm', md: 'md' }} color="green.600" mb={3}>Operations Modules</Heading>
       <Text color={titleColor} mb={4}>Jump directly into operations workflows</Text>
 
@@ -227,6 +229,8 @@ const Welcome: React.FC = () => {
           </LinkBox>
         ))}
       </SimpleGrid>
+        </>
+      )}
 
       {/* Admin Access Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
