@@ -110,7 +110,17 @@ const Welcome: React.FC = () => {
       <Text fontSize="xs" color={titleColor} mb={2} display={{ base: 'block', lg: 'none' }}>Swipe to explore modules →</Text>
       <Box display={{ base: 'block', lg: 'none' }} overflowX="auto" pb={2} className="mobile-tiles-scroll" sx={{ scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}>
         <Flex gap={4} minW="max-content" pr={2}>
-          {tiles.map((t) => (
+          {tiles.filter((t)=>{
+            const key = t.label === 'Overall Dashboard' ? 'dashboard'
+              : t.label === 'Projects' ? 'projects'
+              : t.label === 'Reports' ? 'sales'
+              : t.label === 'Service Tickets' ? 'serviceTickets'
+              : t.label === 'Finance' ? 'finance'
+              : t.label === 'HR' ? 'hr'
+              : t.label === 'Admin Settings' ? 'admin' : 'other';
+            if (key === 'admin') return true;
+            return canAccess(key);
+          }).map((t) => (
             <LinkBox
               key={t.label}
               as="article"
