@@ -22,10 +22,8 @@ const HR: React.FC = () => {
         options: { emailRedirectTo: `${window.location.origin}/reset-password` }
       });
       if (error) throw error;
-      if (data?.user?.id) {
-        await supabase.from('users').upsert({ id: data.user.id, email: inviteEmail, role: inviteRole });
-      }
-      toast({ title: 'Invitation sent', description: 'A sign-up link was emailed to the user.', status: 'success', duration: 5000, isClosable: true });
+      // public.users will be synced by DB trigger after signup/verification
+      toast({ title: 'Invitation sent', description: 'A verification email was sent. User appears after signup/verification.', status: 'success', duration: 5000, isClosable: true });
       setInviteEmail('');
       setInvitePassword('');
       setInviteRole('user');
