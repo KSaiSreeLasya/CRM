@@ -132,11 +132,8 @@ const AdminDashboard = () => {
       const { data, error } = await supabase.auth.signUp({ email: newUser.email, password: newUser.password, options: { emailRedirectTo: `${window.location.origin}/reset-password` } });
       if (error) throw error;
 
-      if (data?.user?.id) {
-        await supabase.from('users').upsert({ id: data.user.id, email: newUser.email, role: newUser.role || 'user' });
-      }
-
-      toast({ title: 'Invitation sent', description: 'If email confirmations are enabled, the user must verify their email.', status: 'success', duration: 6000, isClosable: true });
+      // User record will be synced to public.users by DB trigger after signup/verification
+      toast({ title: 'Invitation sent', description: 'A verification email has been sent. The user will appear after signup/verification.', status: 'success', duration: 6000, isClosable: true });
       setNewUser({ email: '', password: '', role: 'user' });
       onUserClose();
     } catch (e: any) {
