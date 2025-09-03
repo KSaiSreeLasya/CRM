@@ -286,6 +286,38 @@ const DashboardChitoor = () => {
 
         <Card bg={cardBg} shadow="sm" border="1px solid" borderColor="gray.100">
           <CardHeader>
+            <Heading size="md" color="gray.800">Project Status Pipeline (Chitoor)</Heading>
+            <Text fontSize="sm" color="gray.600" mt={1}>Grouped by Chitoor statuses</Text>
+          </CardHeader>
+          <CardBody pt={0}>
+            <Accordion allowToggle>
+              {CHITOOR_PROJECT_STAGES.map((status) => {
+                const total = statusCounts[status] || 0;
+                return (
+                  <AccordionItem key={status} border="none">
+                    <h2>
+                      <AccordionButton px={2} py={3} _expanded={{ bg: 'gray.50' }}>
+                        <Flex flex="1" justify="space-between" align="center">
+                          <HStack>
+                            <Tag size="sm">{status.toUpperCase()}</Tag>
+                            <Text fontSize="sm" color="gray.600">{total} projects</Text>
+                          </HStack>
+                          <AccordionIcon />
+                        </Flex>
+                      </AccordionButton>
+                    </h2>
+                    <AccordionPanel pb={4}>
+                      <Text fontSize="sm" color="gray.600">{status}</Text>
+                    </AccordionPanel>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
+          </CardBody>
+        </Card>
+
+        <Card bg={cardBg} shadow="sm" border="1px solid" borderColor="gray.100">
+          <CardHeader>
             <Flex justify="space-between" align="center">
               <Box>
                 <Heading size="md" color="gray.800">Active Projects (Chitoor)</Heading>
