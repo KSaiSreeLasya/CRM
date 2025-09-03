@@ -262,6 +262,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsEditor(false);
       setUser(null);
       setAssignedRegions([]);
+      setAllowedModules([]);
+      setRegionAccess({});
 
       // Try to sign out from Supabase, but don't fail if session is missing
       try {
