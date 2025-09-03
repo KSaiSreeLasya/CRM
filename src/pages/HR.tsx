@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import React, { useState } from 'react';
 import { Box, Heading, Text, Tabs, TabList, TabPanels, Tab, TabPanel, FormControl, FormLabel, Input, Select, Button, Table, Thead, Tr, Th, Tbody, Td, useToast, SimpleGrid, Card, CardHeader, CardBody } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 
