@@ -103,6 +103,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       setIsAdmin(adminFlag);
 
+      // Ensure a row exists in public.users for management views
+      try {
+        await supabase.from('users').upsert({ id: session.user.id, email: sessionEmail });
+      } catch {}
+
       // Fetch assigned regions for the user
       const regions = await fetchUserAssignedRegions(sessionEmail);
       setAssignedRegions(regions);
@@ -198,6 +203,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.warn('User role lookup failed; defaulting to non-admin.', (userError as any)?.message || userError);
         }
         setIsAdmin(adminFlag);
+
+        // Ensure a row exists in public.users for management views (will not override role here)
+        try {
+          await supabase.from('users').upsert({ id: data.user.id, email: normalizedEmail });
+        } catch {}
 
         // Fetch assigned regions for the user
         const regions = await fetchUserAssignedRegions(normalizedEmail);
