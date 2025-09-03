@@ -261,7 +261,7 @@ const AdminDashboard = () => {
 
       let { error } = await supabase
         .from('project_assignments')
-        .insert([assignmentData]);
+        .upsert([assignmentData], { onConflict: 'assignee_email' });
 
       if (error && String((error as any).message || error).toLowerCase().includes('column')) {
         const fallback = {
@@ -270,7 +270,9 @@ const AdminDashboard = () => {
           assigned_states: newAssignment.assigned_states,
           project_count: 0,
         };
-        const retry = await supabase.from('project_assignments').insert([fallback]);
+        const retry = await supabase
+          .from('project_assignments')
+          .upsert([fallback], { onConflict: 'assignee_email' });
         error = retry.error as any;
       }
 
