@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Heading, Text, SimpleGrid, Flex, LinkBox, LinkOverlay, useColorModeValue, Button, useToast } from '@chakra-ui/react';
+import { Box, Heading, Text, SimpleGrid, Flex, LinkBox, LinkOverlay, useColorModeValue, Button, useToast, Image, Avatar, HStack, Spacer } from '@chakra-ui/react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 interface Tile {
