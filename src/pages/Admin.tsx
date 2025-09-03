@@ -133,7 +133,7 @@ const AdminDashboard = () => {
       if (error) throw error;
 
       if (data?.user?.id) {
-        await supabase.from('users').upsert({ id: data.user.id, role: newUser.role || 'user' });
+        await supabase.from('users').upsert({ id: data.user.id, email: newUser.email, role: newUser.role || 'user' });
       }
 
       toast({ title: 'Invitation sent', description: 'If email confirmations are enabled, the user must verify their email.', status: 'success', duration: 6000, isClosable: true });
@@ -488,6 +488,15 @@ const AdminDashboard = () => {
               borderRadius="lg"
             >
               Add New User
+            </Button>
+            <Button
+              colorScheme="purple"
+              variant="ghost"
+              size="lg"
+              borderRadius="lg"
+              onClick={() => window.location.assign('/admin/users')}
+            >
+              Manage Users
             </Button>
           </HStack>
         </Flex>
