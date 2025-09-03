@@ -34,6 +34,18 @@ const Login = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const { login, isAuthenticated, isLoading } = useAuth();
+  const handleForgot = async () => {
+    if (!email) {
+      toast({ title: 'Enter your email first', status: 'warning', duration: 3000, isClosable: true });
+      return;
+    }
+    try {
+      await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+      toast({ title: 'Reset email sent', description: 'Check your inbox for a password reset link', status: 'success', duration: 5000, isClosable: true });
+    } catch (e: any) {
+      toast({ title: 'Failed to send reset email', description: e?.message || String(e), status: 'error', duration: 5000, isClosable: true });
+    }
+  };
 
   const bgColor = useColorModeValue('gray.50', 'gray.900');
   const cardBg = useColorModeValue('white', 'gray.800');
@@ -186,6 +198,9 @@ const Login = () => {
                     </Button>
                   </InputGroup>
                 </FormControl>
+                <HStack justify="flex-end">
+                  <Button variant="link" size="sm" colorScheme="green" onClick={handleForgot}>Forgot password?</Button>
+                </HStack>
                 </Stack>
                 <Stack spacing="6">
                   <Button
