@@ -170,6 +170,7 @@ const AdminDashboard = () => {
     { key: 'finance', label: 'Finance' },
     { key: 'sales', label: 'Sales/Reports' },
     { key: 'operations', label: 'Operations (Stock, Procurement, Logistics, Modules)' },
+    { key: 'serviceTickets', label: 'Service Tickets' },
     { key: 'hr', label: 'HR' },
   ];
 
