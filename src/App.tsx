@@ -108,9 +108,11 @@ const App: React.FC = () => {
                 path="/dashboard/tg"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Telangana'] }, React.createElement(DashboardTG))}
-                    </Layout>
+                    <ModuleGuard moduleKey="dashboard">
+                      <Layout>
+                        {React.createElement(require('./components/RegionGuard').default, { allowed: ['Telangana'] }, React.createElement(DashboardTG))}
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
