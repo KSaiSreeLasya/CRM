@@ -31,6 +31,12 @@ import {
   SimpleGrid,
   useColorModeValue,
   Circle,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Tag,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 import { Link as RouterLink } from 'react-router-dom';
