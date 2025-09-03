@@ -23,7 +23,7 @@ import {
 } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { EmailIcon, LockIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { EmailIcon, LockIcon, ViewIcon, ViewOffIcon, ArrowBackIcon } from '@chakra-ui/icons';
 // No react-icons imports needed
 import { supabase } from '../lib/supabase';
 
