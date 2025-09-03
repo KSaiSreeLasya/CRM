@@ -224,9 +224,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await supabase.from('users').upsert({ id: data.user.id, email: normalizedEmail });
         } catch {}
 
-        // Fetch assigned regions for the user
-        const regions = await fetchUserAssignedRegions(normalizedEmail);
+        // Fetch assigned regions and permissions
+        const { regions, modules, regionMap } = await fetchUserAccess(normalizedEmail);
         setAssignedRegions(regions);
+        setAllowedModules(Array.isArray(modules) && modules.length > 0 ? modules : ['dashboard','projects','finance','sales','operations','hr']);
+        setRegionAccess(regionMap || {});
 
         toast({
           title: 'Login successful',
