@@ -255,7 +255,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Fetch assigned regions and permissions
         const { regions, modules, regionMap } = await fetchUserAccess(normalizedEmail);
         setAssignedRegions(regions);
-        setAllowedModules(Array.isArray(modules) ? modules : []);
+        setAllowedModules(Array.isArray(modules) && modules.length > 0 ? modules : ALL_MODULES);
         setRegionAccess(regionMap || {});
 
         toast({
