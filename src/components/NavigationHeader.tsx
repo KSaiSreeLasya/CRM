@@ -80,7 +80,8 @@ const NavigationHeader = () => {
       shadow="sm"
     >
       <Flex justify="space-between" align="center">
-        <HStack spacing={1}>
+        <HStack spacing={3}>
+          <Button as={RouterLink} to="/welcome" variant="outline" size="sm">← Back</Button>
           {navigationItems.map((item) => {
             if (item.label === 'Reports') {
               const active = location.pathname.startsWith('/reports');
