@@ -26,7 +26,7 @@ const Welcome: React.FC = () => {
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const titleColor = useColorModeValue('gray.700', 'gray.200');
-  const { logout } = useAuth();
+  const { logout, user, isFinance } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
 
