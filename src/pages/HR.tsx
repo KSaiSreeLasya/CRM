@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 const HR: React.FC = () => {
   const [inviteEmail, setInviteEmail] = useState('');
   const [invitePassword, setInvitePassword] = useState('');
-  const [inviteRole, setInviteRole] = useState('standard');
+  const [inviteRole, setInviteRole] = useState('user');
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
@@ -23,12 +23,12 @@ const HR: React.FC = () => {
       });
       if (error) throw error;
       if (data?.user?.id) {
-        await supabase.from('users').upsert({ id: data.user.id, role: inviteRole });
+        await supabase.from('users').upsert({ id: data.user.id, email: inviteEmail, role: inviteRole });
       }
       toast({ title: 'Invitation sent', description: 'A sign-up link was emailed to the user.', status: 'success', duration: 5000, isClosable: true });
       setInviteEmail('');
       setInvitePassword('');
-      setInviteRole('standard');
+      setInviteRole('user');
     } catch (e: any) {
       toast({ title: 'Failed to send invite', description: e?.message || String(e), status: 'error', duration: 6000, isClosable: true });
     } finally {
@@ -56,7 +56,7 @@ const HR: React.FC = () => {
             <FormControl mb={4}>
               <FormLabel>Role</FormLabel>
               <Select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}>
-                <option value="standard">Standard</option>
+                <option value="user">User</option>
                 <option value="finance">Finance</option>
                 <option value="admin">Admin</option>
               </Select>
@@ -92,7 +92,7 @@ const HR: React.FC = () => {
                 <Tr>
                   <Td>demo@company.com</Td>
                   <Td>Standard</Td>
-                  <Td><Button size="xs">View</Button></Td>
+                  <Td><Button size="xs" onClick={() => window.location.assign('/hr/users')}>Manage Users</Button></Td>
                 </Tr>
               </Tbody>
             </Table>
