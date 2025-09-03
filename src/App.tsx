@@ -93,9 +93,7 @@ const App: React.FC = () => {
                 path="/welcome"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <Welcome />
-                    </Layout>
+                    <Welcome />
                   </PrivateRoute>
                 }
               />
