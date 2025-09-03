@@ -121,9 +121,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await supabase.from('users').upsert({ id: session.user.id, email: sessionEmail });
       } catch {}
 
-      // Fetch assigned regions for the user
-      const regions = await fetchUserAssignedRegions(sessionEmail);
+      // Fetch assigned regions and permissions (defaults allow all modules when not configured)
+      const { regions, modules, regionMap } = await fetchUserAccess(sessionEmail);
       setAssignedRegions(regions);
+      setAllowedModules(Array.isArray(modules) && modules.length > 0 ? modules : ['dashboard','projects','finance','sales','operations','hr']);
+      setRegionAccess(regionMap || {});
 
       setUser(session.user);
       setIsAuthenticated(true);
