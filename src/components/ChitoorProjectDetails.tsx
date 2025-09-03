@@ -429,12 +429,12 @@ const ChitoorProjectDetails = () => {
             </Box>
           </HStack>
           <HStack spacing={2}>
-            <Button leftIcon={<EditIcon />} variant="outline" onClick={onCustomerEditOpen}>
-              Edit Customer
-            </Button>
-            <Button leftIcon={<EditIcon />} variant="outline" onClick={onEditOpen}>
-              Edit Project
-            </Button>
+            <Tooltip label="Edit customer" hasArrow>
+              <IconButton aria-label="Edit customer" icon={<EditIcon />} variant="ghost" onClick={onCustomerEditOpen} />
+            </Tooltip>
+            <Tooltip label="Edit project" hasArrow>
+              <IconButton aria-label="Edit project" icon={<EditIcon />} variant="ghost" onClick={onEditOpen} />
+            </Tooltip>
             <Button leftIcon={<CalendarIcon />} colorScheme="blue" onClick={onPaymentOpen}>
               Add Payment
             </Button>
@@ -450,15 +450,9 @@ const ChitoorProjectDetails = () => {
                 <Text fontSize="lg" fontWeight="semibold" color="gray.700">
                   Customer Details
                 </Text>
-                <Button
-                  leftIcon={<EditIcon />}
-                  colorScheme="blue"
-                  variant="outline"
-                  size="sm"
-                  onClick={onCustomerEditOpen}
-                >
-                  Edit
-                </Button>
+                <Tooltip label="Edit customer" hasArrow>
+                  <IconButton aria-label="Edit customer" icon={<EditIcon />} variant="ghost" size="sm" onClick={onCustomerEditOpen} />
+                </Tooltip>
               </Flex>
             </CardHeader>
             <CardBody>
@@ -481,15 +475,9 @@ const ChitoorProjectDetails = () => {
                 <Text fontSize="lg" fontWeight="semibold" color="gray.700">
                   Project Details
                 </Text>
-                <Button
-                  leftIcon={<EditIcon />}
-                  colorScheme="blue"
-                  variant="outline"
-                  size="sm"
-                  onClick={onEditOpen}
-                >
-                  Edit
-                </Button>
+                <Tooltip label="Edit project" hasArrow>
+                  <IconButton aria-label="Edit project" icon={<EditIcon />} variant="ghost" size="sm" onClick={onEditOpen} />
+                </Tooltip>
               </Flex>
             </CardHeader>
             <CardBody>

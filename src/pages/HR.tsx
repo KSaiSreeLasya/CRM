@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Box, Heading, Text, Tabs, TabList, TabPanels, Tab, TabPanel, FormControl, FormLabel, Input, Select, Button, Table, Thead, Tr, Th, Tbody, Td, useToast, SimpleGrid, Card, CardHeader, CardBody } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
+import UsersManagement from './UsersManagement';
 
 const HR: React.FC = () => {
   const [inviteEmail, setInviteEmail] = useState('');
   const [invitePassword, setInvitePassword] = useState('');
-  const [inviteRole, setInviteRole] = useState('standard');
+  const [inviteRole, setInviteRole] = useState('user');
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
@@ -22,13 +23,11 @@ const HR: React.FC = () => {
         options: { emailRedirectTo: `${window.location.origin}/reset-password` }
       });
       if (error) throw error;
-      if (data?.user?.id) {
-        await supabase.from('users').upsert({ id: data.user.id, role: inviteRole });
-      }
-      toast({ title: 'Invitation sent', description: 'A sign-up link was emailed to the user.', status: 'success', duration: 5000, isClosable: true });
+      // public.users will be synced by DB trigger after signup/verification
+      toast({ title: 'Invitation sent', description: 'A verification email was sent. User appears after signup/verification.', status: 'success', duration: 5000, isClosable: true });
       setInviteEmail('');
       setInvitePassword('');
-      setInviteRole('standard');
+      setInviteRole('user');
     } catch (e: any) {
       toast({ title: 'Failed to send invite', description: e?.message || String(e), status: 'error', duration: 6000, isClosable: true });
     } finally {
@@ -56,7 +55,7 @@ const HR: React.FC = () => {
             <FormControl mb={4}>
               <FormLabel>Role</FormLabel>
               <Select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}>
-                <option value="standard">Standard</option>
+                <option value="user">User</option>
                 <option value="finance">Finance</option>
                 <option value="admin">Admin</option>
               </Select>
@@ -80,22 +79,7 @@ const HR: React.FC = () => {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <Table size="sm">
-              <Thead>
-                <Tr>
-                  <Th>Email</Th>
-                  <Th>Role</Th>
-                  <Th>Actions</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                <Tr>
-                  <Td>demo@company.com</Td>
-                  <Td>Standard</Td>
-                  <Td><Button size="xs">View</Button></Td>
-                </Tr>
-              </Tbody>
-            </Table>
+            <UsersManagement />
           </TabPanel>
           <TabPanel>
             <Text fontSize="sm" color="gray.600">Roles define permissions for each module. Admin manages global settings, Finance manages payments, Standard accesses projects.</Text>

@@ -21,9 +21,9 @@ import {
   Icon,
   Image,
 } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { EmailIcon, LockIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { EmailIcon, LockIcon, ViewIcon, ViewOffIcon, ArrowBackIcon } from '@chakra-ui/icons';
 // No react-icons imports needed
 import { supabase } from '../lib/supabase';
 
@@ -33,8 +33,9 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
-  const { login, isAuthenticated, isLoading } = useAuth();
+  const { login, isAuthenticated, isLoading, user } = useAuth();
   const handleForgot = async () => {
     if (!email) {
       toast({ title: 'Enter your email first', status: 'warning', duration: 3000, isClosable: true });
@@ -53,10 +54,21 @@ const Login = () => {
   const borderColor = useColorModeValue('gray.200', 'gray.600');
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!isAuthenticated) return;
+    const fromHR = (location.state as any)?.fromHR;
+    if (user?.email?.toLowerCase() === 'yellesh@axisogreen.in') {
+      navigate('/hr', { replace: true });
+    } else if (!fromHR) {
       navigate('/welcome', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, location.state, navigate]);
+
+  useEffect(() => {
+    const fromHR = (location.state as any)?.fromHR;
+    if (fromHR) {
+      setEmail('yellesh@axisogreen.in');
+    }
+  }, [location.state]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +78,12 @@ const Login = () => {
 
     try {
       await login(email, password);
+      const normalizedEmail = email.trim().toLowerCase();
+      if (normalizedEmail === 'yellesh@axisogreen.in') {
+        navigate('/hr', { replace: true });
+      } else {
+        navigate('/welcome', { replace: true });
+      }
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
@@ -121,6 +139,17 @@ const Login = () => {
               </Text>
             </Stack>
           </Stack>
+          <HStack justify="flex-start">
+            <Button leftIcon={<ArrowBackIcon />} variant="outline" colorScheme="green" size="sm" onClick={() => {
+              if (isAuthenticated) {
+                navigate('/welcome');
+              } else {
+                navigate(-1);
+              }
+            }}>
+              Back
+            </Button>
+          </HStack>
           <Box
             py={{ base: '8', sm: '12' }}
             px={{ base: '4', sm: '10' }}
@@ -224,6 +253,26 @@ const Login = () => {
                 >
                   Sign In
                 </Button>
+                {(location.state as any)?.fromHR && (
+                  <Button
+                    variant="outline"
+                    colorScheme="green"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        setLoading(true);
+                        await login('yellesh@axisogreen.in','yellesh@2024');
+                        navigate('/hr', { replace: true });
+                      } catch (e: any) {
+                        toast({ title: 'HR login failed', description: e?.message || String(e), status: 'error', duration: 5000, isClosable: true });
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                  >
+                    Quick HR Login
+                  </Button>
+                )}
                 <HStack justify="center">
                   <Text fontSize="sm" color="gray.600">
                     Powered by renewable energy solutions

@@ -119,6 +119,8 @@ const AdminDashboard = () => {
     assignee_name: '',
     assigned_states: [] as string[],
   });
+  const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [regionAccess, setRegionAccess] = useState<{ [state: string]: 'view' | 'edit' | 'admin' }>({});
   const [loading, setLoading] = useState(false);
   const [newUser, setNewUser] = useState({ email: '', password: '', role: 'user' });
 
@@ -132,12 +134,9 @@ const AdminDashboard = () => {
       const { data, error } = await supabase.auth.signUp({ email: newUser.email, password: newUser.password, options: { emailRedirectTo: `${window.location.origin}/reset-password` } });
       if (error) throw error;
 
-      if (data?.user?.id) {
-        await supabase.from('users').upsert({ id: data.user.id, role: newUser.role || 'user' });
-      }
-
-      toast({ title: 'Invitation sent', description: 'If email confirmations are enabled, the user must verify their email.', status: 'success', duration: 6000, isClosable: true });
-      setNewUser({ email: '', password: '' });
+      // User record will be synced to public.users by DB trigger after signup/verification
+      toast({ title: 'Invitation sent', description: 'A verification email has been sent. The user will appear after signup/verification.', status: 'success', duration: 6000, isClosable: true });
+      setNewUser({ email: '', password: '', role: 'user' });
       onUserClose();
     } catch (e: any) {
       toast({ title: 'Failed to create user', description: e?.message || String(e), status: 'error', duration: 6000, isClosable: true });
@@ -165,6 +164,15 @@ const AdminDashboard = () => {
   ];
 
   const availableStates = ['Telangana', 'Andhra Pradesh', 'Chitoor'];
+  const availableModules = [
+    { key: 'dashboard', label: 'Dashboard' },
+    { key: 'projects', label: 'Projects' },
+    { key: 'finance', label: 'Finance' },
+    { key: 'sales', label: 'Sales/Reports' },
+    { key: 'operations', label: 'Operations (Stock, Procurement, Logistics, Modules)' },
+    { key: 'serviceTickets', label: 'Service Tickets' },
+    { key: 'hr', label: 'HR' },
+  ];
 
   const fetchAssignments = useCallback(async () => {
     try {
@@ -242,16 +250,32 @@ const AdminDashboard = () => {
         return;
       }
 
-      const assignmentData = {
+      const assignmentData: any = {
         assignee_email: newAssignment.assignee_email,
         assignee_name: newAssignment.assignee_name,
         assigned_states: newAssignment.assigned_states,
-        project_count: 0, // Initial count
+        project_count: 0,
       };
 
-      const { error } = await supabase
+      if (selectedModules.length > 0) assignmentData.module_access = selectedModules;
+      if (Object.keys(regionAccess).length > 0) assignmentData.region_access = regionAccess;
+
+      let { error } = await supabase
         .from('project_assignments')
-        .insert([assignmentData]);
+        .upsert([assignmentData], { onConflict: 'assignee_email' });
+
+      if (error && String((error as any).message || error).toLowerCase().includes('column')) {
+        const fallback = {
+          assignee_email: newAssignment.assignee_email,
+          assignee_name: newAssignment.assignee_name,
+          assigned_states: newAssignment.assigned_states,
+          project_count: 0,
+        };
+        const retry = await supabase
+          .from('project_assignments')
+          .upsert([fallback], { onConflict: 'assignee_email' });
+        error = retry.error as any;
+      }
 
       if (error) {
         console.error('Supabase error:', (error as any)?.message || error, error);
@@ -279,6 +303,8 @@ const AdminDashboard = () => {
         assignee_name: '',
         assigned_states: [],
       });
+      setSelectedModules([]);
+      setRegionAccess({});
       fetchAssignments();
     } catch (error) {
       console.error('Error creating assignment:', error);
@@ -489,6 +515,15 @@ const AdminDashboard = () => {
             >
               Add New User
             </Button>
+            <Button
+              colorScheme="purple"
+              variant="ghost"
+              size="lg"
+              borderRadius="lg"
+              onClick={() => window.location.assign('/admin/users')}
+            >
+              Manage Users
+            </Button>
           </HStack>
         </Flex>
 
@@ -634,8 +669,8 @@ const AdminDashboard = () => {
 
               <FormControl isRequired>
                 <FormLabel fontSize="sm" fontWeight="medium">Assigned States</FormLabel>
-                <CheckboxGroup 
-                  value={newAssignment.assigned_states} 
+                <CheckboxGroup
+                  value={newAssignment.assigned_states}
                   onChange={handleStatesChange}
                 >
                   <Stack spacing={2}>
@@ -651,11 +686,43 @@ const AdminDashboard = () => {
                 </Text>
               </FormControl>
 
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="medium">Module Access</FormLabel>
+                <CheckboxGroup value={selectedModules} onChange={(vals)=>setSelectedModules(vals as string[])}>
+                  <Stack spacing={2}>
+                    {availableModules.map(m => (
+                      <Checkbox key={m.key} value={m.key}>{m.label}</Checkbox>
+                    ))}
+                  </Stack>
+                </CheckboxGroup>
+                <Text fontSize="xs" color="gray.500" mt={1}>Only selected modules will be accessible by the user.</Text>
+              </FormControl>
+
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="medium">Region Access Levels</FormLabel>
+                <Stack spacing={3}>
+                  {newAssignment.assigned_states.map(state => (
+                    <Box key={state} borderWidth="1px" borderRadius="md" p={3}>
+                      <HStack justify="space-between" mb={2}>
+                        <Text fontWeight="medium">{state}</Text>
+                        <Badge>{regionAccess[state] || 'view'}</Badge>
+                      </HStack>
+                      <Stack direction="row" spacing={4}>
+                        <Checkbox isChecked={regionAccess[state] === 'view'} onChange={() => setRegionAccess(prev => ({ ...prev, [state]: 'view' }))}>View</Checkbox>
+                        <Checkbox isChecked={regionAccess[state] === 'edit'} onChange={() => setRegionAccess(prev => ({ ...prev, [state]: 'edit' }))}>Edit</Checkbox>
+                        <Checkbox isChecked={regionAccess[state] === 'admin'} onChange={() => setRegionAccess(prev => ({ ...prev, [state]: 'admin' }))}>Admin</Checkbox>
+                      </Stack>
+                    </Box>
+                  ))}
+                </Stack>
+                <Text fontSize="xs" color="gray.500" mt={1}>Set per-state access level (view/edit/admin).</Text>
+              </FormControl>
+
               <Divider />
 
-              <Button 
-                colorScheme="green" 
-                width="full" 
+              <Button
+                colorScheme="green"
+                width="full"
                 onClick={handleSubmit}
                 isLoading={loading}
                 loadingText="Creating..."

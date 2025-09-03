@@ -4,6 +4,8 @@ import { Session } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
 import { useToast, Center, Spinner } from '@chakra-ui/react';
 
+interface RegionAccessMap { [state: string]: 'view' | 'edit' | 'admin'; }
+
 interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
@@ -12,6 +14,8 @@ interface AuthContextType {
   user: any | null;
   isLoading: boolean;
   assignedRegions: string[];
+  allowedModules: string[];
+  regionAccess: RegionAccessMap;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -24,6 +28,8 @@ export const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
   assignedRegions: [],
+  allowedModules: [],
+  regionAccess: {},
   login: async () => {},
   logout: async () => {},
 });
@@ -36,27 +42,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [assignedRegions, setAssignedRegions] = useState<string[]>([]);
+  const [allowedModules, setAllowedModules] = useState<string[]>([]);
+  const [regionAccess, setRegionAccess] = useState<RegionAccessMap>({});
   const navigate = useNavigate();
   const toast = useToast();
 
-  // Function to fetch user's assigned regions
-  const fetchUserAssignedRegions = async (userEmail: string): Promise<string[]> => {
+  // Fetch user's assigned regions and optional permissions
+  const fetchUserAccess = async (userEmail: string): Promise<{ regions: string[]; modules: string[]; regionMap: RegionAccessMap }> => {
     try {
       const { data, error } = await supabase
         .from('project_assignments')
-        .select('assigned_states')
+        .select('assigned_states, module_access, region_access')
         .eq('assignee_email', userEmail)
         .single();
 
       if (error) {
-        console.warn('No region assignments found for user:', userEmail);
-        return [];
+        console.warn('No assignments found for user:', userEmail);
+        return { regions: [], modules: [], regionMap: {} };
       }
 
-      return data?.assigned_states || [];
+      const regions = (data as any)?.assigned_states || [];
+      const modules = (data as any)?.module_access || [];
+      const regionMap = (data as any)?.region_access || {};
+      return { regions, modules, regionMap };
     } catch (error) {
-      console.error('Error fetching assigned regions:', error);
-      return [];
+      console.error('Error fetching user access:', error);
+      return { regions: [], modules: [], regionMap: {} };
     }
   };
 
@@ -69,6 +80,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsEditor(false);
         setUser(null);
         setAssignedRegions([]);
+        setAllowedModules([]);
+        setRegionAccess({});
         return;
       }
 
@@ -103,9 +116,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       setIsAdmin(adminFlag);
 
-      // Fetch assigned regions for the user
-      const regions = await fetchUserAssignedRegions(sessionEmail);
+      // Ensure a row exists in public.users for management views
+      try {
+        await supabase.from('users').upsert({ id: session.user.id, email: sessionEmail });
+      } catch {}
+
+      // Fetch assigned regions and permissions (defaults allow all modules when not configured)
+      const { regions, modules, regionMap } = await fetchUserAccess(sessionEmail);
       setAssignedRegions(regions);
+      setAllowedModules(Array.isArray(modules) && modules.length > 0 ? modules : ['dashboard','projects','finance','sales','operations','serviceTickets','hr']);
+      setRegionAccess(regionMap || {});
 
       setUser(session.user);
       setIsAuthenticated(true);
@@ -117,6 +137,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsEditor(false);
       setUser(null);
       setAssignedRegions([]);
+      setAllowedModules([]);
+      setRegionAccess({});
     }
   };
 
@@ -199,9 +221,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         setIsAdmin(adminFlag);
 
-        // Fetch assigned regions for the user
-        const regions = await fetchUserAssignedRegions(normalizedEmail);
+        // Ensure a row exists in public.users for management views (will not override role here)
+        try {
+          await supabase.from('users').upsert({ id: data.user.id, email: normalizedEmail });
+        } catch {}
+
+        // Fetch assigned regions and permissions
+        const { regions, modules, regionMap } = await fetchUserAccess(normalizedEmail);
         setAssignedRegions(regions);
+        setAllowedModules(Array.isArray(modules) && modules.length > 0 ? modules : ['dashboard','projects','finance','sales','operations','serviceTickets','hr']);
+        setRegionAccess(regionMap || {});
 
         toast({
           title: 'Login successful',
@@ -210,8 +239,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           isClosable: true,
         });
 
-        // Redirect all users to dashboard
-        navigate('/dashboard');
       }
     } catch (error: any) {
       const message = (error && (error as any).message) || String(error);
@@ -235,6 +262,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsEditor(false);
       setUser(null);
       setAssignedRegions([]);
+      setAllowedModules([]);
+      setRegionAccess({});
 
       // Try to sign out from Supabase, but don't fail if session is missing
       try {
@@ -277,7 +306,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isAdmin, isFinance, isEditor, user, isLoading, assignedRegions, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isAdmin, isFinance, isEditor, user, isLoading, assignedRegions, allowedModules, regionAccess, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

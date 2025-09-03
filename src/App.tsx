@@ -21,9 +21,11 @@ import StockWarehouse from './pages/StockWarehouse';
 import Logistics from './pages/Logistics';
 import Procurement from './pages/Procurement';
 import HR from './pages/HR';
+import UsersManagement from './pages/UsersManagement';
 import ResetPassword from './pages/ResetPassword';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
+import ModuleGuard from './components/ModuleGuard';
 import { AuthProvider } from './context/AuthContext';
 
 // Finance route is handled by PrivateRoute, so this is no longer needed
@@ -86,9 +88,11 @@ const App: React.FC = () => {
                 path="/dashboard"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <Dashboard />
-                    </Layout>
+                    <ModuleGuard moduleKey="dashboard">
+                      <Layout>
+                        <Dashboard />
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -104,9 +108,11 @@ const App: React.FC = () => {
                 path="/dashboard/tg"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Telangana'] }, React.createElement(DashboardTG))}
-                    </Layout>
+                    <ModuleGuard moduleKey="dashboard">
+                      <Layout>
+                        {React.createElement(require('./components/RegionGuard').default, { allowed: ['Telangana'] }, React.createElement(DashboardTG))}
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -114,9 +120,11 @@ const App: React.FC = () => {
                 path="/dashboard/ap"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Andhra Pradesh'] }, React.createElement(DashboardAP))}
-                    </Layout>
+                    <ModuleGuard moduleKey="dashboard">
+                      <Layout>
+                        {React.createElement(require('./components/RegionGuard').default, { allowed: ['Andhra Pradesh'] }, React.createElement(DashboardAP))}
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -124,9 +132,11 @@ const App: React.FC = () => {
                 path="/dashboard/chitoor"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(DashboardChitoor))}
-                    </Layout>
+                    <ModuleGuard moduleKey="dashboard">
+                      <Layout>
+                        {React.createElement(require('./components/RegionGuard').default, { allowed: ['Chitoor'] }, React.createElement(DashboardChitoor))}
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -134,9 +144,11 @@ const App: React.FC = () => {
                 path="/finance"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <Finance />
-                    </Layout>
+                    <ModuleGuard moduleKey="finance">
+                      <Layout>
+                        <Finance />
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -154,9 +166,11 @@ const App: React.FC = () => {
                 path="/projects"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <Projects />
-                    </Layout>
+                    <ModuleGuard moduleKey="projects">
+                      <Layout>
+                        <Projects />
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -174,9 +188,11 @@ const App: React.FC = () => {
                 path="/logistics/modules"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      {React.createElement(require('./components/ModulesPage').default)}
-                    </Layout>
+                    <ModuleGuard moduleKey="operations">
+                      <Layout>
+                        {React.createElement(require('./components/ModulesPage').default)}
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -184,9 +200,11 @@ const App: React.FC = () => {
                 path="/projects/:id"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <ProjectDetails />
-                    </Layout>
+                    <ModuleGuard moduleKey="projects">
+                      <Layout>
+                        <ProjectDetails />
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -194,9 +212,11 @@ const App: React.FC = () => {
                 path="/reports"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <Reports />
-                    </Layout>
+                    <ModuleGuard moduleKey="sales">
+                      <Layout>
+                        <Reports />
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -234,9 +254,11 @@ const App: React.FC = () => {
                 path="/service-tickets"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <ServiceTickets />
-                    </Layout>
+                    <ModuleGuard moduleKey="serviceTickets">
+                      <Layout>
+                        <ServiceTickets />
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -291,12 +313,24 @@ const App: React.FC = () => {
                 }
               />
               <Route
-                path="/stock"
+                path="/admin/users"
                 element={
                   <PrivateRoute>
                     <Layout>
-                      <StockWarehouse />
+                      <UsersManagement />
                     </Layout>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/stock"
+                element={
+                  <PrivateRoute>
+                    <ModuleGuard moduleKey="operations">
+                      <Layout>
+                        <StockWarehouse />
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -304,9 +338,11 @@ const App: React.FC = () => {
                 path="/procurement"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <Procurement />
-                    </Layout>
+                    <ModuleGuard moduleKey="operations">
+                      <Layout>
+                        <Procurement />
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -314,9 +350,11 @@ const App: React.FC = () => {
                 path="/logistics"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      <Logistics />
-                    </Layout>
+                    <ModuleGuard moduleKey="operations">
+                      <Layout>
+                        <Logistics />
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
@@ -324,8 +362,20 @@ const App: React.FC = () => {
                 path="/hr"
                 element={
                   <PrivateRoute>
+                    <ModuleGuard moduleKey="hr">
+                      <Layout>
+                        <HR />
+                      </Layout>
+                    </ModuleGuard>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/hr/users"
+                element={
+                  <PrivateRoute>
                     <Layout>
-                      <HR />
+                      <UsersManagement />
                     </Layout>
                   </PrivateRoute>
                 }
