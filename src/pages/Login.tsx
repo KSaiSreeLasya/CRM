@@ -19,6 +19,7 @@ import {
   Stack,
   HStack,
   Icon,
+  Image,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -40,7 +41,7 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard', { replace: true });
+      navigate('/welcome', { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
@@ -70,10 +71,12 @@ const Login = () => {
     return (
       <Center h="100vh" bg={bgColor}>
         <VStack spacing={4}>
-          <img
+          <Image
             src="https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F5065c74f0a374ff4a36efc224f468f09?format=webp&width=800"
             alt="Axiso Green Energy Logo"
-            style={{ height: '80px', width: 'auto' }}
+            h="80px"
+            w="auto"
+            objectFit="contain"
           />
           <Spinner size="xl" color="green.500" thickness="4px" />
           <Text fontSize="lg" color="gray.600">Loading...</Text>
@@ -89,10 +92,12 @@ const Login = () => {
           <Stack spacing="6">
             <Stack spacing={{ base: '2', md: '3' }} textAlign="center">
               <Flex justify="center" align="center" mb={4}>
-                <img
+                <Image
                   src="https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F5065c74f0a374ff4a36efc224f468f09?format=webp&width=800"
                   alt="Axiso Green Energy Logo"
-                  style={{ height: '60px', width: 'auto' }}
+                  h="60px"
+                  w="auto"
+                  objectFit="contain"
                 />
               </Flex>
               <Heading size={{ base: 'xs', md: 'sm' }} color="green.600">
@@ -213,6 +218,16 @@ const Login = () => {
             </form>
           </Box>
         </Stack>
+        <Box mt={8} textAlign="center" px={{ base: 4, md: 0 }}>
+          <Heading size="sm" color="green.600" mb={2}>Our Mission</Heading>
+          <Text color="gray.600" fontSize={{ base: 'sm', md: 'md' }}>
+            To accelerate clean energy adoption by delivering reliable solar solutions, transparent processes, and exceptional service.
+          </Text>
+          <Heading size="sm" color="green.600" mt={6} mb={2}>Our Vision</Heading>
+          <Text color="gray.600" fontSize={{ base: 'sm', md: 'md' }}>
+            A sustainable future powered by affordable, clean energy for every business and home we serve.
+          </Text>
+        </Box>
       </Container>
     </Box>
   );
