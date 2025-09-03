@@ -135,6 +135,7 @@ const DashboardChitoor = () => {
     totalKWH: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [statusCounts, setStatusCounts] = useState<Record<string, number>>({});
   const [sortBy, setSortBy] = useState<'date' | 'amount' | 'stage'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [activeProjects, setActiveProjects] = useState<ChitoorProject[]>([]);
