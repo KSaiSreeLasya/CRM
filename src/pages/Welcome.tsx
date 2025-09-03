@@ -47,7 +47,7 @@ const Welcome: React.FC = () => {
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const titleColor = useColorModeValue('gray.700', 'gray.200');
-  const { logout, user, isFinance, isAdmin, login } = useAuth();
+  const { logout, user, isFinance, isAdmin } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -78,14 +78,11 @@ const Welcome: React.FC = () => {
   };
 
   const handleHRAccess = async () => {
-    try {
-      await login('yellesh@axisogreen.in', 'yellesh@2024');
-      toast({ title: 'Logged in as HR', status: 'success', duration: 3000, isClosable: true });
+    if (user?.email?.toLowerCase() === 'yellesh@axisogreen.in') {
       navigate('/hr');
-    } catch (e: any) {
-      toast({ title: 'HR login failed', description: e?.message || String(e), status: 'error', duration: 5000, isClosable: true });
-      navigate('/login');
+      return;
     }
+    navigate('/login', { state: { fromHR: true } });
   };
 
   return (
