@@ -42,12 +42,21 @@ const Welcome: React.FC = () => {
 
   return (
     <Box>
-      <Flex mb={6} justify="space-between" align="center">
+      <Flex mb={6} align="center" gap={4} wrap="wrap">
+        <Image src="https://cdn.builder.io/api/v1/image/assets%2F2f195b82614d46a0b777d649ad418b24%2F5065c74f0a374ff4a36efc224f468f09?format=webp&width=800" alt="Axiso Green Energy Logo" h={{ base: '36px', md: '48px' }} w="auto" objectFit="contain" />
         <Box>
-          <Heading size={{ base: 'md', md: 'lg' }} color="green.600">Welcome</Heading>
-          <Text color={titleColor} mt={2}>Choose a module to continue</Text>
+          <Heading size={{ base: 'sm', md: 'md' }} color="green.600">Axiso Green Energy</Heading>
+          <Text color={titleColor} fontSize={{ base: 'xs', md: 'sm' }}>Sustainable Energy Platform</Text>
         </Box>
-        <Button onClick={handleLogout} colorScheme="red" variant="outline" size="sm">Logout</Button>
+        <Spacer />
+        <HStack spacing={3} align="center">
+          <Avatar size="sm" name={user?.email || 'User'} />
+          <Box textAlign="right">
+            <Text fontSize="sm" fontWeight="medium">{user?.email?.split('@')[0] || 'User'}</Text>
+            <Text fontSize="xs" color="gray.500">{isFinance ? 'Finance User' : 'Standard User'}</Text>
+          </Box>
+          <Button onClick={handleLogout} colorScheme="red" variant="outline" size="sm">Logout</Button>
+        </HStack>
       </Flex>
 
       {/* Mobile: horizontal scroll tiles */}
