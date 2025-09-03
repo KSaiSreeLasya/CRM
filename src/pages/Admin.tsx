@@ -137,7 +137,7 @@ const AdminDashboard = () => {
       }
 
       toast({ title: 'Invitation sent', description: 'If email confirmations are enabled, the user must verify their email.', status: 'success', duration: 6000, isClosable: true });
-      setNewUser({ email: '', password: '' });
+      setNewUser({ email: '', password: '', role: 'user' });
       onUserClose();
     } catch (e: any) {
       toast({ title: 'Failed to create user', description: e?.message || String(e), status: 'error', duration: 6000, isClosable: true });
