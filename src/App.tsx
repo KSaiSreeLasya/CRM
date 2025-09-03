@@ -120,9 +120,11 @@ const App: React.FC = () => {
                 path="/dashboard/ap"
                 element={
                   <PrivateRoute>
-                    <Layout>
-                      {React.createElement(require('./components/RegionGuard').default, { allowed: ['Andhra Pradesh'] }, React.createElement(DashboardAP))}
-                    </Layout>
+                    <ModuleGuard moduleKey="dashboard">
+                      <Layout>
+                        {React.createElement(require('./components/RegionGuard').default, { allowed: ['Andhra Pradesh'] }, React.createElement(DashboardAP))}
+                      </Layout>
+                    </ModuleGuard>
                   </PrivateRoute>
                 }
               />
