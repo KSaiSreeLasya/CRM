@@ -237,6 +237,20 @@ const Welcome: React.FC = () => {
         </>
       )}
 
+      {/* No Access Modal */}
+      <Modal isOpen={isDeniedOpen} onClose={onDeniedClose} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>No access</ModalHeader>
+          <ModalBody>
+            <Text color={titleColor}>You don't have permission to view this module.</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="green" onClick={onDeniedClose}>Back</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
       {/* Admin Access Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
