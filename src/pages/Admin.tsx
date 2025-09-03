@@ -666,8 +666,8 @@ const AdminDashboard = () => {
 
               <FormControl isRequired>
                 <FormLabel fontSize="sm" fontWeight="medium">Assigned States</FormLabel>
-                <CheckboxGroup 
-                  value={newAssignment.assigned_states} 
+                <CheckboxGroup
+                  value={newAssignment.assigned_states}
                   onChange={handleStatesChange}
                 >
                   <Stack spacing={2}>
@@ -683,11 +683,43 @@ const AdminDashboard = () => {
                 </Text>
               </FormControl>
 
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="medium">Module Access</FormLabel>
+                <CheckboxGroup value={selectedModules} onChange={(vals)=>setSelectedModules(vals as string[])}>
+                  <Stack spacing={2}>
+                    {availableModules.map(m => (
+                      <Checkbox key={m.key} value={m.key}>{m.label}</Checkbox>
+                    ))}
+                  </Stack>
+                </CheckboxGroup>
+                <Text fontSize="xs" color="gray.500" mt={1}>Only selected modules will be accessible by the user.</Text>
+              </FormControl>
+
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="medium">Region Access Levels</FormLabel>
+                <Stack spacing={3}>
+                  {newAssignment.assigned_states.map(state => (
+                    <Box key={state} borderWidth="1px" borderRadius="md" p={3}>
+                      <HStack justify="space-between" mb={2}>
+                        <Text fontWeight="medium">{state}</Text>
+                        <Badge>{regionAccess[state] || 'view'}</Badge>
+                      </HStack>
+                      <Stack direction="row" spacing={4}>
+                        <Checkbox isChecked={regionAccess[state] === 'view'} onChange={() => setRegionAccess(prev => ({ ...prev, [state]: 'view' }))}>View</Checkbox>
+                        <Checkbox isChecked={regionAccess[state] === 'edit'} onChange={() => setRegionAccess(prev => ({ ...prev, [state]: 'edit' }))}>Edit</Checkbox>
+                        <Checkbox isChecked={regionAccess[state] === 'admin'} onChange={() => setRegionAccess(prev => ({ ...prev, [state]: 'admin' }))}>Admin</Checkbox>
+                      </Stack>
+                    </Box>
+                  ))}
+                </Stack>
+                <Text fontSize="xs" color="gray.500" mt={1}>Set per-state access level (view/edit/admin).</Text>
+              </FormControl>
+
               <Divider />
 
-              <Button 
-                colorScheme="green" 
-                width="full" 
+              <Button
+                colorScheme="green"
+                width="full"
                 onClick={handleSubmit}
                 isLoading={loading}
                 loadingText="Creating..."
