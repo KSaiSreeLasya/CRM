@@ -88,10 +88,10 @@ export async function generatePaymentReceiptPDF({ date, amount, receivedFrom, pa
     doc.rect(0, 0, pageWidth, 8, 'F');
     
     // Company name - large and prominent
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(22);
-    doc.setTextColor(72, 187, 120);
-    doc.text('AXISO GREEN ENERGIES PRIVATE LIMITED', margin, 25);
+    // doc.setFont('helvetica', 'bold');
+   // doc.setFontSize(22);
+    // doc.setTextColor(72, 187, 120);
+   // doc.text('AXISO GREEN ENERGIES PRIVATE LIMITED', margin, 25);
     
     // Tagline
     doc.setFont('helvetica', 'normal');
