@@ -1,6 +1,6 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { Center, Spinner } from '@chakra-ui/react';
+import { Navigate, Link as RouterLink } from 'react-router-dom';
+import { Center, Spinner, Box, Text, Button } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
 
 const ModuleGuard: React.FC<{ moduleKey: string; children: React.ReactNode }> = ({ moduleKey, children }) => {
@@ -20,9 +20,19 @@ const ModuleGuard: React.FC<{ moduleKey: string; children: React.ReactNode }> = 
 
   if (isAdmin) return <>{children}</>;
 
-  const allowed = Array.isArray(allowedModules) && allowedModules.includes(moduleKey);
+  const allowedList = Array.isArray(allowedModules) ? allowedModules : [];
+  const isOpenAccess = allowedList.length === 0; // no explicit restrictions configured
+  const allowed = isOpenAccess || allowedList.includes(moduleKey);
   if (!allowed) {
-    return <Navigate to="/welcome" replace />;
+    return (
+      <Center h="100vh">
+        <Box textAlign="center">
+          <Text fontSize="xl" color="red.500" mb={2}>No access</Text>
+          <Text color="gray.600" mb={4}>You don't have permission to view this module.</Text>
+          <Button as={RouterLink} to="/welcome" colorScheme="green">Back</Button>
+        </Box>
+      </Center>
+    );
   }
 
   return <>{children}</>;

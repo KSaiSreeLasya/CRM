@@ -42,10 +42,12 @@ import {
   CheckboxGroup,
   Stack,
   Input,
+  InputGroup,
+  InputRightElement,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 import { formatSupabaseError } from '../utils/error';
-import { AddIcon, EditIcon, DeleteIcon, ChevronDownIcon } from '@chakra-ui/icons';
+import { AddIcon, EditIcon, DeleteIcon, ChevronDownIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 
@@ -57,6 +59,8 @@ interface ProjectAssignment {
   project_count: number;
   created_at: string;
   updated_at: string;
+  module_access?: string[];
+  region_access?: { [state: string]: 'view' | 'edit' | 'admin' };
 }
 
 interface StatsCardProps {
@@ -123,6 +127,7 @@ const AdminDashboard = () => {
   const [regionAccess, setRegionAccess] = useState<{ [state: string]: 'view' | 'edit' | 'admin' }>({});
   const [loading, setLoading] = useState(false);
   const [newUser, setNewUser] = useState({ email: '', password: '', role: 'user' });
+  const [showNewPw, setShowNewPw] = useState(false);
 
   const handleCreateUser = async () => {
     try {
@@ -327,6 +332,8 @@ const AdminDashboard = () => {
       assignee_name: assignment.assignee_name,
       assigned_states: assignment.assigned_states,
     });
+    setSelectedModules(Array.isArray(assignment.module_access) ? assignment.module_access : []);
+    setRegionAccess(assignment.region_access || {});
     onEditOpen();
   };
 
@@ -336,14 +343,31 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       
-      const { error } = await supabase
+      const updatePayload: any = {
+        assignee_email: newAssignment.assignee_email,
+        assignee_name: newAssignment.assignee_name,
+        assigned_states: newAssignment.assigned_states,
+      };
+      if (Array.isArray(selectedModules)) updatePayload.module_access = selectedModules;
+      if (regionAccess && Object.keys(regionAccess).length > 0) updatePayload.region_access = regionAccess;
+
+      let { error } = await supabase
         .from('project_assignments')
-        .update({
+        .update(updatePayload)
+        .eq('id', editingAssignment.id);
+
+      if (error && String((error as any).message || error).toLowerCase().includes('column')) {
+        const fallback = {
           assignee_email: newAssignment.assignee_email,
           assignee_name: newAssignment.assignee_name,
           assigned_states: newAssignment.assigned_states,
-        })
-        .eq('id', editingAssignment.id);
+        };
+        const retry = await supabase
+          .from('project_assignments')
+          .update(fallback)
+          .eq('id', editingAssignment.id);
+        error = retry.error as any;
+      }
 
       if (error) {
         console.error('Supabase error:', (error as any)?.message || error, error);
@@ -755,7 +779,12 @@ const AdminDashboard = () => {
               </FormControl>
               <FormControl isRequired>
                 <FormLabel fontSize="sm" fontWeight="medium">Password</FormLabel>
-                <Input type="password" value={newUser.password} onChange={(e)=>setNewUser({ ...newUser, password: e.target.value })} placeholder="Min 6 characters" />
+                <InputGroup>
+                  <Input type={showNewPw ? 'text' : 'password'} value={newUser.password} onChange={(e)=>setNewUser({ ...newUser, password: e.target.value })} placeholder="Min 6 characters" />
+                  <InputRightElement width="3rem">
+                    <IconButton aria-label={showNewPw ? 'Hide password' : 'Show password'} icon={showNewPw ? <ViewOffIcon /> : <ViewIcon />} size="sm" variant="ghost" onClick={() => setShowNewPw(v=>!v)} />
+                  </InputRightElement>
+                </InputGroup>
               </FormControl>
               <FormControl isRequired>
                 <FormLabel fontSize="sm" fontWeight="medium">Role</FormLabel>
@@ -815,8 +844,8 @@ const AdminDashboard = () => {
 
               <FormControl isRequired>
                 <FormLabel fontSize="sm" fontWeight="medium">Assigned States</FormLabel>
-                <CheckboxGroup 
-                  value={newAssignment.assigned_states} 
+                <CheckboxGroup
+                  value={newAssignment.assigned_states}
                   onChange={handleStatesChange}
                 >
                   <Stack spacing={2}>
@@ -832,11 +861,43 @@ const AdminDashboard = () => {
                 </Text>
               </FormControl>
 
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="medium">Module Access</FormLabel>
+                <CheckboxGroup value={selectedModules} onChange={(vals)=>setSelectedModules(vals as string[])}>
+                  <Stack spacing={2}>
+                    {availableModules.map(m => (
+                      <Checkbox key={m.key} value={m.key}>{m.label}</Checkbox>
+                    ))}
+                  </Stack>
+                </CheckboxGroup>
+                <Text fontSize="xs" color="gray.500" mt={1}>Only selected modules will be accessible by the user.</Text>
+              </FormControl>
+
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="medium">Region Access Levels</FormLabel>
+                <Stack spacing={3}>
+                  {newAssignment.assigned_states.map(state => (
+                    <Box key={state} borderWidth="1px" borderRadius="md" p={3}>
+                      <HStack justify="space-between" mb={2}>
+                        <Text fontWeight="medium">{state}</Text>
+                        <Badge>{regionAccess[state] || 'view'}</Badge>
+                      </HStack>
+                      <Stack direction="row" spacing={4}>
+                        <Checkbox isChecked={regionAccess[state] === 'view'} onChange={() => setRegionAccess(prev => ({ ...prev, [state]: 'view' }))}>View</Checkbox>
+                        <Checkbox isChecked={regionAccess[state] === 'edit'} onChange={() => setRegionAccess(prev => ({ ...prev, [state]: 'edit' }))}>Edit</Checkbox>
+                        <Checkbox isChecked={regionAccess[state] === 'admin'} onChange={() => setRegionAccess(prev => ({ ...prev, [state]: 'admin' }))}>Admin</Checkbox>
+                      </Stack>
+                    </Box>
+                  ))}
+                </Stack>
+                <Text fontSize="xs" color="gray.500" mt={1}>Set per-state access level (view/edit/admin).</Text>
+              </FormControl>
+
               <Divider />
 
-              <Button 
-                colorScheme="blue" 
-                width="full" 
+              <Button
+                colorScheme="blue"
+                width="full"
                 onClick={handleUpdate}
                 isLoading={loading}
                 loadingText="Updating..."

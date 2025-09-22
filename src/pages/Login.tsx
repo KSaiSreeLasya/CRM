@@ -56,12 +56,12 @@ const Login = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
     const fromHR = (location.state as any)?.fromHR;
-    if (user?.email?.toLowerCase() === 'yellesh@axisogreen.in') {
+    if (fromHR) {
       navigate('/hr', { replace: true });
-    } else if (!fromHR) {
+    } else {
       navigate('/welcome', { replace: true });
     }
-  }, [isAuthenticated, user, location.state, navigate]);
+  }, [isAuthenticated, location.state, navigate]);
 
   useEffect(() => {
     const fromHR = (location.state as any)?.fromHR;
@@ -78,12 +78,8 @@ const Login = () => {
 
     try {
       await login(email, password);
-      const normalizedEmail = email.trim().toLowerCase();
-      if (normalizedEmail === 'yellesh@axisogreen.in') {
-        navigate('/hr', { replace: true });
-      } else {
-        navigate('/welcome', { replace: true });
-      }
+      const fromHR = (location.state as any)?.fromHR;
+      navigate(fromHR ? '/hr' : '/welcome', { replace: true });
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
